@@ -56,6 +56,8 @@ export interface Project {
   description: string;
   category: string;
   technologies: string[];
+  /** Thumbnail path under /public, e.g. "/projects/my-project.png". Falls back to a category icon. */
+  image?: string;
   role?: string;
   github?: string;
   liveUrl?: string;
@@ -100,13 +102,37 @@ export interface Publication {
   status: "Presented" | "Accepted" | "In Progress" | "Submitted";
 }
 
-export interface Achievement {
+export type CertificateCategory = "Course" | "Hackathon" | "Conference";
+
+export interface Certificate {
   id: string;
   title: string;
-  category: "Academic" | "Research" | "Conference" | "Professional" | "Certification";
-  issuer?: string;
+  issuer: string;
+  category: CertificateCategory;
   date?: string;
-  description: string;
+  description?: string;
+  /** Path under /public, e.g. "/achievements/certificates/aws.jpg" */
+  image?: string;
+  /** Verification / credential URL */
   link?: string;
-  isPlaceholder?: boolean;
+}
+
+export interface NewsItem {
+  id: string;
+  title: string;
+  /** Publication or outlet, e.g. "Daily News" */
+  source: string;
+  date?: string;
+  summary?: string;
+  /** Path under /public, e.g. "/achievements/news/icode.jpg" */
+  image?: string;
+  /** Link to the original article */
+  link?: string;
+}
+
+export interface GalleryImage {
+  id: string;
+  /** Path under /public, e.g. "/achievements/gallery/award-night.jpg" */
+  src: string;
+  caption: string;
 }

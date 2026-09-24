@@ -4,12 +4,11 @@ import { Container } from "@/components/ui/container";
 import { SectionHeading } from "@/components/ui/section-heading";
 import { Button } from "@/components/ui/button";
 import { Reveal } from "@/components/motion/reveal";
-import { ProjectCard } from "@/components/projects/project-card";
+import { ProjectCarousel } from "@/components/projects/project-carousel";
 import { projects } from "@/data/projects";
 
 export function ProjectsPreview() {
-  const featured = projects.filter((p) => p.featured).slice(0, 2);
-  const rest = projects.filter((p) => !p.featured).slice(0, 2);
+  const ordered = [...projects.filter((p) => p.featured), ...projects.filter((p) => !p.featured)];
 
   return (
     <section id="projects" className="scroll-mt-24 border-t border-border py-20 sm:py-28">
@@ -33,23 +32,9 @@ export function ProjectsPreview() {
           </div>
         </Reveal>
 
-        <div className="grid gap-6 lg:grid-cols-2">
-          {featured.map((project, i) => (
-            <Reveal key={project.slug} delay={i * 0.05}>
-              <ProjectCard project={project} featured />
-            </Reveal>
-          ))}
-        </div>
-
-        {rest.length > 0 && (
-          <div className="grid gap-6 sm:grid-cols-2">
-            {rest.map((project, i) => (
-              <Reveal key={project.slug} delay={i * 0.05}>
-                <ProjectCard project={project} />
-              </Reveal>
-            ))}
-          </div>
-        )}
+        <Reveal>
+          <ProjectCarousel projects={ordered} />
+        </Reveal>
       </Container>
     </section>
   );

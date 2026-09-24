@@ -1,7 +1,7 @@
-import Link from "next/link";
-import { ArrowUpRight } from "lucide-react";
+import { ExternalLink } from "lucide-react";
 import { GithubIcon } from "@/components/icons/brand-icons";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { ProjectThumb } from "@/components/projects/project-thumb";
 import type { Project } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -17,7 +17,13 @@ export function ProjectCard({ project, featured = false }: { project: Project; f
         featured && "sm:p-6"
       )}
     >
-      <ProjectThumb category={project.category} className={featured ? "aspect-[16/9]" : "aspect-[16/10]"} />
+      <ProjectThumb
+        category={project.category}
+        image={project.image}
+        alt={`${project.title} screenshot`}
+        sizes="(min-width: 1024px) 400px, (min-width: 640px) 50vw, 100vw"
+        className={featured ? "aspect-[16/9]" : "aspect-[16/10]"}
+      />
 
       <div className="flex flex-1 flex-col gap-3">
         <div className="flex items-start justify-between gap-3">
@@ -33,13 +39,7 @@ export function ProjectCard({ project, featured = false }: { project: Project; f
               )}
             </div>
             <h3 className={cn("mt-2 font-semibold tracking-tight", featured ? "text-xl" : "text-lg")}>
-              {project.caseStudy ? (
-                <Link href={`/projects/${project.slug}`} className="hover:text-primary">
-                  {project.title}
-                </Link>
-              ) : (
-                project.title
-              )}
+              {project.title}
             </h3>
           </div>
         </div>
@@ -55,14 +55,6 @@ export function ProjectCard({ project, featured = false }: { project: Project; f
         </div>
 
         <div className="flex items-center gap-4 pt-1 text-sm">
-          {project.caseStudy && (
-            <Link
-              href={`/projects/${project.slug}`}
-              className="inline-flex items-center gap-1 font-medium text-primary hover:underline"
-            >
-              Case study <ArrowUpRight className="size-3.5" />
-            </Link>
-          )}
           {hasRealLinks && project.github && project.github !== "#" && (
             <a
               href={project.github}
@@ -74,14 +66,16 @@ export function ProjectCard({ project, featured = false }: { project: Project; f
             </a>
           )}
           {hasRealLinks && project.liveUrl && project.liveUrl !== "#" && (
-            <a
-              href={project.liveUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 text-muted-foreground hover:text-foreground"
-            >
-              Live <ArrowUpRight className="size-3.5" />
-            </a>
+            <Button
+              size="sm"
+              className="ml-auto"
+              nativeButton={false}
+              render={
+                <a href={project.liveUrl} target="_blank" rel="noopener noreferrer">
+                  Live Demo <ExternalLink data-icon="inline-end" />
+                </a>
+              }
+            />
           )}
         </div>
       </div>

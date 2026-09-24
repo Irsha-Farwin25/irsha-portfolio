@@ -11,19 +11,20 @@ import type { Project } from "@/lib/types";
 export const projects: Project[] = [
   {
     slug: "government-digital-services-portal",
-    title: "[Government Digital Services Portal]",
+    title: "UDA Mother Lanka Digital Platform",
     description:
-      "[One or two sentences on a government-facing platform you built or contributed to — what it does and who uses it.]",
+      "A citizen-engagement platform for gathering public feedback on development plans and regulatory frameworks, facilitating real-time stakeholder dialogue, and providing access to urban planning resources.",
     category: "Web Platform",
-    technologies: ["Next.js", "React", "Laravel", "MySQL", "REST APIs"],
+    technologies: ["Next.js", "Laravel"],
+    image: "/projects/MLDW.jpg",
     role: "[Your role, e.g. Full-Stack Engineer]",
     github: "#",
-    liveUrl: "#",
+    liveUrl: "https://motherlanka.uda.lk/en",
     featured: true,
     isPlaceholder: true,
     caseStudy: {
       overview:
-        "[Summarize the platform in 2-3 sentences: what problem it solves, who the users are, and the scale it operates at.]",
+        "This initiative underscores the UDA’s commitment to embracing digital innovation, strengthening governance, and fostering open dialogue, knowledge sharing, and active citizen participation in shaping the future of Sri Lanka’s urban landscape.",
       problem:
         "[Describe the manual or inefficient process this replaced, and why it mattered for the organization or public users.]",
       context:
@@ -35,9 +36,10 @@ export const projects: Project[] = [
       architecture:
         "[Describe the system architecture — frontend/backend split, database design, third-party integrations, hosting.]",
       keyFeatures: [
-        "[Key feature one]",
-        "[Key feature two]",
-        "[Key feature three]",
+        "Gathering public feedback on development plans and regulatory frameworks",
+        "Facilitating real-time dialogue and stakeholder interaction",
+        "Providing access to urban planning resources and information",
+        "Enhancing transparency and enabling inclusive, evidence-based decision-making",
       ],
       challenges: [
         "[A real technical or organizational challenge you solved.]",
@@ -52,54 +54,91 @@ export const projects: Project[] = [
   },
   {
     slug: "ai-career-guidance-platform",
-    title: "[AI-Powered University & Career Guidance Platform]",
+    title: "PathwayAI — University & Career Guidance Platform",
     description:
-      "[Describe this as your MSc research-adjacent project — connects to the ICODE 2026 research presentation.]",
+      "An AI-powered guidance platform for Sri Lankan G.C.E. A/L students — upload your results and get personalised university pathway recommendations shaped by your interests and preferences. Part of my MSc research, presented at ICODE 2026.",
     category: "AI / Research",
     technologies: ["Python", "Machine Learning", "Next.js", "REST APIs"],
+    image: "/projects/CareerGuidance.jpg",
     role: "[Your role, e.g. Research & Development]",
     github: "#",
-    liveUrl: "#",
+    liveUrl: "https://project-ai-university-advisor-platform-485.magicpatterns.app/",
     featured: true,
     isPlaceholder: true,
     caseStudy: {
       overview:
-        "[Summarize the research prototype: what equitable-access problem it addresses for students in Sri Lanka.]",
+        "PathwayAI is a research prototype designed to give students in Sri Lanka more equitable access to university and career guidance. Students upload a screenshot of their official G.C.E. A/L results, and the platform guides them through their interests and preferences to recommend suitable university pathways.",
       problem:
         "[Describe the access/guidance gap this project is designed to address.]",
       context:
-        "[Describe how this connects to your MSc research and the ICODE 2026 presentation.]",
+        "Built as part of ongoing MSc research into practical, socially-grounded applications of artificial intelligence, and presented at ICODE 2026.",
       myRole: "[Describe your role in designing, building, and evaluating the system.]",
-      solution: "[Describe the system's approach at a high level — recommendation logic, data sources, UX.]",
+      solution:
+        "A guided four-step flow — Results, Interests, Recommendations, Preferences. Students upload their Department of Examinations A/L results page (PNG, JPG or PDF), which is read via OCR, then refine recommendations by interest and preference, and can compare and shortlist programmes.",
       architecture: "[Describe the technical architecture — model, data pipeline, application layer.]",
-      keyFeatures: ["[Key feature one]", "[Key feature two]"],
+      keyFeatures: [
+        "Upload A/L results as a screenshot or PDF, with OCR extraction",
+        "Privacy-first design — results are processed on the student's device",
+        "Step-by-step guidance from results to interests, recommendations, and preferences",
+        "Compare university programmes side by side and save a personal shortlist",
+        "Sample result mode to explore the platform without uploading real data",
+      ],
       challenges: ["[A real challenge in building or evaluating the system.]"],
       decisions: ["[A design or modeling decision and its reasoning.]"],
-      outcome: "[Describe current status — research prototype, presented at ICODE 2026, etc.]",
+      outcome:
+        "Research prototype with an interactive demo; the underlying research was presented at ICODE 2026.",
     },
   },
   {
-    slug: "complaint-management-system",
-    title: "[Citizen Complaint Management System]",
+    slug: "beauty-for-ashes-construction",
+    title: "Beauty for Ashes Construction",
     description:
-      "[Describe a complaint-intake and tracking system — submission, routing, and resolution workflow.]",
-    category: "Government Tech",
-    technologies: ["Laravel", "PHP", "MySQL", "REST APIs"],
+      "Company website for an award-winning Northwest Arkansas builder, showcasing custom homes, whole-home remodels, and major additions — with featured projects, client testimonials, and a six-phase build process.",
+    category: "Web Platform",
+    technologies: ["React", "Ruby on Rails"],
+    image: "/projects/Beauty4Ashes.jpg",
     role: "[Your role]",
     github: "#",
-    liveUrl: "#",
+    liveUrl: "https://beauty4ashesconstruction.com/default_home",
     isPlaceholder: true,
   },
   {
     slug: "procurement-bidding-system",
-    title: "[Procurement & Bidding System]",
+    title: "UDA Property Bidding Portal",
     description:
-      "[Describe a bidding/tender platform — vendor submissions, evaluation workflow, administrative oversight.]",
+      "A sealed-bid property tender portal within the UDA Mother Lanka platform, where registered bidders can explore verified government-owned commercial and residential properties and submit confidential bids — with the highest valid bid winning through a transparent process.",
     category: "Government Tech",
     technologies: ["Laravel", "React", "MySQL"],
+    image: "/projects/Bidding.jpg",
     role: "[Your role]",
     github: "#",
-    liveUrl: "#",
+    liveUrl: "https://motherlanka.uda.lk/en/bidding",
+    isPlaceholder: true,
+  },
+  {
+    slug: "uda-financial-management-information-system",
+    title: "Financial Management Information System (UDA)",
+    description:
+      "This initiative aims to facilitate convenient online payments for UDA tenants through a secure, transparent, authorized, and seamless digital payment system, in line with the Government’s efforts to strengthen and expand the national digital economy.",
+    category: "Government Tech",
+    technologies: ["React", "Laravel"],
+    image: "/projects/FMIS.jpg",
+    role: "[Your role]",
+    github: "#",
+    liveUrl: "https://fmis.uda.lk/login",
+    isPlaceholder: true,
+  },
+  {
+    slug: "unicornshift",
+    title: "UnicornShift",
+    description:
+      "AI-powered civil infrastructure platform connecting head contractors with subcontractors — streamlining operations and automating maintenance workflows.",
+    category: "Web Platform",
+    technologies: ["React", "Node.js"],
+    image: "/projects/UnicornShift.PNG",
+    role: "[Your role]",
+    github: "#",
+    liveUrl: "https://share.google/nhPlvrexyh97xZS5G",
     isPlaceholder: true,
   },
 ];

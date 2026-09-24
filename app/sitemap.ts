@@ -1,6 +1,5 @@
 import type { MetadataRoute } from "next";
 import { site } from "@/data/site";
-import { projects } from "@/data/projects";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const staticRoutes: MetadataRoute.Sitemap = [
@@ -9,13 +8,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${site.url}/research`, changeFrequency: "monthly", priority: 0.7 },
   ];
 
-  const projectRoutes: MetadataRoute.Sitemap = projects
-    .filter((p) => p.caseStudy)
-    .map((p) => ({
-      url: `${site.url}/projects/${p.slug}`,
-      changeFrequency: "monthly",
-      priority: 0.6,
-    }));
-
-  return [...staticRoutes, ...projectRoutes];
+  // Case-study pages (/projects/[slug]) are built but intentionally unlinked for now —
+  // restore their sitemap entries (filter projects by `caseStudy`) when they go live.
+  return staticRoutes;
 }

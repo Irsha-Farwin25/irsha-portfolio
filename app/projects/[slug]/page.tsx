@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, ArrowUpRight } from "lucide-react";
+import { ArrowLeft, ExternalLink } from "lucide-react";
 import { GithubIcon } from "@/components/icons/brand-icons";
 import { Container } from "@/components/ui/container";
 import { Badge } from "@/components/ui/badge";
@@ -99,7 +99,7 @@ export default async function ProjectDetailPage(
                 nativeButton={false}
                 render={
                   <a href={project.liveUrl} target="_blank" rel="noopener noreferrer">
-                    Live Demo <ArrowUpRight data-icon="inline-end" />
+                    Live Demo <ExternalLink data-icon="inline-end" />
                   </a>
                 }
               />
@@ -107,7 +107,14 @@ export default async function ProjectDetailPage(
           </div>
         </div>
 
-        <ProjectThumb category={project.category} className="aspect-[21/9] w-full" />
+        <ProjectThumb
+          category={project.category}
+          image={project.image}
+          alt={`${project.title} screenshot`}
+          sizes="(min-width: 1152px) 1152px, 100vw"
+          priority
+          className="aspect-[21/9] w-full"
+        />
 
         {cs ? (
           <div className="grid gap-10 lg:grid-cols-[1fr_260px]">

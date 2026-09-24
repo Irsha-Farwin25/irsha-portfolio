@@ -11,15 +11,15 @@ import type { NavItem, SocialLink } from "@/lib/types";
 export const site = {
   name: "Irsha Farwin",
   initials: "IF",
-  role: "Software Engineer · AI Engineer",
-  roleLine: "MSc in Artificial Intelligence | Full Stack Developer | Independent AI Researcher",
+  role: "Software Engineer | AI Engineer",
+  roleLine: "MSc in Artificial Intelligence | Software Engineer | Independent AI Researcher",
   shortRole: "Software Engineer",
   tagline:
     "Building digital products with software engineering and artificial intelligence.",
   description:
     "I'm Irsha Farwin, a software engineer working on real-world digital platforms while pursuing an MSc in Artificial Intelligence.",
   heroBio:
-    "I build production software for government digital platforms, and I'm deepening my grounding in AI through an MSc, hands-on experimentation, and applied research. My day-to-day spans full-stack engineering — from React and Next.js interfaces to Laravel and Node.js backends — with a growing focus on where machine learning can meaningfully improve digital public services. I care about software that's reliable and usable first, intelligent second.",
+    "Software Engineer with 3+ years building production systems for government, civil infrastructure, and public-facing platforms, now pivoting into AI safety research through a Master's in Artificial Intelligence, applied LLM deployment work, and first-author research on equitable, statistically honest AI decision support. Direct experience with the practical challenges of putting AI into high-stakes, citizen-facing environments — where grounding, reliability, and trustworthy behavior matter as much as raw capability. Particular interest in avoiding overstated certainty in AI systems that materially affect people's lives.",
   statusPill: "Open to new opportunities",
   currentlyFocus: "MSc in Artificial Intelligence",
   focusAreas: ["Full-Stack", "AI/ML", "GovTech"],
