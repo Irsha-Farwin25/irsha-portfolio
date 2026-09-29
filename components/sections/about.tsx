@@ -34,7 +34,7 @@ function AboutCard({
 
 export function About() {
   return (
-    <section id="about" className="scroll-mt-24 py-20 sm:py-28">
+    <section id="about" className="scroll-mt-24 border-t border-border py-20 sm:py-28">
       <Container className="flex flex-col gap-12">
         <Reveal>
           <SectionHeading eyebrow="About Me" title="Background & focus" />

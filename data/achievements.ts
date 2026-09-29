@@ -1,4 +1,4 @@
-import type { Certificate, GalleryImage, NewsItem } from "@/lib/types";
+import type { Certificate, GalleryAlbum, NewsItem } from "@/lib/types";
 
 /**
  * Courses, hackathons and conferences — each category is its own tab.
@@ -38,6 +38,14 @@ export const certificates: Certificate[] = [
     description: "Passed the TestDome public MySQL skills test, ranking in the top 25%.",
     image: "/achievements/certificates/testdome-mysql.jpg",
     link: "https://www.testdome.com/certificates/8c233f37407441ebbb3e1408cb02dedb",
+  },
+  {
+    id: "canopylab-strategic-leadership",
+    title: "Strategic Leadership and Sustainable Development",
+    issuer: "CanopyLAB",
+    category: "Course",
+    date: "Jul 2021",
+    image: "/achievements/certificates/volunteering.jpg",
   },
   {
     id: "fcc-responsive-web-design",
@@ -98,12 +106,24 @@ export const certificates: Certificate[] = [
   // Conferences
   {
     id: "icode-2026-presentation",
-    title: "Research presentation accepted — ICODE 2026",
-    issuer: "ICODE 2026",
+    title: "ICODE 2026 — Certificate of Presentation",
+    issuer: "Centre for Open and Distance Learning (CODL), University of Moratuwa",
     category: "Conference",
-    date: "2026",
+    date: "Aug 2026",
     description:
-      "“AI-Powered University and Career Guidance Platform for Equitable Access in Sri Lanka”, presented as part of ongoing MSc research.",
+      "Presented the research paper “AI-Powered University and Career Guidance Platform for Equitable Access in Sri Lanka” at the International Conference on Open and Digital Education.",
+    image: "/achievements/certificates/conference-certificate.png",
+    link: "https://icode.bit.uom.lk/proceedings",
+  },
+  {
+    id: "lincoln-ml-engineers",
+    title: "Machine Learning for Engineers — 2-Day Online Workshop",
+    issuer: "Department of Engineering, Lincoln University College, Sri Lanka",
+    category: "Conference",
+    date: "May 2026",
+    description:
+      "Certificate of participation for a workshop on machine learning and its practical applications in engineering.",
+    image: "/achievements/certificates/workshop.jpg",
   },
   {
     id: "pycon-sl-2022",
@@ -122,11 +142,183 @@ export const certificates: Certificate[] = [
  * { id: "icode-coverage", title: "Headline of the article", source: "Daily News", date: "2026",
  *   summary: "One line on what the story covered.", image: "/achievements/news/icode.jpg", link: "https://..." },
  */
-export const news: NewsItem[] = [];
+export const news: NewsItem[] = [
+  // The first item is shown as the large featured card.
+  {
+    id: "mldw-newswire",
+    title: "UDA unveils 'Mother Lanka' digital public engagement platform",
+    source: "Newswire",
+    date: "Mar 2026",
+    summary: "Newswire's report on the Urban Development Authority's new digital public engagement platform.",
+    image: "/achievements/news/MLDW-Newswire.jpg",
+    link: "https://www.newswire.lk/2026/03/16/uda-unveils-mother-lanka-digital-public-engagement-platform/",
+  },
+  {
+    id: "icode-2026-proceedings",
+    title: "AI-Powered University and Career Guidance Platform for Equitable Access in Sri Lanka",
+    source: "ICODE 2026 Proceedings",
+    date: "Aug 2026",
+    summary:
+      "My abstract and slides, published in Session F: Ethics, Quality Assurance & Governance of the official ICODE 2026 proceedings.",
+    image: "/achievements/news/icode-proceedings.jpg",
+    link: "https://icode.bit.uom.lk/assets/AI-Powered%20University%20_%20Career%20Guidance%20Platform%20for%20Sri%20Lankan%20A_L%20Students-j-VPa90D.pdf",
+    linkLabel: "View slides",
+    extraLinks: [{ label: "ICODE 2026 proceedings", href: "https://icode.bit.uom.lk/proceedings" }],
+  },
+  {
+    id: "mldw-newsfirst",
+    title: "UDA Launches 'Mother Lanka Digital' Platform to Enhance Public Participation in Urban Planning",
+    source: "News 1st",
+    date: "Mar 2026",
+    summary: "Coverage of the launch of the UDA Mother Lanka Digital Platform, which I worked on.",
+    image: "/achievements/news/MLDW-NewsFirst.jpg",
+    link: "https://www.newsfirst.lk/2026/03/16/uda-launches-mother-lanka-digital-platform-to-enhance-public-participation-in-urban-planning",
+  },
+  {
+    id: "fmis-uda-official",
+    title: "Launch of the UDA Financial Management Information System (FMIS)",
+    source: "Urban Development Authority",
+    summary: "Official UDA coverage and photos of the FMIS launch, bringing online payments to UDA tenants.",
+    image: "/achievements/gallery/FMIS-launch-1.jpg",
+    link: "https://www.uda.gov.lk/galleryview.html",
+  },
+];
 
 /**
- * Gallery — put images in /public/achievements/gallery/.
- * Example:
- * { id: "icode-stage", src: "/achievements/gallery/icode-stage.jpg", caption: "Presenting at ICODE 2026" },
+ * Volunteering — one album per organisation. Put images in /public/achievements/volunteering/.
+ * Same shape as gallery albums; the first image is the cover.
  */
-export const gallery: GalleryImage[] = [];
+export const volunteering: GalleryAlbum[] = [
+  {
+    id: "g17-sdg-ambassador",
+    title: "G17 SDG Ambassador — Goal 6",
+    date: "2021",
+    images: [
+      {
+        id: "g17-award",
+        src: "/achievements/volunteering/volunteering-2.jpg",
+        caption:
+          "Receiving an award at the G17 University Ambassadors Consortium ceremony for SDG 6 — Clean Water and Sanitation",
+      },
+      {
+        id: "g17-ceremony",
+        src: "/achievements/volunteering/volunteering-1.jpg",
+        caption: "With fellow SDG ambassadors at the G17 UAC award ceremony",
+      },
+      {
+        id: "g17-project-completion",
+        src: "/achievements/volunteering/ambassdor-project-completion.jpg",
+        caption: "Completed the SDG 6 project “Drinking Water and Sanitation Issues”",
+      },
+      {
+        id: "g17-ambassador-of-the-month",
+        src: "/achievements/volunteering/ambassdor-for-month-appreciation.jpg",
+        caption: "Named an SDG Ambassador of the Month (August) for Goal 6",
+      },
+      {
+        id: "g17-ambassador-selected",
+        src: "/achievements/volunteering/ambassdor-selected.jpg",
+        caption: "Selected as the University of Moratuwa's SDG Ambassador for Goal 6 — 2021",
+      },
+    ],
+  },
+  {
+    id: "majlis-ul-islam",
+    title: "Majlis-Ul-Islam, University of Moratuwa",
+    date: "2019 – 2020",
+    images: [
+      {
+        id: "majlis-service-appreciation",
+        src: "/achievements/certificates/majlis-service-appreciation.jpg",
+        caption: "Volunteering Award from Majlis-Ul-Islam, University of Moratuwa, for service during 2019–2020",
+      },
+    ],
+  },
+];
+
+/**
+ * Gallery — one album per event. Put images in /public/achievements/gallery/.
+ * The first image in each album is its cover.
+ * Example:
+ * { id: "icode-2026", title: "ICODE 2026", date: "Aug 2026", images: [
+ *   { id: "icode-stage", src: "/achievements/gallery/icode-stage.jpg", caption: "Presenting at ICODE 2026" },
+ * ] },
+ */
+export const gallery: GalleryAlbum[] = [
+  {
+    id: "mldw-launch",
+    title: "Mother Lanka Digital Platform launch",
+    date: "Mar 2026",
+    images: [
+      {
+        id: "mldw-launch-team",
+        src: "/achievements/gallery/MLDW-launch-2.jpg",
+        caption:
+          "With Hon. Bimal Rathnayake, Minister of Transport and Highways, and the team at the Mother Lanka Digital Platform launch",
+      },
+      {
+        id: "mldw-launch-go-live",
+        src: "/achievements/gallery/MLDW-launch-3.jpg",
+        caption: "Hon. Bimal Rathnayake taking the Mother Lanka Digital Platform live",
+      },
+      {
+        id: "mldw-launch-ceremony",
+        src: "/achievements/gallery/MLDW-launch-4.jpg",
+        caption: "Launch ceremony of the UDA Mother Lanka Digital Platform",
+      },
+      {
+        id: "mldw-launch-seated",
+        src: "/achievements/gallery/MLDW-launch-1.jpg",
+        caption: "At the Mother Lanka Digital Platform launch",
+      },
+    ],
+  },
+  {
+    id: "icode-2026",
+    title: "ICODE 2026",
+    date: "Aug 2026",
+    images: [
+      {
+        id: "icode-presenting",
+        src: "/achievements/gallery/conference-3.jpg",
+        caption: "Presenting my research on AI-powered university and career guidance at ICODE 2026",
+      },
+      {
+        id: "icode-certificate",
+        src: "/achievements/gallery/conference-2.jpg",
+        caption: "Receiving the Certificate of Presentation at ICODE 2026",
+      },
+      {
+        id: "icode-stage",
+        src: "/achievements/gallery/conference-1.jpg",
+        caption: "ICODE 2026 Research Conference, University of Moratuwa",
+      },
+      {
+        id: "icode-audience",
+        src: "/achievements/gallery/conference-5.jpg",
+        caption: "Opening session of ICODE 2026",
+      },
+      {
+        id: "icode-sessions",
+        src: "/achievements/gallery/conference-4.jpg",
+        caption: "Among fellow presenters at ICODE 2026",
+      },
+      {
+        id: "icode-kit",
+        src: "/achievements/gallery/conference-6.jpg",
+        caption: "ICODE 2026 delegate kit",
+      },
+    ],
+  },
+  {
+    id: "fmis-launch",
+    title: "UDA FMIS launch",
+    images: [
+      {
+        id: "fmis-launch",
+        src: "/achievements/gallery/FMIS-launch-1.jpg",
+        caption: "Launch of UDA's FMIS online tenant payments via GovPay",
+      },
+    ],
+  },
+];

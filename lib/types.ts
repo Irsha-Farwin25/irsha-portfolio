@@ -128,6 +128,10 @@ export interface NewsItem {
   image?: string;
   /** Link to the original article */
   link?: string;
+  /** Button text for the link; defaults to "Read article" */
+  linkLabel?: string;
+  /** Extra buttons shown after the main link */
+  extraLinks?: { label: string; href: string }[];
 }
 
 export interface GalleryImage {
@@ -135,4 +139,13 @@ export interface GalleryImage {
   /** Path under /public, e.g. "/achievements/gallery/award-night.jpg" */
   src: string;
   caption: string;
+}
+
+/** A group of gallery photos from one event, shown as a single card. */
+export interface GalleryAlbum {
+  id: string;
+  title: string;
+  date?: string;
+  /** The first image is the album cover. */
+  images: GalleryImage[];
 }
