@@ -175,12 +175,34 @@ export const news: NewsItem[] = [
     link: "https://www.newsfirst.lk/2026/03/16/uda-launches-mother-lanka-digital-platform-to-enhance-public-participation-in-urban-planning",
   },
   {
-    id: "fmis-uda-official",
-    title: "Launch of the UDA Financial Management Information System (FMIS)",
-    source: "Urban Development Authority",
-    summary: "Official UDA coverage and photos of the FMIS launch, bringing online payments to UDA tenants.",
-    image: "/achievements/gallery/FMIS-launch-1.jpg",
-    link: "https://www.uda.gov.lk/galleryview.html",
+    id: "fmis-dailymirror",
+    title: "Online payment facility introduced for UDA clients",
+    source: "Daily Mirror",
+    date: "Feb 2026",
+    summary:
+      "Daily Mirror's coverage of the UDA's GovPay-powered online payment platform for Peliyagoda Manning Market businesses and UDA apartment residents.",
+    image: "/achievements/news/DailyMirror-FMIS.jpg",
+    link: "https://www.dailymirror.lk/breaking-news/Online-payment-facility-introduced-for-UDA-clients/108-331866",
+  },
+  {
+    id: "fmis-themorning",
+    title: "Govt launches online payment system for UDA clients",
+    source: "The Morning",
+    date: "Feb 2026",
+    summary:
+      "The Morning's coverage of the GovPay-powered online payment platform for Peliyagoda Manning Market and UDA apartment complexes.",
+    image: "/achievements/news/The-Morning.jpg",
+    link: "https://www.themorning.lk/articles/u1QkBdiTeGfmSb5FFSS8",
+  },
+  {
+    id: "fmis-hirunews",
+    title: "UDA launches online payment system at Manning Market",
+    source: "Hiru News",
+    date: "Feb 2026",
+    summary:
+      "Hiru News's coverage of the UDA's GovPay-powered online payment platform launched at Peliyagoda Manning Public Market.",
+    image: "/achievements/news/Hiru-News.jpg",
+    link: "https://hirunews.lk/goldfmnews/444148/uda-launches-online-payment-system-at-manning-market",
   },
 ];
 

@@ -149,3 +149,26 @@ export interface GalleryAlbum {
   /** The first image is the album cover. */
   images: GalleryImage[];
 }
+
+export interface Recommendation {
+  id: string;
+  name: string;
+  /** Recommender's job title / company, e.g. "Software Engineer, UnicornShift" */
+  title: string;
+  /** How they know each other, e.g. "Worked with Irsha on the same team" */
+  relationship: string;
+  date: string;
+  /** Full recommendation text. Use "\n\n" to separate paragraphs. */
+  quote: string;
+  /** LinkedIn-verified recommender (shown with a small badge). */
+  verified?: boolean;
+  /** Short relationship label shown on the card. */
+  kind: "Client" | "Teammate" | "Peer";
+  /**
+   * Pull-quote shown as the card headline. Must be copied verbatim from `quote`
+   * so it can be highlighted in the full text.
+   */
+  highlight: string;
+  /** Shown as the large spotlight card. Only the first featured item is used. */
+  featured?: boolean;
+}

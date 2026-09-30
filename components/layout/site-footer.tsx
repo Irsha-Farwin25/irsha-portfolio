@@ -54,6 +54,27 @@ export function SiteFooter({ hasResume }: { hasResume: boolean }) {
         <div className="flex flex-col-reverse items-start justify-between gap-4 border-t border-border pt-6 sm:flex-row sm:items-center">
           <p className="font-mono text-xs text-muted-foreground">
             © {new Date().getFullYear()} {site.name}. Built with Next.js.
+            <span className="block pt-1 text-muted-foreground/70">
+              3D avatar generated with{" "}
+              <a
+                href="https://www.meshy.ai"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline-offset-2 hover:text-foreground hover:underline"
+              >
+                Meshy
+              </a>{" "}
+              (
+              <a
+                href="https://creativecommons.org/licenses/by/4.0/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline-offset-2 hover:text-foreground hover:underline"
+              >
+                CC BY 4.0
+              </a>
+              ), animated with Mixamo.
+            </span>
           </p>
           <ResumeLink available={hasResume} variant="ghost" />
         </div>

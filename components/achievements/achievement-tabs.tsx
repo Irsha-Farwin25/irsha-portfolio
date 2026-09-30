@@ -31,7 +31,7 @@ export function AchievementTabs({ tabs }: { tabs: AchievementTab[] }) {
 
   return (
     <div className="flex flex-col gap-8">
-      <div className="-mx-6 overflow-x-auto px-6 [scrollbar-width:none] sm:mx-0 sm:px-0 [&::-webkit-scrollbar]:hidden">
+      <div className="-mx-6 flex overflow-x-auto px-6 [scrollbar-width:none] sm:mx-0 sm:justify-center sm:px-0 [&::-webkit-scrollbar]:hidden">
         <div
           role="tablist"
           aria-label="Achievements"

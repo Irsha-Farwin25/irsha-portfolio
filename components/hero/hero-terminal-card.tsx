@@ -1,8 +1,10 @@
+import type { ReactNode } from "react";
 import { ChevronRight, ShieldCheck } from "lucide-react";
 import { Avatar } from "@/components/hero/avatar";
 import { site } from "@/data/site";
 
-export function HeroTerminalCard() {
+/** `action` replaces the decorative "LIVE" chip in the window bar (e.g. the "Ask AI" button). */
+export function HeroTerminalCard({ action }: { action?: ReactNode }) {
   return (
     <div className="w-full max-w-md overflow-hidden rounded-2xl border border-black/5 bg-card shadow-xl shadow-foreground/10 dark:border-white/5">
       <div className="grid grid-cols-3 items-center px-4 py-3">
@@ -14,9 +16,13 @@ export function HeroTerminalCard() {
         <span className="justify-self-center whitespace-nowrap font-mono text-xs text-muted-foreground">
           irsha.config.ts
         </span>
-        <span className="justify-self-end rounded-full border border-border bg-secondary px-2 py-0.5 font-mono text-[10px] text-muted-foreground">
-          LIVE
-        </span>
+        {action ? (
+          <div className="justify-self-end">{action}</div>
+        ) : (
+          <span className="justify-self-end rounded-full border border-border bg-secondary px-2 py-0.5 font-mono text-[10px] text-muted-foreground">
+            LIVE
+          </span>
+        )}
       </div>
       <div className="mx-4 border-t border-border/50" aria-hidden="true" />
 

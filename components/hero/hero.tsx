@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Container } from "@/components/ui/container";
 import { Reveal } from "@/components/motion/reveal";
 import { HeroTerminalCard } from "@/components/hero/hero-terminal-card";
+import { AskAiButton, HeroFlipCard } from "@/components/hero/hero-flip-card";
 import { HeroBackground } from "@/components/hero/hero-background";
 import { ResumeLink } from "@/components/layout/resume-link";
 import { GithubIcon, LinkedinIcon } from "@/components/icons/brand-icons";
@@ -120,7 +121,9 @@ export function Hero() {
         </div>
 
         <Reveal delay={0.15} className="mx-auto w-full min-w-0 lg:mx-0">
-          <HeroTerminalCard />
+          <HeroFlipCard>
+            <HeroTerminalCard action={<AskAiButton />} />
+          </HeroFlipCard>
         </Reveal>
       </Container>
     </section>
