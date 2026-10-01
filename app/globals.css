@@ -158,6 +158,24 @@
   background-color: #8c663f;
 }
 
+/* Dust motes drifting slowly through the certificate spotlight's beam. */
+@keyframes mote-drift {
+  0% {
+    transform: translate3d(0, 0, 0);
+    opacity: 0;
+  }
+  20% {
+    opacity: var(--mote-opacity, 0.6);
+  }
+  80% {
+    opacity: var(--mote-opacity, 0.6);
+  }
+  100% {
+    transform: translate3d(var(--mote-dx, 8px), 70px, 0);
+    opacity: 0;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
