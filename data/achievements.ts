@@ -17,6 +17,8 @@ export const certificates: Certificate[] = [
     issuer: "DeepLearning.AI & Stanford Online · Coursera",
     category: "Course",
     date: "May 2026",
+    narration:
+      "Stanford and DeepLearning.AI trained her in the maths behind machine learning: regression, classification and gradient descent. It's the foundation of her AI work.",
     image: "/achievements/certificates/supervised-ml.jpeg",
     link: "https://coursera.org/verify/ZCRA7SZ4TELE",
   },
@@ -26,6 +28,8 @@ export const certificates: Certificate[] = [
     issuer: "Meta · Coursera",
     category: "Course",
     date: "Dec 2025",
+    narration:
+      "Front-end the way Meta's engineers teach it: HTML, CSS, JavaScript and React. It's the craft behind the interfaces she ships.",
     image: "/achievements/certificates/meta-frontend.jpeg",
     link: "https://coursera.org/verify/VMKD2KYDKU5V",
   },
@@ -36,6 +40,8 @@ export const certificates: Certificate[] = [
     category: "Course",
     date: "Dec 2022",
     description: "Passed the TestDome public MySQL skills test, ranking in the top 25%.",
+    narration:
+      "Top 25% of everyone who's taken TestDome's timed MySQL test. She writes SQL that's clean, correct and quick.",
     image: "/achievements/certificates/testdome-mysql.jpg",
     link: "https://www.testdome.com/certificates/8c233f37407441ebbb3e1408cb02dedb",
   },
@@ -45,6 +51,8 @@ export const certificates: Certificate[] = [
     issuer: "CanopyLAB",
     category: "Course",
     date: "Jul 2021",
+    narration:
+      "Strategic leadership and sustainable development. She leads with the bigger picture in mind, not just the next sprint.",
     image: "/achievements/certificates/volunteering.jpg",
   },
   {
@@ -54,6 +62,8 @@ export const certificates: Certificate[] = [
     category: "Course",
     date: "Dec 2020",
     description: "Developer certification representing approximately 300 hours of coursework.",
+    narration:
+      "Around 300 hours of responsive web design with freeCodeCamp. That's why her pages look sharp on every screen, from phones to wide monitors.",
     image: "/achievements/certificates/webdesigncourse.jpg",
     link: "https://freecodecamp.org/certification/fcc5323b5e0-6889-41b6-9b8c-18f984a00c83/responsive-web-design",
   },
@@ -63,6 +73,8 @@ export const certificates: Certificate[] = [
     issuer: "The App Brewery",
     category: "Course",
     date: "Jul 2020",
+    narration:
+      "She was building cross-platform mobile apps with Flutter and Dart back in 2020: one codebase, running on both Android and iOS.",
     image: "/achievements/certificates/FlutterCourse.png",
   },
   {
@@ -71,6 +83,8 @@ export const certificates: Certificate[] = [
     issuer: "DataCamp",
     category: "Course",
     date: "May 2020",
+    narration:
+      "Where her data journey began: SQL with DataCamp in 2020. Querying, joining and making sense of data has been her thing ever since.",
     image: "/achievements/certificates/SQLcourse.jpg",
   },
 
@@ -82,6 +96,7 @@ export const certificates: Certificate[] = [
     category: "Hackathon",
     date: "Jan 2021",
     description: "Certificate of participation.",
+    narration: "HackMoral 3.0: turning an idea into working code against the clock. Hackathons are where she thrives.",
     image: "/achievements/certificates/hackathon2.jpg",
   },
   {
@@ -91,6 +106,8 @@ export const certificates: Certificate[] = [
     category: "Hackathon",
     date: "Jun 2020",
     description: "Competed as a member of team CODE_RAIN.",
+    narration:
+      "Code Rush 2020: competitive coding with team CODE_RAIN. Quick thinking and fast problem-solving under pressure.",
     image: "/achievements/certificates/hackathon.jpg",
   },
   {
@@ -100,6 +117,8 @@ export const certificates: Certificate[] = [
     category: "Hackathon",
     date: "Apr 2020",
     description: "Participated as a member of team Ada.",
+    narration:
+      "While the world stayed home in 2020, she was hacking with team Ada, building something new together, fully remote.",
     image: "/achievements/certificates/homeAloneHackathon.jpg",
   },
 
@@ -112,6 +131,8 @@ export const certificates: Certificate[] = [
     date: "Aug 2026",
     description:
       "Presented the research paper “AI-Powered University and Career Guidance Platform for Equitable Access in Sri Lanka” at the International Conference on Open and Digital Education.",
+    narration:
+      "She presented her own research at ICODE 2026: an AI-powered platform making university and career guidance fairer for students across Sri Lanka.",
     image: "/achievements/certificates/conference-certificate.png",
     link: "https://icode.bit.uom.lk/proceedings",
   },
@@ -123,6 +144,8 @@ export const certificates: Certificate[] = [
     date: "May 2026",
     description:
       "Certificate of participation for a workshop on machine learning and its practical applications in engineering.",
+    narration:
+      "Two days on machine learning for real engineering problems. She keeps sharpening her AI skills for practical impact.",
     image: "/achievements/certificates/workshop.jpg",
   },
   {
@@ -132,6 +155,8 @@ export const certificates: Certificate[] = [
     category: "Conference",
     date: "Feb 2022",
     description: "Participated in the largest online conference for the Python community in Sri Lanka.",
+    narration:
+      "PyCon Sri Lanka 2022, the country's largest online Python event. She's always learning alongside the wider developer community.",
     image: "/achievements/certificates/pythonconference.jpg",
   },
 ];
@@ -148,6 +173,7 @@ export const news: NewsItem[] = [
     id: "mldw-newswire",
     title: "UDA unveils 'Mother Lanka' digital public engagement platform",
     source: "Newswire",
+    story: "mother-lanka",
     date: "Mar 2026",
     summary: "Newswire's report on the Urban Development Authority's new digital public engagement platform.",
     image: "/achievements/news/MLDW-Newswire.jpg",
@@ -157,6 +183,7 @@ export const news: NewsItem[] = [
     id: "icode-2026-proceedings",
     title: "AI-Powered University and Career Guidance Platform for Equitable Access in Sri Lanka",
     source: "ICODE 2026 Proceedings",
+    story: "icode-2026",
     date: "Aug 2026",
     summary:
       "My abstract and slides, published in Session F: Ethics, Quality Assurance & Governance of the official ICODE 2026 proceedings.",
@@ -169,6 +196,7 @@ export const news: NewsItem[] = [
     id: "mldw-newsfirst",
     title: "UDA Launches 'Mother Lanka Digital' Platform to Enhance Public Participation in Urban Planning",
     source: "News 1st",
+    story: "mother-lanka",
     date: "Mar 2026",
     summary: "Coverage of the launch of the UDA Mother Lanka Digital Platform, which I worked on.",
     image: "/achievements/news/MLDW-NewsFirst.jpg",
@@ -178,6 +206,7 @@ export const news: NewsItem[] = [
     id: "fmis-dailymirror",
     title: "Online payment facility introduced for UDA clients",
     source: "Daily Mirror",
+    story: "uda-payments",
     date: "Feb 2026",
     summary:
       "Daily Mirror's coverage of the UDA's GovPay-powered online payment platform for Peliyagoda Manning Market businesses and UDA apartment residents.",
@@ -188,6 +217,7 @@ export const news: NewsItem[] = [
     id: "fmis-themorning",
     title: "Govt launches online payment system for UDA clients",
     source: "The Morning",
+    story: "uda-payments",
     date: "Feb 2026",
     summary:
       "The Morning's coverage of the GovPay-powered online payment platform for Peliyagoda Manning Market and UDA apartment complexes.",
@@ -198,6 +228,7 @@ export const news: NewsItem[] = [
     id: "fmis-hirunews",
     title: "UDA launches online payment system at Manning Market",
     source: "Hiru News",
+    story: "uda-payments",
     date: "Feb 2026",
     summary:
       "Hiru News's coverage of the UDA's GovPay-powered online payment platform launched at Peliyagoda Manning Public Market.",

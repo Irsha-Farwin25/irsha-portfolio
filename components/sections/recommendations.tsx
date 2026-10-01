@@ -175,7 +175,8 @@ function BoardNote({
   const cell = cn(
     "relative w-[80%] shrink-0 snap-center sm:w-auto",
     big && "sm:col-span-2 lg:col-span-1 lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:self-center",
-    !big && look.offset
+    // Side notes are only as tall as their words (not stretched to the row), like real notes.
+    !big && cn("sm:self-start", look.offset)
   );
 
   // While a note is open, keep its slot on the board so nothing reflows.
@@ -461,7 +462,7 @@ export function Recommendations() {
           </div>
         </Reveal>
 
-        <div className="cork-frame mx-auto w-full max-w-5xl">
+        <div className="cork-frame mx-auto w-full max-w-[60rem]">
           <div ref={boardRef} className="cork-board px-3 pt-5 pb-4 sm:px-6 sm:pt-8 sm:pb-6 lg:px-8 lg:pt-9 lg:pb-6">
             <div className="-mx-3 flex snap-x snap-mandatory gap-4 overflow-x-auto px-3 pt-3 pb-4 [scrollbar-width:none] sm:mx-0 sm:grid sm:grid-cols-2 sm:gap-x-6 sm:gap-y-8 sm:overflow-visible sm:px-0 sm:pt-0 sm:pb-0 lg:grid-cols-3 lg:gap-x-7">
               {ordered.map((item, i) => (

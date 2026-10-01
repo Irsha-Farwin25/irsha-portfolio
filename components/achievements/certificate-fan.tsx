@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useRef, useState, type KeyboardEvent } from "react";
+import { useEffect, useId, useRef, useState, type KeyboardEvent } from "react";
 import Image from "next/image";
 import {
   animate,
@@ -12,15 +12,19 @@ import {
   useTransform,
   type MotionValue,
 } from "motion/react";
-import { Award, ChevronLeft, ChevronRight, ExternalLink, Layers, MousePointerClick } from "lucide-react";
+import { Award, ChevronLeft, ChevronRight, ExternalLink } from "lucide-react";
 import { ImageLightbox } from "@/components/projects/image-lightbox";
+import { useChatContext } from "@/components/assistant/chat-context";
+import { certificateLine, narrationMs } from "@/lib/chat/narration";
 import type { Certificate } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 // A gentle arc: a large turning radius (--fan-r below) with small steps keeps the card spacing
 // while flattening the curve.
 const STEP = 7.5; // degrees between fanned cards
-const DWELL_MS = 4200; // how long each certificate rests under the spotlight
+const DWELL_MS = 4200; // how long each certificate rests under the spotlight…
+const NARRATE_DELAY_MS = 700; // …the avatar starts describing it once it has settled…
+const AFTER_NARRATION_MS = 1800; // …and the walk waits this long after she finishes
 const RESUME_AFTER_MS = 6000; // pause the exhibition walk after manual navigation
 const STACK_TILT = [0, -6, 5, -3];
 const SPOTLIGHT_ZOOM = 1.12; // the certificate in the spotlight steps forward by this much
@@ -35,32 +39,43 @@ const smoothstep = (edge0: number, edge1: number, x: number) => {
 };
 
 /**
- * Certificates as a stack that spreads into a gentle arc, like a gallery wall. Once spread, a
- * spotlight switches on above the centre spot: whichever certificate glides into place is framed
- * and lit, rests there a moment, then the next moves in. Arrows, keys or clicking a side card move
- * the wall; the lit certificate opens full-size in the lightbox.
+ * Certificates in a gentle arc, like a gallery wall. A spotlight above the centre spot switches on
+ * the first time the wall scrolls into view: whichever certificate glides into place is framed and
+ * lit, rests there a moment, then the next moves in. Arrows, keys or clicking a side card move the
+ * wall; the lit certificate opens full-size in the lightbox.
  */
 export function CertificateFan({ items }: { items: Certificate[] }) {
   const n = items.length;
   const wrap = n >= 3;
   const reduceMotion = useReducedMotion();
 
-  const [expanded, setExpanded] = useState(false);
   const [active, setActive] = useState(0);
   const [hovered, setHovered] = useState(false);
 
   const center = useMotionValue(0);
-  const spread = useMotionValue(0);
-  /** Switch-on flicker the first time the wall is spread (1 = steady). */
-  const flicker = useMotionValue(1);
-  const flickered = useRef(false);
+  /** The wall is always spread (the cards' stacked pose is no longer shown). */
+  const spread = useMotionValue(1);
+  /** The light: off until the wall first comes into view, then a switch-on flicker (1 = steady). */
+  const flicker = useMotionValue(reduceMotion ? 1 : 0);
+  /** Whether the wall is on screen: the exhibition walk only runs while someone can see it. */
+  const inView = useRef(false);
   const activeRef = useRef(0);
   const pausedUntil = useRef(0);
   const lastStep = useRef(0);
   const nudged = useRef(false);
+  const stageRef = useRef<HTMLDivElement>(null);
+  /** How long the current certificate rests: longer while the avatar is describing it. */
+  const dwell = useRef(DWELL_MS);
 
-  // The spotlight: off while stacked; once spread, fully on when a certificate sits exactly in
-  // place, dimming as it moves away.
+  // The avatar describes the certificate under the spotlight (when she's around and not muted);
+  // otherwise the description shows in the caption below.
+  const { narrate, canNarrate } = useChatContext();
+  const narrateRef = useRef(narrate);
+  useEffect(() => {
+    narrateRef.current = narrate;
+  }, [narrate]);
+
+  // The spotlight: fully on when a certificate sits exactly in place, dimming as it moves away.
   const light = useTransform(() => {
     const offCentre = Math.abs(center.get() - Math.round(center.get()));
     return spread.get() * flicker.get() * (1 - smoothstep(0.06, 0.42, offCentre));
@@ -89,18 +104,27 @@ export function CertificateFan({ items }: { items: Certificate[] }) {
     animate(center, to, spring);
   };
 
-  const toggle = (open: boolean) => {
-    setExpanded(open);
-    if (!open) animate(center, Math.round(center.get()), spring);
-    animate(spread, open ? 1 : 0, spring);
-    if (open && !flickered.current && !reduceMotion) {
-      flickered.current = true;
-      flicker.set(0);
-      animate(flicker, [0, 0.8, 0.15, 1, 0.5, 1], { duration: 0.9, delay: 0.35, times: [0, 0.15, 0.3, 0.5, 0.65, 1] });
-    }
-  };
+  // Track whether the wall is on screen; the first time it is, the spotlight flickers on.
+  useEffect(() => {
+    const el = stageRef.current;
+    if (!el) return;
+    let switchedOn = false;
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        inView.current = entry.isIntersecting;
+        if (!entry.isIntersecting || switchedOn) return;
+        switchedOn = true;
+        if (!reduceMotion) {
+          animate(flicker, [0, 0.8, 0.15, 1, 0.5, 1], { duration: 0.9, delay: 0.35, times: [0, 0.15, 0.3, 0.5, 0.65, 1] });
+        }
+      },
+      { threshold: 0.35 }
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [flicker, reduceMotion]);
 
-  // The exhibition walk: while spread (and not paused by hovering the spotlit certificate or by
+  // The exhibition walk: while on screen (and not paused by hovering the spotlit certificate or by
   // navigating by hand), the next certificate glides under the spotlight every few seconds.
   useAnimationFrame((time) => {
     if (nudged.current) {
@@ -108,11 +132,11 @@ export function CertificateFan({ items }: { items: Certificate[] }) {
       pausedUntil.current = time + RESUME_AFTER_MS;
       lastStep.current = time;
     }
-    if (!expanded || hovered || reduceMotion || !wrap || time < pausedUntil.current) {
-      if (!expanded || hovered) lastStep.current = time;
+    if (!inView.current || hovered || reduceMotion || !wrap || time < pausedUntil.current) {
+      if (!inView.current || hovered) lastStep.current = time;
       return;
     }
-    if (time - lastStep.current > DWELL_MS) {
+    if (time - lastStep.current > dwell.current) {
       lastStep.current = time;
       goTo(activeRef.current + 1, false);
     }
@@ -121,18 +145,30 @@ export function CertificateFan({ items }: { items: Certificate[] }) {
   const onKeyDown = (e: KeyboardEvent) => {
     if (e.key === "ArrowRight") goTo(active + 1);
     else if (e.key === "ArrowLeft") goTo(active - 1);
-    else if (e.key === "Escape") toggle(false);
     else return;
     e.preventDefault();
-    if (!expanded) toggle(true);
   };
 
   const current = items[active];
+  const spoken = canNarrate ? certificateLine(current) : undefined;
+
+  // Once a certificate settles under the light (and the wall is on screen), she describes it.
+  useEffect(() => {
+    dwell.current = spoken ? Math.max(DWELL_MS, NARRATE_DELAY_MS + narrationMs(spoken) + AFTER_NARRATION_MS) : DWELL_MS;
+    if (!spoken) return;
+    const id = window.setTimeout(() => {
+      if (inView.current) narrateRef.current(spoken);
+    }, NARRATE_DELAY_MS);
+    return () => window.clearTimeout(id);
+  }, [spoken, active]);
 
   return (
-    <div className="flex flex-col items-center gap-6" onKeyDown={onKeyDown}>
+    // -mt-8 cancels the tab panel's gap so the stage sits flush under the tab bar, which the
+    // spotlight hangs from.
+    <div className="-mt-8 flex flex-col items-center gap-6" onKeyDown={onKeyDown}>
       <div
-        className="relative h-[380px] w-full overflow-hidden [--fan-r:1300px] [mask-image:linear-gradient(to_right,transparent,black_12%,black_88%,transparent)] sm:h-[500px] sm:[--fan-r:2200px]"
+        ref={stageRef}
+        className="relative h-[469px] w-full overflow-hidden [--fade-dim:0.12] [--fan-r:1300px] dark:[--fade-dim:0.4] [mask-image:linear-gradient(to_right,transparent,black_12%,black_88%,transparent),linear-gradient(to_bottom,black_calc(100%_-_28px),transparent)] [mask-composite:intersect] sm:h-[639px] sm:[--fan-r:2500px]"
         // Pause the walk only while the pointer rests on the certificate in the spotlight (someone
         // is looking at it) — not anywhere on the wall, where the cursor often just sits.
         onPointerMove={(e) => setHovered(!!(e.target as Element).closest("[data-spotlit]"))}
@@ -151,93 +187,74 @@ export function CertificateFan({ items }: { items: Certificate[] }) {
             spread={spread}
             light={light}
             isActive={i === active}
-            expanded={expanded}
             onSelect={() => goTo(i)}
           />
         ))}
-
-        {!expanded && (
-          <button
-            type="button"
-            onClick={() => toggle(true)}
-            aria-label={`Spread ${n} certificates`}
-            className="group absolute inset-0 z-[200] flex cursor-pointer items-end justify-center pb-3 outline-none"
-          >
-            <span className="flex items-center gap-1.5 rounded-full border border-border bg-background/90 px-3 py-1.5 text-xs font-medium shadow-md backdrop-blur transition-colors group-hover:border-primary group-hover:text-primary group-focus-visible:ring-3 group-focus-visible:ring-ring/50">
-              <MousePointerClick className="size-3.5" /> Click to view the exhibition of {n}
-            </span>
-          </button>
-        )}
       </div>
 
-      {expanded && (
-        <div className="flex w-full max-w-xl flex-col items-center gap-4">
-          <AnimatePresence mode="wait" initial={false}>
-            {/* Museum wall label for the certificate under the spotlight. */}
-            <motion.div
-              key={current.id}
-              initial={reduceMotion ? false : { opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={reduceMotion ? undefined : { opacity: 0, y: -6 }}
-              transition={{ duration: 0.25 }}
-              className="relative flex w-full max-w-md flex-col items-center gap-1.5 rounded-md border border-border bg-card px-5 py-4 text-center shadow-sm"
-              aria-live="polite"
-            >
-              <span aria-hidden className="absolute top-2 left-2 size-1 rounded-full bg-muted-foreground/40" />
-              <span aria-hidden className="absolute top-2 right-2 size-1 rounded-full bg-muted-foreground/40" />
-              {current.date && (
-                <p className="font-mono text-[11px] uppercase tracking-wider text-primary">{current.date}</p>
-              )}
-              <h3 className="text-balance text-lg font-semibold leading-snug tracking-tight">{current.title}</h3>
-              <p className="text-sm text-muted-foreground">{current.issuer}</p>
-              {current.description && (
-                <p className="max-w-md text-pretty text-sm text-muted-foreground">{current.description}</p>
-              )}
-              {current.link && (
-                <a
-                  href={current.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="mt-1 inline-flex items-center gap-1 rounded-full border border-border px-3 py-1 text-xs font-medium transition-colors hover:border-primary hover:text-primary"
-                >
-                  {current.category === "Course" ? "Verify credential" : "View details"}{" "}
-                  <ExternalLink className="size-3" />
-                </a>
-              )}
-            </motion.div>
-          </AnimatePresence>
+      <div className="flex w-full max-w-xl flex-col items-center gap-4">
+        <AnimatePresence mode="wait" initial={false}>
+          {/* Floating caption for the certificate under the spotlight. */}
+          <motion.div
+            key={current.id}
+            initial={reduceMotion ? false : { opacity: 0, y: 8, filter: "blur(4px)" }}
+            animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+            exit={reduceMotion ? undefined : { opacity: 0, y: -6, filter: "blur(4px)" }}
+            transition={{ duration: 0.3 }}
+            className="flex w-full max-w-lg flex-col items-center gap-2 text-center"
+            aria-live="polite"
+          >
+            {/* Date and issuer are on the certificate itself; kept for screen readers only. */}
+            <p className="sr-only">
+              {[current.date, current.issuer].filter(Boolean).join(" · ")}
+            </p>
+            <h3 className="text-balance text-base font-semibold leading-snug tracking-tight sm:text-lg">{current.title}</h3>
+            {/* When the avatar says the description, it stays here for screen readers only. */}
+            {current.description && (
+              <p className={cn("max-w-md text-pretty text-sm text-muted-foreground", spoken && "sr-only")}>
+                {current.description}
+              </p>
+            )}
+            {current.link && (
+              <a
+                href={current.link}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-0.5 inline-flex items-center gap-1 text-xs font-medium text-muted-foreground underline-offset-4 transition-colors hover:text-primary hover:underline"
+              >
+                {current.category === "Course" ? "Verify credential" : "View details"}{" "}
+                <ExternalLink className="size-3" />
+              </a>
+            )}
+          </motion.div>
+        </AnimatePresence>
 
-          <div className="flex items-center gap-2">
-            {n > 1 && (
-              <NavButton label="Previous certificate" onClick={() => goTo(active - 1)} disabled={!wrap && active === 0}>
-                <ChevronLeft className="size-4" />
-              </NavButton>
-            )}
-            <span className="min-w-14 text-center font-mono text-xs tabular-nums text-muted-foreground">
-              {active + 1} / {n}
-            </span>
-            {n > 1 && (
-              <NavButton label="Next certificate" onClick={() => goTo(active + 1)} disabled={!wrap && active === n - 1}>
-                <ChevronRight className="size-4" />
-              </NavButton>
-            )}
-            <button
-              type="button"
-              onClick={() => toggle(false)}
-              className="ml-2 inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
-            >
-              <Layers className="size-3.5" /> Stack
-            </button>
-          </div>
+        <div className="flex items-center gap-2">
+          {n > 1 && (
+            <NavButton label="Previous certificate" onClick={() => goTo(active - 1)} disabled={!wrap && active === 0}>
+              <ChevronLeft className="size-4" />
+            </NavButton>
+          )}
+          <span className="min-w-14 text-center font-mono text-xs tabular-nums text-muted-foreground">
+            {active + 1} / {n}
+          </span>
+          {n > 1 && (
+            <NavButton label="Next certificate" onClick={() => goTo(active + 1)} disabled={!wrap && active === n - 1}>
+              <ChevronRight className="size-4" />
+            </NavButton>
+          )}
         </div>
-      )}
+      </div>
     </div>
   );
 }
 
-/** Warm gallery white (~3000K). */
-const WARM = "255, 216, 168";
-
+/**
+ * Warm gallery white (~3000K), as an RGB triple set per theme on the Spotlight root. In the dark it
+ * is screened on as light; on a light wall it is multiplied in as a warm tint, so it is a touch more
+ * saturated there to read.
+ */
+const WARM = "var(--spot)";
 /** Dust motes drifting through the beam: [left %, top %, size px, duration s, delay s, drift px]. */
 const MOTES: [number, number, number, number, number, number][] = [
   [44, 8, 2, 9, 0, 10], [53, 14, 1.5, 11, 2.5, -8], [48, 30, 2.5, 13, 5, 6], [56, 38, 1.5, 10, 1, -12],
@@ -257,11 +274,26 @@ function Spotlight({ spread, light }: { spread: MotionValue<number>; light: Moti
   const lensOpacity = useTransform(() => spread.get() * (0.15 + light.get() * 0.85));
 
   return (
-    <div aria-hidden className="pointer-events-none absolute inset-0">
+    <div aria-hidden className="pointer-events-none absolute inset-0 [--spot:255,214,168] dark:[--spot:255,216,168]">
+      {/* Light theme only: a soft halo of shade hugging the beam, so the cone reads clearly on a
+          white wall. The shade sits outside the cone (same apex at the lens, with wide feathered
+          edges) and is masked by a radial falloff, so it is deepest right beside the beam and
+          melts into the wall in every direction — no edges, no flat grey band. */}
+      <motion.div
+        className="absolute inset-0 z-0 dark:hidden"
+        style={{
+          opacity: light,
+          background:
+            "conic-gradient(at 50% 59px, rgba(52,42,32,0.16) 0deg, rgba(52,42,32,0.16) 96deg, rgba(52,42,32,0) 134deg, rgba(52,42,32,0) 226deg, rgba(52,42,32,0.16) 264deg, rgba(52,42,32,0.16) 360deg)",
+          maskImage: "radial-gradient(ellipse 34% 62% at 50% 38%, #000 25%, rgba(0,0,0,0.45) 60%, transparent 100%)",
+          WebkitMaskImage: "radial-gradient(ellipse 34% 62% at 50% 38%, #000 25%, rgba(0,0,0,0.45) 60%, transparent 100%)",
+        }}
+      />
+
       {/* Pool of light on the wall around the frame. The gradient reaches full transparency before
           every edge of its box, so no edge of the box ever shows as a line. */}
       <motion.div
-        className="absolute top-[40px] left-1/2 z-0 h-[380px] w-[460px] -translate-x-1/2 mix-blend-screen sm:top-[56px] sm:h-[500px] sm:w-[660px]"
+        className="absolute top-[147px] left-1/2 z-0 h-[324px] w-[560px] -translate-x-1/2 mix-blend-multiply dark:mix-blend-screen sm:top-[173px] sm:h-[480px] sm:w-[840px]"
         style={{
           opacity: light,
           background: `radial-gradient(ellipse 50% 46% at 50% 46%, rgba(${WARM}, 0.5), rgba(${WARM}, 0.2) 50%, rgba(${WARM}, 0) 100%)`,
@@ -270,14 +302,16 @@ function Spotlight({ spread, light }: { spread: MotionValue<number>; light: Moti
 
       {/* Volumetric beam: a cone with feathered edges (no hard outline), fading with distance. */}
       <motion.div
-        className="absolute top-[55px] left-1/2 z-0 h-[330px] w-[560px] -translate-x-1/2 overflow-hidden mix-blend-screen sm:h-[450px] sm:w-[720px]"
+        className="absolute top-[67px] left-1/2 z-0 h-[378px] w-[720px] -translate-x-1/2 overflow-hidden mix-blend-multiply dark:mix-blend-screen sm:h-[548px] sm:w-[960px]"
         style={{
           opacity: light,
           background: `radial-gradient(ellipse 44% 100% at 50% 0%, rgba(${WARM}, 0.55) 0%, rgba(${WARM}, 0.24) 32%, rgba(${WARM}, 0.08) 68%, rgba(${WARM}, 0) 100%)`,
+          // The cone's apex sits just behind the lens, so the beam leaves the lamp lens-wide and
+          // fans out — wide enough to span the full frame by the time it reaches the frame's top.
           maskImage:
-            "conic-gradient(from 138deg at 50% -30px, transparent 0deg, #000 14deg, #000 70deg, transparent 84deg, transparent 360deg)",
+            "conic-gradient(from 112deg at 50% -8px, transparent 0deg, #000 14deg, #000 122deg, transparent 136deg, transparent 360deg)",
           WebkitMaskImage:
-            "conic-gradient(from 138deg at 50% -30px, transparent 0deg, #000 14deg, #000 70deg, transparent 84deg, transparent 360deg)",
+            "conic-gradient(from 112deg at 50% -8px, transparent 0deg, #000 14deg, #000 122deg, transparent 136deg, transparent 360deg)",
         }}
       >
         {MOTES.map(([left, top, size, duration, delay, drift], i) => (
@@ -303,13 +337,16 @@ function Spotlight({ spread, light }: { spread: MotionValue<number>; light: Moti
 
       {/* Bloom around the lens. */}
       <motion.div
-        className="absolute top-[38px] left-1/2 z-[150] h-10 w-24 -translate-x-1/2 rounded-full blur-md"
+        className="absolute top-[53px] left-1/2 z-[150] h-10 w-24 -translate-x-1/2 rounded-full blur-md"
         style={{ opacity: lensOpacity, background: `radial-gradient(ellipse at 50% 60%, rgba(${WARM}, 0.9), rgba(${WARM}, 0) 70%)` }}
       />
 
-      {/* Slim ceiling track with a cylindrical spot hanging from it. */}
+      {/* The tab bar above is the ceiling: a small mount plate and a slim rod drop from its lower
+          edge (the stage sits flush beneath it), with the cylindrical spot hanging at the end. */}
       <motion.div className="absolute inset-x-0 top-0 z-[151] flex flex-col items-center" style={{ opacity: spread }}>
-        <div className="h-[5px] w-[min(520px,80%)] rounded-full bg-[linear-gradient(to_bottom,#3c3c40,#0e0e10)] shadow-[0_1px_2px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.12)]" />
+        <div className="h-[4px] w-7 rounded-b-[3px] bg-[linear-gradient(to_bottom,#5a5a60,#1a1a1d)] shadow-[0_1px_2px_rgba(0,0,0,0.35),inset_0_1px_0_rgba(255,255,255,0.18)]" />
+        {/* Brushed-metal rod: a bright highlight down one side keeps it readable on a dark wall. */}
+        <div className="h-[16px] w-[5px] bg-[linear-gradient(to_right,#1a1a1d,#7a7a82_40%,#3a3a3f_65%,#141416)] shadow-[0_0_0_0.5px_rgba(255,255,255,0.06)]" />
         <svg width="44" height="54" viewBox="0 0 44 54" className="drop-shadow-[0_4px_6px_rgba(0,0,0,0.45)]">
           <defs>
             <linearGradient id={`${uid}-body`} x1="0" x2="1">
@@ -373,7 +410,6 @@ function FanCard({
   spread,
   light,
   isActive,
-  expanded,
   onSelect,
 }: {
   item: Certificate;
@@ -384,9 +420,9 @@ function FanCard({
   spread: MotionValue<number>;
   light: MotionValue<number>;
   isActive: boolean;
-  expanded: boolean;
   onSelect: () => void;
 }) {
+  const reduceMotion = useReducedMotion();
   // Signed distance from the centre of the fan (wraps around for 3+ cards).
   const dist = () => {
     const raw = index - center.get();
@@ -420,42 +456,54 @@ function FanCard({
   // Away from the spotlight: half-light and slightly out of focus; the spotlit one stays sharp.
   const filter = useTransform(() => {
     const a = away();
-    return `brightness(${mix(1, 0.6, a).toFixed(3)}) blur(${(FADED_BLUR * a).toFixed(2)}px)`;
+    // How far they dim is set per theme (--fade-dim on the stage): deep in the dark, light on a light wall.
+    return `brightness(calc(1 - var(--fade-dim) * ${a.toFixed(3)})) blur(${(FADED_BLUR * a).toFixed(2)}px)`;
   });
   return (
     <motion.div
-      data-spotlit={expanded && isActive ? "" : undefined}
+      data-spotlit={isActive ? "" : undefined}
       style={{ rotate: fanRotate, zIndex, opacity, transformOrigin: "50% var(--fan-r)" }}
-      className="absolute left-1/2 top-[120px] w-[220px] -translate-x-1/2 sm:top-[150px] sm:w-[300px]"
+      className="absolute left-1/2 top-[214px] w-[220px] -translate-x-1/2 sm:top-[267px] sm:w-[340px]"
     >
       <motion.div style={{ rotate: tilt, y, scale, filter }} className="relative">
-        {/* Gallery frame (dark moulding) that settles around the certificate in the spotlight. */}
+        {/* Modern certificate frame that settles around the certificate in the spotlight. From the
+            outside in: a flat matte-black moulding, a wide white mat (shaded where the moulding
+            overhangs it) and a thin black inner mat hugging the certificate. The insets add up to
+            the frame's total width (10+18+3 = 31px, 14+32+3 = 49px from sm), so the black line
+            lands exactly on the card's edge. */}
         <motion.div
           aria-hidden
-          className="pointer-events-none absolute -inset-[11px] rounded-[4px] border-[11px] border-[#2a201a] shadow-[0_22px_40px_-14px_rgba(0,0,0,0.6),inset_0_0_0_1px_rgba(255,255,255,0.06)] ring-1 ring-black/40 sm:-inset-[13px] sm:border-[13px]"
+          className="pointer-events-none absolute -inset-[31px] rounded-[2px] bg-[linear-gradient(160deg,#2a2a2d,#161618_40%,#111113)] shadow-[0_24px_44px_-16px_rgba(0,0,0,0.55),0_0_0_1px_rgba(0,0,0,0.5),inset_0_0_0_1px_rgba(255,255,255,0.1)] sm:-inset-[49px]"
           style={{ opacity: framed, scale: frameScale }}
         >
-          <span className="absolute -inset-[11px] rounded-[4px] bg-[linear-gradient(135deg,rgba(255,255,255,0.12),transparent_40%,transparent_60%,rgba(255,255,255,0.08))] sm:-inset-[13px]" />
-          <span className="absolute -inset-[11px] rounded-[4px] bg-[radial-gradient(ellipse_at_50%_0%,rgba(255,228,170,0.35),transparent_65%)] mix-blend-screen sm:-inset-[13px]" />
+          {/* Warm spill from the spotlight across the top rail (it reads in the dark). */}
+          <span className="absolute inset-0 hidden rounded-[2px] bg-[radial-gradient(ellipse_at_50%_0%,rgba(255,228,170,0.22),transparent_60%)] mix-blend-screen dark:block" />
+          {/* White mat. */}
+          <span className="absolute inset-[10px] bg-[#fbfbf9] shadow-[inset_0_2px_4px_rgba(0,0,0,0.28),inset_0_0_0_1px_rgba(0,0,0,0.12)] sm:inset-[14px]">
+            {/* Black inner mat. */}
+            <span className="absolute inset-[18px] border-[3px] border-[#151515] sm:inset-[32px]" />
+          </span>
         </motion.div>
 
         <div
           className={cn(
-            "relative aspect-[4/3] overflow-hidden rounded-md border bg-white shadow-[0_18px_40px_-18px_rgba(0,0,0,0.45)]",
-            expanded && isActive ? "border-transparent" : "border-border"
+            "relative aspect-[4/3] overflow-hidden border bg-white",
+            isActive
+              ? "rounded-none border-transparent"
+              : "rounded-md border-border shadow-[0_18px_40px_-18px_rgba(0,0,0,0.45)]"
           )}
         >
           {item.image ? (
-            expanded && isActive ? (
+            isActive ? (
               <ImageLightbox
                 src={item.image}
                 alt={`${item.title} certificate`}
-                sizes="(min-width: 640px) 300px, 220px"
+                sizes="(min-width: 640px) 340px, 220px"
                 fit="contain"
                 caption={`${item.title} — ${item.issuer}`}
               />
             ) : (
-              <Image src={item.image} alt="" fill sizes="(min-width: 640px) 300px, 220px" className="object-contain p-2" />
+              <Image src={item.image} alt="" fill sizes="(min-width: 640px) 340px, 220px" className="object-contain p-2" />
             )
           ) : (
             <div className="flex h-full flex-col items-center justify-center gap-2 bg-gradient-to-br from-primary/15 via-primary/5 to-background p-4 text-center">
@@ -465,7 +513,25 @@ function FanCard({
           )}
         </div>
 
-        {expanded && !isActive && (
+        {/* Glass inside the frame, over the mat and print: a faint fixed glare, plus a reflection
+            that sweeps across once each time a certificate settles under the light. */}
+        <motion.div
+          aria-hidden
+          className="pointer-events-none absolute -inset-[21px] overflow-hidden sm:-inset-[35px]"
+          style={{ opacity: framed, scale: frameScale }}
+        >
+          <span className="absolute inset-0 bg-[linear-gradient(115deg,rgba(255,255,255,0.14),transparent_30%,transparent_70%,rgba(255,255,255,0.06))]" />
+          {isActive && !reduceMotion && (
+            <motion.span
+              className="absolute inset-y-0 left-0 w-1/3 -skew-x-[20deg] bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.28),transparent)]"
+              initial={{ x: "-150%" }}
+              animate={{ x: "400%" }}
+              transition={{ duration: 1.6, delay: 0.5, ease: [0.4, 0, 0.2, 1] }}
+            />
+          )}
+        </motion.div>
+
+        {!isActive && (
           <button
             type="button"
             onClick={onSelect}

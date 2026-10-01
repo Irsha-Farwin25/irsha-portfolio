@@ -28,6 +28,14 @@ interface ChatContextValue {
    * returned promise settles. Without one (no 3D avatar), the card flips straight away.
    */
   setFlipAnimator: (fn: ((card: HTMLElement) => Promise<void>) | null) => void;
+  /**
+   * Has the avatar say a line in her bubble (e.g. the certificate under the spotlight). A no-op
+   * while she can't speak; `canNarrate` says whether she can, so callers can show the text instead.
+   */
+  narrate: (line: string) => void;
+  canNarrate: boolean;
+  /** The avatar registers how she speaks while she's on screen and not muted. */
+  setNarrator: (fn: ((line: string) => void) | null) => void;
 }
 
 const ChatContext = createContext<ChatContextValue | null>(null);
@@ -168,6 +176,13 @@ export function ChatProvider({ children }: { children: ReactNode }) {
     flipAnimator.current = fn;
   }, []);
 
+  // State rather than a ref: whether she can speak changes what the page renders.
+  const [narrator, setNarratorFn] = useState<((line: string) => void) | null>(null);
+  const setNarrator = useCallback((fn: ((line: string) => void) | null) => {
+    setNarratorFn(() => fn);
+  }, []);
+  const narrate = useCallback((line: string) => narrator?.(line), [narrator]);
+
   const value = useMemo(
     () => ({
       chat,
@@ -178,8 +193,23 @@ export function ChatProvider({ children }: { children: ReactNode }) {
       registerCard,
       setModeListener,
       setFlipAnimator,
+      narrate,
+      canNarrate: !!narrator,
+      setNarrator,
     }),
-    [chat, open, openChat, closeChat, toggleFromAvatar, registerCard, setModeListener, setFlipAnimator]
+    [
+      chat,
+      open,
+      openChat,
+      closeChat,
+      toggleFromAvatar,
+      registerCard,
+      setModeListener,
+      setFlipAnimator,
+      narrate,
+      narrator,
+      setNarrator,
+    ]
   );
 
   return <ChatContext.Provider value={value}>{children}</ChatContext.Provider>;

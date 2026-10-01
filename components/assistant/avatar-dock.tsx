@@ -5,9 +5,10 @@ import dynamic from "next/dynamic";
 import { AnimatePresence, animate, motion, useMotionValue, useReducedMotion } from "motion/react";
 import { Sparkles, Volume2, VolumeX, XIcon } from "lucide-react";
 import { useHasMounted } from "@/lib/hooks/use-has-mounted";
+import { cn } from "@/lib/utils";
 import { useChatContext } from "@/components/assistant/chat-context";
 import { Typewriter } from "@/components/assistant/chat-view";
-import { SECTION_LINES } from "@/lib/chat/narration";
+import { SECTION_LINES, narrationMs } from "@/lib/chat/narration";
 import {
   GESTURE_FLICK_MS,
   type AvatarModelUrls,
@@ -28,6 +29,9 @@ const MODEL_URLS: AvatarModelUrls = {
   texture: "/avatar/irsha-texture.jpg?v=4",
 };
 const HIDDEN_KEY = "avatar-dock-hidden";
+
+/** Where the bubble's corner meets her (just left of her hijab), as a fraction of the dock's width from its right edge. */
+const MOUTH_FROM_RIGHT = 0.58;
 
 function canRender3D() {
   try {
@@ -120,7 +124,7 @@ function Dock({ reduceMotion }: { reduceMotion: boolean }) {
     done: () => void;
   } | null>(null);
 
-  const { open: chatOpen, toggleFromAvatar, setModeListener, setFlipAnimator } = useChatContext();
+  const { open: chatOpen, toggleFromAvatar, setModeListener, setFlipAnimator, setNarrator } = useChatContext();
 
   // Thinking / talking from the chat (wherever it's showing) drives her animation.
   useEffect(() => {
@@ -147,7 +151,7 @@ function Dock({ reduceMotion }: { reduceMotion: boolean }) {
     const now = performance.now();
     signals.current.gestureAt = now;
     signals.current.mode = "talking";
-    const typing = 150 + line.length * 24 + (line.match(/[.,!?]/g)?.length ?? 0) * 130;
+    const typing = narrationMs(line);
     setBubble({ text: line, typed: true, id: now });
     window.clearTimeout(talkTimer.current);
     talkTimer.current = window.setTimeout(() => {
@@ -265,6 +269,17 @@ function Dock({ reduceMotion }: { reduceMotion: boolean }) {
     chatOpenRef.current = chatOpen;
   }, [chatOpen]);
 
+  // Lets the page hand her lines to say (e.g. the certificate under the spotlight). Only while
+  // she's on screen and not muted, so the page knows to show the text itself otherwise.
+  useEffect(() => {
+    if (!ready || hidden || muted) return;
+    setNarrator((line) => {
+      if (chatOpenRef.current && atCard.current) return;
+      narrate(line);
+    });
+    return () => setNarrator(null);
+  }, [ready, hidden, muted, narrate, setNarrator]);
+
   useEffect(
     () => () => {
       window.clearTimeout(bubbleTimer.current);
@@ -272,6 +287,34 @@ function Dock({ reduceMotion }: { reduceMotion: boolean }) {
     },
     [],
   );
+
+  /**
+   * How wide her bubble may grow: it opens leftward from beside her mouth, filling the empty
+   * margin between the page content and her (up to 270px). Where that margin is narrow it keeps
+   * a readable 200px and reaches a little over the content's edge (its glass is near-opaque).
+   */
+  const [bubbleMaxW, setBubbleMaxW] = useState(270);
+  const fitBubble = useCallback(() => {
+    const box = boxRef.current?.getBoundingClientRect();
+    if (!box) return;
+    const container = document.querySelector<HTMLElement>("[data-page-container]");
+    let contentRight = 0;
+    if (container) {
+      const r = container.getBoundingClientRect();
+      contentRight = r.right - parseFloat(getComputedStyle(container).paddingRight);
+    }
+    const mouthX = box.left + box.width * (1 - MOUTH_FROM_RIGHT);
+    const margin = mouthX - contentRight - 12;
+    // Never wider than the screen allows to the left of her mouth.
+    setBubbleMaxW(Math.min(Math.max(200, Math.min(270, margin)), mouthX - 16));
+  }, []);
+
+  useEffect(() => {
+    if (!bubble) return;
+    fitBubble();
+    window.addEventListener("resize", fitBubble);
+    return () => window.removeEventListener("resize", fitBubble);
+  }, [bubble, fitBubble]);
 
   const toggleMuted = () => {
     const next = !muted;
@@ -520,33 +563,46 @@ function Dock({ reduceMotion }: { reduceMotion: boolean }) {
                 <XIcon className="size-3.5" />
               </button>
 
-              {/* Above her head and anchored to her right edge, so it never covers the hero card
-                  beside her or runs off screen; the tail points at her head. */}
-              <div aria-live="polite" className="absolute right-0 bottom-full mb-1.5">
+              {/* While she narrates, soft sound waves ripple out from her mouth toward the bubble. */}
+              <AnimatePresence>
+                {bubble?.typed && !(chatOpen && standingAtCard) && (
+                  <VoiceWaves key={`waves-${bubble.id}`} ms={narrationMs(bubble.text)} />
+                )}
+              </AnimatePresence>
+
+              {/* The bubble's squared-off bottom-right corner sits just beside her mouth — about
+                  18% down the dock, just left of her hijab — and it opens up and to the left. No
+                  tail: the sound waves from her mouth carry the link. */}
+              <div aria-live="polite" className="absolute right-[58%] bottom-[82%]">
                 <AnimatePresence>
                   {bubble && !(chatOpen && standingAtCard) && (
-                    <motion.p
+                    <motion.div
                       key={bubble.id}
-                      initial={{ opacity: 0, y: 6, scale: 0.9 }}
-                      animate={{ opacity: 1, y: 0, scale: 1 }}
-                      exit={{ opacity: 0, y: -4, scale: 0.95 }}
-                      transition={{
-                        type: "spring",
-                        stiffness: 380,
-                        damping: 26,
-                      }}
-                      className={
-                        bubble.typed
-                          ? "relative w-max max-w-[min(260px,calc(100vw-24px))] origin-bottom-right rounded-2xl border border-border bg-card px-3.5 py-2 text-[13px] leading-snug font-medium text-pretty text-foreground shadow-lg"
-                          : "relative w-max origin-bottom-right rounded-2xl border border-border bg-card px-3 py-1.5 text-xs font-medium whitespace-nowrap text-foreground shadow-lg"
-                      }
+                      // `layout` lets the bubble ease taller as each new line is typed.
+                      layout
+                      initial={{ opacity: 0, y: 8, scale: 0.92, filter: "blur(6px)" }}
+                      animate={{ opacity: 1, y: 0, scale: 1, filter: "blur(0px)" }}
+                      exit={{ opacity: 0, y: -4, scale: 0.96, filter: "blur(4px)" }}
+                      transition={{ type: "spring", stiffness: 380, damping: 28 }}
+                      // Gradient hairline border: a 1px gradient frame around the glass body.
+                      className="relative w-max origin-bottom-right rounded-[18px] rounded-br-[5px] bg-linear-to-br from-primary/60 via-primary/15 to-primary/45 p-px shadow-[0_10px_32px_-10px] shadow-primary/40"
                     >
-                      {bubble.typed ? <Typewriter text={bubble.text} delay={150} speed={22} /> : bubble.text}
-                      <span
-                        aria-hidden
-                        className="absolute right-[54px] -bottom-1.5 size-3 rotate-45 border-r border-b border-border bg-card sm:right-[96px]"
-                      />
-                    </motion.p>
+                      <motion.div
+                        layout="position"
+                        style={{ maxWidth: bubbleMaxW }}
+                        className={cn(
+                          "relative z-10 rounded-[17px] rounded-br-[4px] bg-card/95 text-foreground backdrop-blur-xl",
+                          bubble.typed
+                            ? "flex items-start gap-2.5 px-3.5 py-2.5 text-[13px] leading-snug font-medium text-pretty"
+                            : "px-3.5 py-1.5 text-xs font-medium whitespace-nowrap"
+                        )}
+                      >
+                        {bubble.typed && <SpeakingWave ms={narrationMs(bubble.text)} />}
+                        <p>
+                          {bubble.typed ? <Typewriter text={bubble.text} delay={150} speed={22} grow /> : bubble.text}
+                        </p>
+                      </motion.div>
+                    </motion.div>
                   )}
                 </AnimatePresence>
               </div>
@@ -556,6 +612,59 @@ function Dock({ reduceMotion }: { reduceMotion: boolean }) {
       </AnimatePresence>
       </motion.div>
     </>
+  );
+}
+
+/** A small sound-wave that pulses while she's talking (about as long as the line takes to type). */
+function SpeakingWave({ ms }: { ms: number }) {
+  const reduce = useReducedMotion();
+  const cycle = 0.7;
+  const repeat = Math.max(0, Math.ceil(ms / 1000 / cycle) - 1);
+  return (
+    <span aria-hidden className="mt-[3px] flex h-3 shrink-0 items-center gap-[2px]">
+      {[0.55, 1, 0.75].map((peak, i) => (
+        <motion.span
+          key={i}
+          className="h-full w-[3px] origin-center rounded-full bg-primary"
+          initial={{ scaleY: 0.35 }}
+          animate={reduce ? { scaleY: peak } : { scaleY: [0.35, peak, 0.35] }}
+          transition={reduce ? { duration: 0 } : { duration: cycle, repeat, delay: i * 0.12, ease: "easeInOut" }}
+        />
+      ))}
+    </span>
+  );
+}
+
+/**
+ * Thin arcs rippling out from her mouth toward the bubble (up and to the left) while she talks —
+ * the modern voice-assistant cue in place of a speech-bubble tail. Placed at her mouth in the
+ * dock's own proportions, so it follows her size on every screen.
+ */
+function VoiceWaves({ ms }: { ms: number }) {
+  const reduce = useReducedMotion();
+  const cycle = 1.2;
+  const repeat = Math.max(0, Math.ceil(ms / 1000 / cycle) - 1);
+  return (
+    <motion.span
+      aria-hidden
+      className="pointer-events-none absolute top-[17%] left-[47%] size-0"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0, transition: { duration: 0.2 } }}
+    >
+      {[0, 1, 2].map((i) => (
+        <motion.span
+          key={i}
+          // A ring with only its upper-left quarter drawn: an arc facing the bubble.
+          className="absolute top-0 left-0 size-6 -translate-x-1/2 -translate-y-1/2 rotate-45 rounded-full border-l-[1.5px] border-primary"
+          initial={{ scale: 0.4, opacity: 0 }}
+          animate={reduce ? { scale: 0.6 + i * 0.35, opacity: 0.5 } : { scale: [0.4, 1.6], opacity: [0, 0.85, 0] }}
+          transition={
+            reduce ? { duration: 0 } : { duration: cycle, repeat, delay: i * (cycle / 3), ease: "easeOut" }
+          }
+        />
+      ))}
+    </motion.span>
   );
 }
 

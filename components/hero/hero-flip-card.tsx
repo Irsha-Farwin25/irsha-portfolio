@@ -2,7 +2,7 @@
 
 import { useCallback, useState, type ReactNode } from "react";
 import { motion, useReducedMotion } from "motion/react";
-import { Sparkles } from "lucide-react";
+import { ArrowRight, Sparkles } from "lucide-react";
 import { useChatContext } from "@/components/assistant/chat-context";
 import { ChatView } from "@/components/assistant/chat-view";
 
@@ -60,6 +60,49 @@ export function HeroFlipCard({ children }: { children: ReactNode }) {
           )}
         </div>
       </motion.div>
+    </div>
+  );
+}
+
+/** Questions offered on the card's front; picking one flips the card and asks it straight away. */
+const QUICK_QUESTIONS = ["Tell me about her research", "What are her strongest skills?"];
+
+/**
+ * The card's call to the AI chat: an input-style button ("Ask my AI anything…") that flips the
+ * card to the chat, plus a couple of suggested questions that open it already asking.
+ */
+export function AskAiPrompt() {
+  const { chat, openChat } = useChatContext();
+  const ask = (question?: string) => {
+    openChat();
+    if (question && chat.status === "idle") void chat.send(question);
+  };
+
+  return (
+    <div className="flex flex-col gap-2.5">
+      <button
+        type="button"
+        onClick={() => ask()}
+        className="group flex w-full items-center gap-2.5 rounded-xl border border-border bg-secondary/40 px-3.5 py-2.5 text-left text-sm text-muted-foreground transition-colors hover:border-primary/40 hover:bg-secondary/70 focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+      >
+        <Sparkles className="size-4 shrink-0 text-primary" aria-hidden />
+        <span className="flex-1 truncate">Ask my AI anything…</span>
+        <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground transition-transform group-hover:translate-x-0.5">
+          <ArrowRight className="size-3.5" aria-hidden />
+        </span>
+      </button>
+      <div className="flex flex-wrap gap-1.5">
+        {QUICK_QUESTIONS.map((q) => (
+          <button
+            key={q}
+            type="button"
+            onClick={() => ask(q)}
+            className="rounded-full border border-border px-2.5 py-1 text-[11px] font-medium text-muted-foreground transition-colors hover:border-primary/50 hover:text-primary focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+          >
+            {q}
+          </button>
+        ))}
+      </div>
     </div>
   );
 }

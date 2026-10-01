@@ -64,7 +64,22 @@ function SpeechBubble({ children }: { children: ReactNode }) {
  * she's saying it. The full text reserves the bubble's size up front (no growing line by line),
  * screen readers get it all at once, and reduced motion shows it straight away.
  */
-export function Typewriter({ text, delay = 450, speed = 20 }: { text: string; delay?: number; speed?: number }) {
+/**
+ * Types `text` out. By default the full text's space is reserved up front (no reflow while it
+ * types); with `grow`, only its width is reserved and the height grows line by line, like live
+ * captions.
+ */
+export function Typewriter({
+  text,
+  delay = 450,
+  speed = 20,
+  grow = false,
+}: {
+  text: string;
+  delay?: number;
+  speed?: number;
+  grow?: boolean;
+}) {
   const reduce = useReducedMotion();
   const [count, setCount] = useState(0);
 
@@ -83,6 +98,26 @@ export function Typewriter({ text, delay = 450, speed = 20 }: { text: string; de
 
   const shown = reduce ? text.length : count;
   const typing = shown < text.length;
+  const caret = typing && (
+    <span className="ml-0.5 inline-block h-[1.05em] w-[2px] translate-y-[0.15em] animate-pulse rounded-full bg-primary" />
+  );
+
+  if (grow) {
+    return (
+      <span className="block">
+        <span className="sr-only">{text}</span>
+        {/* Holds the finished width (zero height), so lines wrap where they'll end up. */}
+        <span aria-hidden className="invisible block h-0 overflow-hidden">
+          {text}
+        </span>
+        <span aria-hidden>
+          {text.slice(0, shown)}
+          {caret}
+        </span>
+      </span>
+    );
+  }
+
   return (
     <span className="relative block">
       <span className="sr-only">{text}</span>
@@ -91,9 +126,7 @@ export function Typewriter({ text, delay = 450, speed = 20 }: { text: string; de
       </span>
       <span aria-hidden className="absolute inset-0">
         {text.slice(0, shown)}
-        {typing && (
-          <span className="ml-0.5 inline-block h-[1.05em] w-[2px] translate-y-[0.15em] animate-pulse rounded-full bg-primary" />
-        )}
+        {caret}
       </span>
     </span>
   );

@@ -11,7 +11,8 @@ import type { NavItem, SocialLink } from "@/lib/types";
 export const site = {
   name: "Irsha Farwin",
   initials: "IF",
-  role: "Software Engineer | AI Engineer",
+  /** Her title everywhere it appears (hero byline, profile card, footer, page title). */
+  role: "Software Engineer & AI Researcher",
   roleLine: "MSc in Artificial Intelligence | Software Engineer | Independent AI Researcher",
   shortRole: "Software Engineer",
   tagline:
@@ -20,6 +21,22 @@ export const site = {
     "I'm Irsha Farwin, a software engineer working on real-world digital platforms while pursuing an MSc in Artificial Intelligence.",
   heroBio:
     "Software Engineer with 3+ years building production systems for government, civil infrastructure, and public-facing platforms, now pivoting into AI safety research through a Master's in Artificial Intelligence, applied LLM deployment work, and first-author research on equitable, statistically honest AI decision support. Direct experience with the practical challenges of putting AI into high-stakes, citizen-facing environments — where grounding, reliability, and trustworthy behavior matter as much as raw capability. Particular interest in avoiding overstated certainty in AI systems that materially affect people's lives.",
+  /** Hero headline; the `headlineAccent` phrase inside it is highlighted. */
+  headline: "I build AI that unlocks human potential",
+  headlineAccent: "human potential",
+  /** The short hero intro (the full `heroBio` above feeds the AI chat). */
+  heroIntro:
+    "Turning research on trustworthy, grounded AI into production systems for government and public-facing platforms.",
+  /**
+   * Stat cards under the hero. A numeric `value` counts up; `suffix` follows it. `icon` is one of
+   * the names in HeroStats' icon map.
+   */
+  heroStats: [
+    { value: 3, suffix: "+ yrs", label: "Production engineering", icon: "briefcase" },
+    { value: "MSc", label: "Artificial Intelligence", icon: "graduation" },
+    { value: "ICODE '26", label: "Research paper presented", icon: "paper" },
+    { value: "GovTech", label: "Public-facing platforms", icon: "landmark" },
+  ],
   statusPill: "Open to new opportunities",
   currentlyFocus: "MSc in Artificial Intelligence",
   focusAreas: ["Full-Stack", "AI/ML", "GovTech"],

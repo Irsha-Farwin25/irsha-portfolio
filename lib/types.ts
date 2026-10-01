@@ -111,6 +111,8 @@ export interface Certificate {
   category: CertificateCategory;
   date?: string;
   description?: string;
+  /** What the avatar says when it's under the spotlight (falls back to the description). */
+  narration?: string;
   /** Path under /public, e.g. "/achievements/certificates/aws.jpg" */
   image?: string;
   /** Verification / credential URL */
@@ -122,6 +124,8 @@ export interface NewsItem {
   title: string;
   /** Publication or outlet, e.g. "Daily News" */
   source: string;
+  /** Items about the same event share a key (e.g. "uda-payments"), so each can list the others. */
+  story?: string;
   date?: string;
   summary?: string;
   /** Path under /public, e.g. "/achievements/news/icode.jpg" */

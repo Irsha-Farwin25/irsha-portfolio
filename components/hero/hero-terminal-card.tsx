@@ -3,8 +3,19 @@ import { ChevronRight, ShieldCheck } from "lucide-react";
 import { Avatar } from "@/components/hero/avatar";
 import { site } from "@/data/site";
 
-/** `action` replaces the decorative "LIVE" chip in the window bar (e.g. the "Ask AI" button). */
-export function HeroTerminalCard({ action }: { action?: ReactNode }) {
+/** The card's `irsha.config.ts` snippet: facts the hero beside it doesn't already state. */
+const CONFIG: { key: string; value: string | string[] }[] = [
+  { key: "stack", value: ["TypeScript", "Python"] },
+  { key: "research", value: "Honest AI decision support" },
+  { key: "shipped", value: "GovTech & public platforms" },
+  { key: "values", value: ["grounded", "reliable", "calibrated"] },
+];
+
+/**
+ * `action` replaces the decorative "LIVE" chip in the window bar (e.g. the "Ask AI" button);
+ * `footer` sits at the bottom of the card (e.g. the "Ask my AI" prompt).
+ */
+export function HeroTerminalCard({ action, footer }: { action?: ReactNode; footer?: ReactNode }) {
   return (
     <div className="w-full max-w-md overflow-hidden rounded-2xl border border-black/5 bg-card shadow-xl shadow-foreground/10 dark:border-white/5">
       <div className="grid grid-cols-3 items-center px-4 py-3">
@@ -37,10 +48,6 @@ export function HeroTerminalCard({ action }: { action?: ReactNode }) {
           <div className="min-w-0 flex-1 pt-0.5">
             <p className="font-semibold">{site.name}</p>
             <p className="text-pretty text-xs leading-relaxed text-primary">{site.role}</p>
-            <span className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-chart-4/30 bg-chart-4/10 px-2 py-0.5 font-mono text-[10px] text-chart-4">
-              <span className="size-1.5 rounded-full bg-chart-4" />
-              {site.statusPill}
-            </span>
           </div>
         </div>
 
@@ -53,38 +60,35 @@ export function HeroTerminalCard({ action }: { action?: ReactNode }) {
           </div>
           <pre className="overflow-x-auto font-mono text-[12px] leading-relaxed text-neutral-300">
             <code>
-              <span className="text-purple-400">const</span> engineer = {"{"}
+              <span className="text-purple-400">const</span> irsha = {"{"}
               {"\n"}
-              {"  "}
-              <span className="text-neutral-300">domain</span>: <span className="text-green-400">&quot;Artificial Intelligence&quot;</span>,{"\n"}
-              {"  "}
-              <span className="text-neutral-300">focus</span>: <span className="text-yellow-400">[</span>
-              {site.focusAreas.map((area, i) => (
-                <span key={area}>
-                  <span className="text-yellow-400">&quot;{area}&quot;</span>
-                  {i < site.focusAreas.length - 1 ? ", " : ""}
+              {CONFIG.map(({ key, value }) => (
+                <span key={key}>
+                  {"  "}
+                  <span className="text-neutral-300">{key}</span>:{" "}
+                  {Array.isArray(value) ? (
+                    <>
+                      <span className="text-yellow-400">[</span>
+                      {value.map((v, i) => (
+                        <span key={v}>
+                          <span className="text-yellow-400">&quot;{v}&quot;</span>
+                          {i < value.length - 1 ? ", " : ""}
+                        </span>
+                      ))}
+                      <span className="text-yellow-400">]</span>
+                    </>
+                  ) : (
+                    <span className="text-green-400">&quot;{value}&quot;</span>
+                  )}
+                  ,{"\n"}
                 </span>
               ))}
-              <span className="text-yellow-400">]</span>,{"\n"}
-              {"  "}
-              <span className="text-neutral-300">currently</span>: <span className="text-cyan-400">&quot;{site.currentlyShort}&quot;</span>,{"\n"}
-              {"  "}
-              <span className="text-neutral-300">status</span>: <span className="text-green-400">&quot;Building &amp; learning&quot;</span>,{"\n"}
               {"}"};
             </code>
           </pre>
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
-          <div className="min-w-0 rounded-lg bg-secondary/60 px-3.5 py-3 text-center">
-            <p className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground">Focus</p>
-            <p className="mt-1 text-sm font-medium">AI &amp; Full-Stack</p>
-          </div>
-          <div className="min-w-0 rounded-lg bg-secondary/60 px-3.5 py-3 text-center">
-            <p className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground">Currently</p>
-            <p className="mt-1 text-pretty text-sm font-medium leading-snug">{site.currentlyFocus}</p>
-          </div>
-        </div>
+        {footer}
       </div>
     </div>
   );
