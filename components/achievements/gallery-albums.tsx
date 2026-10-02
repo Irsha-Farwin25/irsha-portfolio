@@ -157,9 +157,13 @@ function AlbumCard({ album }: { album: GalleryAlbum }) {
 /** Gallery grouped by event: one collage card per album, each opening a swipeable viewer. */
 export function GalleryAlbums({ albums }: { albums: GalleryAlbum[] }) {
   return (
-    <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+    // Flex-wrap rather than a grid, so a short last row (or a tab with only two albums) centres
+    // under the tabs instead of hugging the left edge. Widths match a 1/2/3-column grid with gap-5.
+    <div className="flex flex-wrap justify-center gap-5">
       {albums.map((album) => (
-        <AlbumCard key={album.id} album={album} />
+        <div key={album.id} className="w-full sm:w-[calc((100%-1.25rem)/2)] lg:w-[calc((100%-2.5rem)/3)]">
+          <AlbumCard album={album} />
+        </div>
       ))}
     </div>
   );

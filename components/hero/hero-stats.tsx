@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import { animate, motion, useInView, useReducedMotion } from "motion/react";
 import { BriefcaseBusiness, FileText, GraduationCap, Landmark, type LucideIcon } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 type Stat = { value: number | string; suffix?: string; label: string; icon?: string };
 
@@ -20,14 +21,16 @@ const ICONS: Record<string, LucideIcon> = {
 export function HeroStats({ stats }: { stats: readonly Stat[] }) {
   const reduce = useReducedMotion();
   return (
-    <dl className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+    // Columns follow the number of cards, so the row never shows an empty slot. On phones (two
+    // columns) an odd last card spans the full width.
+    <dl className={cn("grid grid-cols-2 gap-3 sm:gap-4", stats.length === 3 ? "sm:grid-cols-3" : "lg:grid-cols-4")}>
       {stats.map((s, i) => {
         const Icon = s.icon ? ICONS[s.icon] : undefined;
         return (
           // The label is the <dt> (it comes first for screen readers); the value shows above it.
           <motion.div
             key={s.label}
-            className="group relative flex min-w-0 flex-col gap-1 overflow-hidden rounded-2xl border border-border/70 bg-card/60 p-4 backdrop-blur-sm transition-[border-color,box-shadow,translate] duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-[0_12px_32px_-14px] hover:shadow-primary/40 sm:p-5"
+            className="group relative flex min-w-0 flex-col gap-1 overflow-hidden rounded-2xl border border-border/70 bg-card/60 p-4 backdrop-blur-sm transition-[border-color,box-shadow,translate] duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-[0_12px_32px_-14px] hover:shadow-primary/40 odd:last:col-span-2 sm:p-5 sm:odd:last:col-span-1"
             initial={reduce ? false : { opacity: 0, y: 16, filter: "blur(6px)" }}
             whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
             viewport={{ once: true, margin: "0px 0px -10% 0px" }}

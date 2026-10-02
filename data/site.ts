@@ -35,7 +35,6 @@ export const site = {
     { value: 3, suffix: "+ yrs", label: "Production engineering", icon: "briefcase" },
     { value: "MSc", label: "Artificial Intelligence", icon: "graduation" },
     { value: "ICODE '26", label: "Research paper presented", icon: "paper" },
-    { value: "GovTech", label: "Public-facing platforms", icon: "landmark" },
   ],
   statusPill: "Open to new opportunities",
   currentlyFocus: "MSc in Artificial Intelligence",

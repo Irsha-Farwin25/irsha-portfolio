@@ -165,10 +165,11 @@ export function CertificateFan({ items }: { items: Certificate[] }) {
   return (
     // -mt-8 cancels the tab panel's gap so the stage sits flush under the tab bar, which the
     // spotlight hangs from.
-    <div className="-mt-8 flex flex-col items-center gap-6" onKeyDown={onKeyDown}>
+    // gap-2 keeps the title close under the lit frame; the stage itself ends just below the frame.
+    <div className="-mt-8 flex flex-col items-center gap-2" onKeyDown={onKeyDown}>
       <div
         ref={stageRef}
-        className="relative h-[469px] w-full overflow-hidden [--fade-dim:0.12] [--fan-r:1300px] dark:[--fade-dim:0.4] [mask-image:linear-gradient(to_right,transparent,black_12%,black_88%,transparent),linear-gradient(to_bottom,black_calc(100%_-_28px),transparent)] [mask-composite:intersect] sm:h-[639px] sm:[--fan-r:2500px]"
+        className="relative h-[448px] w-full overflow-hidden [--fade-dim:0.12] [--fan-r:1300px] dark:[--fade-dim:0.4] [mask-image:linear-gradient(to_right,transparent,black_12%,black_88%,transparent),linear-gradient(to_bottom,black_calc(100%_-_28px),transparent)] [mask-composite:intersect] sm:h-[610px] sm:[--fan-r:2500px]"
         // Pause the walk only while the pointer rests on the certificate in the spotlight (someone
         // is looking at it) — not anywhere on the wall, where the cursor often just sits.
         onPointerMove={(e) => setHovered(!!(e.target as Element).closest("[data-spotlit]"))}

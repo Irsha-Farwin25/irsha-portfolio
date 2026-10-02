@@ -1,11 +1,12 @@
 "use client";
 
-import { forwardRef, useEffect, useRef, useState } from "react";
+import { forwardRef, useRef, useState, useSyncExternalStore } from "react";
 import Image from "next/image";
 import { Playfair_Display, UnifrakturMaguntia } from "next/font/google";
 import HTMLFlipBook from "react-pageflip";
 import { ChevronLeft, ChevronRight, ExternalLink, MoveHorizontal, Newspaper } from "lucide-react";
 import { ImageLightbox } from "@/components/projects/image-lightbox";
+import { useHasMounted } from "@/lib/hooks/use-has-mounted";
 import { cn } from "@/lib/utils";
 import type { NewsItem } from "@/lib/types";
 
@@ -114,16 +115,17 @@ interface PageFlipController {
   getPageCount: () => number;
 }
 
+/** Subscribes to a media query; `false` during server rendering (same as before hydration). */
 function useMediaQuery(query: string) {
-  const [matches, setMatches] = useState(false);
-  useEffect(() => {
-    const mql = window.matchMedia(query);
-    setMatches(mql.matches);
-    const onChange = (e: MediaQueryListEvent) => setMatches(e.matches);
-    mql.addEventListener("change", onChange);
-    return () => mql.removeEventListener("change", onChange);
-  }, [query]);
-  return matches;
+  return useSyncExternalStore(
+    (onChange) => {
+      const mql = window.matchMedia(query);
+      mql.addEventListener("change", onChange);
+      return () => mql.removeEventListener("change", onChange);
+    },
+    () => window.matchMedia(query).matches,
+    () => false
+  );
 }
 
 function ClippingLinks({ item }: { item: NewsItem }) {
@@ -380,8 +382,7 @@ export function NewsClippings({ news }: { news: NewsItem[] }) {
   const isDesktop = useMediaQuery("(min-width: 640px)");
   const flipRef = useRef<{ pageFlip: () => PageFlipController } | null>(null);
   const [pageIndex, setPageIndex] = useState(0);
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
+  const mounted = useHasMounted();
 
   const pagesPerItem = isDesktop ? 2 : 1;
   const pageCount = n * pagesPerItem;
