@@ -5,7 +5,7 @@ import { Reveal } from "@/components/motion/reveal";
 import { HeroTerminalCard } from "@/components/hero/hero-terminal-card";
 import { AskAiButton, AskAiPrompt, HeroFlipCard } from "@/components/hero/hero-flip-card";
 import { HeroBackground } from "@/components/hero/hero-background";
-import { HeroStats } from "@/components/hero/hero-stats";
+import { CareerStats } from "@/components/experience/experience-explorer";
 import { HeroHeadline } from "@/components/hero/hero-headline";
 import { ResumeLink } from "@/components/layout/resume-link";
 import { GithubIcon, LinkedinIcon } from "@/components/icons/brand-icons";
@@ -31,7 +31,8 @@ export async function Hero() {
   return (
     <section className="relative overflow-hidden pt-10 sm:pt-12">
       <HeroBackground />
-      <Container className="flex flex-col gap-12 pb-20 sm:pb-28 lg:gap-12">
+      {/* A generous gap between the intro and the stat row, so the proof reads as its own band. */}
+      <Container className="flex flex-col gap-14 pb-20 sm:gap-16 sm:pb-28 lg:gap-20">
         <div className="grid items-center gap-14 lg:grid-cols-[1.1fr_0.9fr] lg:gap-12">
           <div className="flex min-w-0 flex-col gap-7">
             <Reveal>
@@ -47,21 +48,14 @@ export async function Hero() {
             {/* The positioning statement leads; her name and role sit beneath it as the byline. */}
             <div className="flex flex-col gap-5">
               {/* The words animate in themselves (blur-in, one by one), so no Reveal wrapper here. */}
-              <h1 className="max-w-[16ch] text-balance text-4xl font-semibold leading-[1.05] tracking-tight sm:text-5xl lg:text-[3.6rem] xl:text-[4.25rem]">
+              <h1 className="max-w-[16ch] text-balance text-[2.8rem] font-semibold leading-[1.05] tracking-tight sm:text-[3.7rem] lg:text-[3.7rem] xl:text-[4.25rem] 2xl:text-[4.7rem]">
                 <span className="sr-only">{site.name}: </span>
-                <HeroHeadline text={site.headline} accent={site.headlineAccent} />
+                <HeroHeadline text={site.headline} accent={site.headlineAccent} decode={site.headlineDecode} />
               </h1>
 
+              {/* Her name, role and credentials sit beside her photo in the card. */}
               <Reveal delay={0.1}>
-                <p className="flex flex-wrap items-center gap-x-2.5 gap-y-1 text-sm sm:text-base lg:text-lg xl:text-xl">
-                  <span className="font-semibold text-foreground">{site.name}</span>
-                  <span aria-hidden className="h-px w-6 bg-border" />
-                  <span className="text-foreground/80">{site.role}</span>
-                </p>
-              </Reveal>
-
-              <Reveal delay={0.15}>
-                <p className="max-w-[36rem] text-pretty text-base leading-relaxed text-foreground/70 sm:text-lg xl:text-xl">
+                <p className="max-w-[36rem] text-pretty text-base leading-relaxed text-foreground/75 sm:text-lg">
                   {site.heroIntro}
                 </p>
               </Reveal>
@@ -102,15 +96,16 @@ export async function Hero() {
             </Reveal>
           </div>
 
-          <Reveal delay={0.15} className="mx-auto w-full min-w-0 lg:mx-0">
+          {/* Right-aligned on large screens, so the card's edge lines up with the stat row below. */}
+          <Reveal delay={0.15} className="flex w-full min-w-0 justify-center lg:justify-end">
             <HeroFlipCard>
               <HeroTerminalCard action={<AskAiButton />} footer={<AskAiPrompt />} />
             </HeroFlipCard>
           </Reveal>
         </div>
 
-        {/* Proof points as their own full-width row of cards, closing the hero. */}
-        <HeroStats stats={site.heroStats} />
+        {/* Career impact as its own full-width row of cards, closing the hero. */}
+        <CareerStats />
       </Container>
     </section>
   );

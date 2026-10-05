@@ -24,6 +24,34 @@ export interface ExperienceItem {
   responsibilities: string[];
   technologies: string[];
   isPlaceholder?: boolean;
+  /** Letters for the company badge, e.g. "UDA". Falls back to the organisation's initials. */
+  monogram?: string;
+  /** Company logo under /public, shown in place of the monogram. */
+  logo?: string;
+  /** "cover" fills the badge (square logos); "contain" sits on white with padding (default). */
+  logoFit?: "cover" | "contain";
+  /** Slugs of projects built in this role; shown as "Shipped here" links. */
+  projects?: string[];
+  /** Who the work was for: a government body, or an international company. */
+  sector?: "government" | "international";
+  /** One line on what the organisation is, for the "About the workplace" block. */
+  about?: string;
+  /**
+   * For remote roles: where the work was done from, and the time difference to the employer
+   * in hours (a range when daylight saving shifts it), e.g. Colombo, 4.5–5.5 h to Sydney.
+   */
+  remote?: { from: string; gapHours: [number, number] };
+  /** The organisation's official website. */
+  website?: string;
+  /** Headcount band, e.g. "51–200", shown as a chip in "About the workplace". */
+  teamSize?: string;
+  /**
+   * Headline results from the role, each shown as an Experience stat card, e.g. LKR 10M+ in client
+   * payments. `segments` lights that many cells in the card's meter (e.g. months).
+   */
+  headlineStats?: { prefix?: string; value: number; suffix?: string; label: string; proof: string; segments: number }[];
+  /** A public business-register entry proving the organisation, e.g. its ABN record. */
+  registry?: { id: string; href: string };
 }
 
 export interface EducationItem {
@@ -46,8 +74,16 @@ export interface EducationItem {
   currentModule?: string;
   /** Focus areas or key modules, listed on the back of the card. */
   modules?: string[];
-  /** Final result, e.g. "First Class Honours" (back of the card). */
+  /** Final result, e.g. "First Class Honours". */
   result?: string;
+  /** Final-year thesis or project title. */
+  thesis?: string;
+  /** How the degree is studied, e.g. "Part-time, alongside work". */
+  mode?: string;
+  /** The institution's own site. */
+  website?: string;
+  /** One line on the institution's standing, for readers who don't know it; **phrases** are highlighted. */
+  about?: string;
   /** University crest under /public, e.g. "/education/moratuwa.png". Falls back to `monogram`. */
   logo?: string;
   /** Short letters for the crest badge when there's no logo, e.g. "UoM". */
@@ -121,6 +157,10 @@ export interface Publication {
   summary: string;
   link?: string;
   status: "Presented" | "Accepted" | "In Progress" | "Submitted";
+  /** Slug of the project this research produced; shown as its live prototype. */
+  project?: string;
+  /** Supporting material, labelled by kind so the labels can be translated. */
+  resources?: { kind: "slides" | "proceedings"; href: string }[];
 }
 
 export type CertificateCategory = "Course" | "Hackathon" | "Conference";
@@ -157,6 +197,24 @@ export interface NewsItem {
   linkLabel?: string;
   /** Extra buttons shown after the main link */
   extraLinks?: { label: string; href: string }[];
+}
+
+/**
+ * One event the press covered, grouping the clippings that share its `story` key: what it was,
+ * her part in it, and what it achieved.
+ */
+export interface NewsStory {
+  /** Matches `NewsItem.story`. */
+  id: string;
+  /** The news section it ran under, shown as the kicker (e.g. "GovTech", "Research"). */
+  section: string;
+  title: string;
+  /** Her part in it, shown as a chip; `kind` picks its colour. */
+  role: string;
+  kind: "lead" | "team" | "author";
+  /** One line on what it achieved. */
+  impact: string;
+  date: string;
 }
 
 export interface GalleryImage {
@@ -196,4 +254,8 @@ export interface Recommendation {
   highlight: string;
   /** Shown as the large spotlight card. Only the first featured item is used. */
   featured?: boolean;
+  /** Id of the role in data/experience.ts where they worked together (shows its logo and a link). */
+  experience?: string;
+  /** Words inside `highlight` a highlighter marks on the note. Must be copied verbatim from it. */
+  keyPhrase?: string;
 }

@@ -710,7 +710,9 @@ function Dock({ reduceMotion }: { reduceMotion: boolean }) {
               }
               exit={{ opacity: 0, y: 24, scale: 0.9 }}
               transition={{ type: "spring", stiffness: 220, damping: 22 }}
-              className="group relative h-[210px] w-[120px] sm:h-[360px] sm:w-[204px]"
+              // Full size only where the page's side margin can hold her (≈1700px+); smaller on
+              // laptops and compact on tablets and phones, so she doesn't cover the content.
+              className="group relative h-[210px] w-[120px] min-[1400px]:h-[270px] min-[1400px]:w-[154px] min-[1700px]:h-[360px] min-[1700px]:w-[204px]"
             >
               <span
                 aria-hidden

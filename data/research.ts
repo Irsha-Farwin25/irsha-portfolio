@@ -12,6 +12,14 @@ export const publications: Publication[] = [
     summary:
       "Research presentation on an AI-powered platform designed to give students in Sri Lanka more equitable access to university and career guidance — part of ongoing MSc research into practical, socially-grounded applications of artificial intelligence.",
     status: "Presented",
+    project: "ai-career-guidance-platform",
+    resources: [
+      {
+        kind: "slides",
+        href: "https://icode.bit.uom.lk/assets/AI-Powered%20University%20_%20Career%20Guidance%20Platform%20for%20Sri%20Lankan%20A_L%20Students-j-VPa90D.pdf",
+      },
+      { kind: "proceedings", href: "https://icode.bit.uom.lk/proceedings" },
+    ],
   },
 ];
 

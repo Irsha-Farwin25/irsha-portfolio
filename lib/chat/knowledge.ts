@@ -46,7 +46,8 @@ function work() {
     .map((e) =>
       [
         `- ${e.role}, ${e.organization} (${e.employmentType}, ${e.locationType}, ${e.location}), ${e.startDate} to ${e.endDate ?? "present"}. ${e.summary}`,
-        `  Work: ${e.responsibilities.join(" ")}`,
+        // Contributions mark key results as **bold** for the page; the assistant gets plain text.
+        `  Work: ${e.responsibilities.join(" ").replace(/\*\*/g, "")}`,
         `  Tech: ${e.technologies.join(", ")}`,
       ].join("\n")
     )

@@ -1,4 +1,4 @@
-import type { Certificate, GalleryAlbum, NewsItem } from "@/lib/types";
+import type { Certificate, GalleryAlbum, NewsItem, NewsStory } from "@/lib/types";
 
 /**
  * Courses, hackathons and conferences — each category is its own tab.
@@ -176,7 +176,8 @@ export const news: NewsItem[] = [
     story: "mother-lanka",
     date: "Mar 2026",
     summary: "Newswire's report on the Urban Development Authority's new digital public engagement platform.",
-    image: "/achievements/news/MLDW-Newswire.jpg",
+    // The article's own photo at full resolution (sharper than a screenshot of the page).
+    image: "/achievements/news/MLDW-Newswire-photo.jpg",
     link: "https://www.newswire.lk/2026/03/16/uda-unveils-mother-lanka-digital-public-engagement-platform/",
   },
   {
@@ -198,7 +199,7 @@ export const news: NewsItem[] = [
     source: "News 1st",
     story: "mother-lanka",
     date: "Mar 2026",
-    summary: "Coverage of the launch of the UDA Mother Lanka Digital Platform, which I worked on.",
+    summary: "Coverage of the launch of the UDA Mother Lanka Digital Platform, which I led end-to-end.",
     image: "/achievements/news/MLDW-NewsFirst.jpg",
     link: "https://www.newsfirst.lk/2026/03/16/uda-launches-mother-lanka-digital-platform-to-enhance-public-participation-in-urban-planning",
   },
@@ -238,6 +239,55 @@ export const news: NewsItem[] = [
 ];
 
 /**
+ * Outlet icons, by the `source` name used above, under /public/achievements/news/logos/.
+ * Outlets without one show their initials instead.
+ */
+export const outletLogos: Record<string, string> = {
+  Newswire: "/achievements/news/logos/newswire.png",
+  "News 1st": "/achievements/news/logos/news1st.png",
+  "Daily Mirror": "/achievements/news/logos/dailymirror.png",
+  "The Morning": "/achievements/news/logos/themorning.png",
+  "Hiru News": "/achievements/news/logos/hirunews.png",
+  // The organiser's emblem (CODL, University of Moratuwa), on a transparent background.
+  "ICODE 2026 Proceedings": "/achievements/news/logos/icode.png",
+};
+
+/**
+ * The events the press covered, in the order they're shown. Each groups the clippings above that
+ * share its id as their `story`. Mother Lanka was hers end to end; FMIS payments were a team
+ * effort; the ICODE paper is her own.
+ */
+export const newsStories: NewsStory[] = [
+  {
+    id: "mother-lanka",
+    section: "GovTech",
+    title: "Mother Lanka Digital Platform launch",
+    role: "Led end-to-end",
+    kind: "lead",
+    impact: "Live in Sinhala, Tamil & English, with 6 of 7 modules in daily public use",
+    date: "Mar 2026",
+  },
+  {
+    id: "uda-payments",
+    section: "GovTech",
+    title: "UDA's first online payment system",
+    role: "Part of the team",
+    kind: "team",
+    impact: "13,500+ residents and 1,400+ merchants moved from paper to digital payments",
+    date: "Feb 2026",
+  },
+  {
+    id: "icode-2026",
+    section: "Research",
+    title: "AI career-guidance research at ICODE 2026",
+    role: "Author",
+    kind: "author",
+    impact: "Published in the official conference proceedings",
+    date: "Aug 2026",
+  },
+];
+
+/**
  * Volunteering — one album per organisation. Put images in /public/achievements/volunteering/.
  * Same shape as gallery albums; the first image is the cover.
  */
@@ -257,6 +307,16 @@ export const volunteering: GalleryAlbum[] = [
         id: "g17-ceremony",
         src: "/achievements/volunteering/volunteering-1.jpg",
         caption: "With fellow SDG ambassadors at the G17 UAC award ceremony",
+      },
+      {
+        id: "g17-team",
+        src: "/achievements/volunteering/g17-team-1.jpg",
+        caption: "With the G17 SDG ambassador team at the Road to Rights award ceremony",
+      },
+      {
+        id: "g17-team-certificate",
+        src: "/achievements/volunteering/g17-team-2.jpg",
+        caption: "Fellow G17 SDG ambassadors with certificates of appreciation",
       },
       {
         id: "g17-project-completion",
@@ -332,14 +392,14 @@ export const gallery: GalleryAlbum[] = [
     date: "Aug 2026",
     images: [
       {
-        id: "icode-presenting",
-        src: "/achievements/gallery/conference-3.jpg",
-        caption: "Presenting my research on AI-powered university and career guidance at ICODE 2026",
-      },
-      {
         id: "icode-certificate",
         src: "/achievements/gallery/conference-2.jpg",
         caption: "Receiving the Certificate of Presentation at ICODE 2026",
+      },
+      {
+        id: "icode-presenting",
+        src: "/achievements/gallery/conference-3.jpg",
+        caption: "Presenting my research on AI-powered university and career guidance at ICODE 2026",
       },
       {
         id: "icode-stage",

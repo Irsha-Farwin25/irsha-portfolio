@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState, type MouseEvent } from "react";
 import { Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -26,6 +26,12 @@ export function SiteHeader({ avatarUrl }: { avatarUrl: string | null }) {
   const [scrolled, setScrolled] = useState(false);
   const [activeHash, setActiveHash] = useState<string>("");
   const [mobileOpen, setMobileOpen] = useState(false);
+  // While a clicked jump is still scrolling, the scroll-spy holds the clicked item (no flicker
+  // through every section on the way).
+  const holding = useRef(false);
+  const holdTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // A section picked in the mobile menu, scrolled to once the menu has finished closing.
+  const pendingTarget = useRef<string | null>(null);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12);
@@ -34,30 +40,80 @@ export function SiteHeader({ avatarUrl }: { avatarUrl: string | null }) {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  // Scroll-spy: the active section is the last one whose top has passed a line a third of the way
+  // down the screen. Above the first section (the hero) nothing is active; at the very bottom of
+  // the page the last section is, even if it's too short to reach the line.
+  // (Off the home page no section link is active anyway: isActive checks the path.)
   useEffect(() => {
     if (pathname !== "/") return;
-
-    const sections = navItems
-      .filter((item) => item.href.startsWith("/#"))
-      .map((item) => item.href.slice(2))
-      .map((id) => document.getElementById(id))
-      .filter((el): el is HTMLElement => Boolean(el));
-
-    if (sections.length === 0) return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const visible = entries
-          .filter((entry) => entry.isIntersecting)
-          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
-        if (visible) setActiveHash(`#${visible.target.id}`);
-      },
-      { rootMargin: "-40% 0px -50% 0px", threshold: [0, 0.25, 0.5, 1] }
-    );
-
-    sections.forEach((el) => observer.observe(el));
-    return () => observer.disconnect();
+    const ids = navItems.filter((item) => item.href.startsWith("/#")).map((item) => item.href.slice(2));
+    let frame = 0;
+    const update = () => {
+      frame = 0;
+      if (holding.current) return;
+      const sections = ids
+        .map((id) => document.getElementById(id))
+        .filter((el): el is HTMLElement => Boolean(el))
+        .sort((a, b) => a.offsetTop - b.offsetTop);
+      if (!sections.length) return;
+      const line = window.innerHeight / 3;
+      const atBottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 4;
+      const current = atBottom
+        ? sections[sections.length - 1]
+        : sections.filter((el) => el.getBoundingClientRect().top <= line).pop();
+      setActiveHash(current ? `#${current.id}` : "");
+    };
+    const onScroll = () => {
+      if (!frame) frame = requestAnimationFrame(update);
+    };
+    update();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+    };
   }, [pathname, navItems]);
+
+  /** Scrolls to a section on this page, updating the URL and the underline straight away. */
+  const scrollToSection = (hash: string) => {
+    const el = document.getElementById(hash.slice(1));
+    if (!el) return false;
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    holding.current = true;
+    if (holdTimer.current) clearTimeout(holdTimer.current);
+    holdTimer.current = setTimeout(() => (holding.current = false), reduce ? 50 : 900);
+    setActiveHash(hash);
+    // Same URL as before still scrolls (a plain hash link wouldn't move a second time).
+    window.history.pushState(null, "", `/${hash}`);
+    el.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
+    return true;
+  };
+
+  /** Section links on the home page scroll in place; anything else navigates normally. */
+  const onNavClick = (e: MouseEvent<HTMLAnchorElement>, href: string, fromMenu = false) => {
+    if (!href.startsWith("/#") || pathname !== "/" || e.metaKey || e.ctrlKey || e.shiftKey) return;
+    e.preventDefault();
+    const hash = href.slice(1);
+    if (fromMenu) {
+      // Let the menu close (and release its scroll lock) first, or it would restore the old
+      // scroll position over the jump.
+      pendingTarget.current = hash;
+      setMobileOpen(false);
+      return;
+    }
+    scrollToSection(hash);
+  };
+
+  // Once the mobile menu has closed, go to the section picked in it.
+  useEffect(() => {
+    if (mobileOpen || !pendingTarget.current) return;
+    const hash = pendingTarget.current;
+    pendingTarget.current = null;
+    const id = setTimeout(() => scrollToSection(hash), 320);
+    return () => clearTimeout(id);
+  }, [mobileOpen]);
 
   const isActive = (href: string) => {
     if (href.startsWith("/#")) {
@@ -90,6 +146,8 @@ export function SiteHeader({ avatarUrl }: { avatarUrl: string | null }) {
             <Link
               key={item.href}
               href={item.href}
+              onClick={(e) => onNavClick(e, item.href)}
+              aria-current={isActive(item.href) ? "location" : undefined}
               className={cn(
                 "relative rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground",
                 isActive(item.href) && "text-foreground"
@@ -123,6 +181,7 @@ export function SiteHeader({ avatarUrl }: { avatarUrl: string | null }) {
                     render={
                       <Link
                         href={item.href}
+                        onClick={(e) => onNavClick(e, item.href, true)}
                         className={cn(
                           "rounded-md px-3 py-3 text-lg font-medium text-foreground/90 transition-colors hover:bg-muted hover:text-foreground",
                           isActive(item.href) && "text-primary"

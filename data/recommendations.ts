@@ -1,16 +1,20 @@
 import type { Recommendation } from "@/lib/types";
 
-/** LinkedIn recommendations — from linkedin.com/in/irsha-farwin-0a965b177/details/recommendations/ */
+/**
+ * LinkedIn recommendations — from linkedin.com/in/irsha-farwin-0a965b177/details/recommendations/
+ * (so every one is LinkedIn-verified). The featured one leads: two years together at UnicornShift,
+ * naming the stack, is the strongest signal for software engineering roles.
+ */
 export const recommendations: Recommendation[] = [
   {
     id: "farshath-jamal",
+    keyPhrase: "visually stunning and functional website",
     name: "Farshath Jamal",
     title: "Regional Director, The Institute of Financial Accountants",
     relationship: "Irsha's client",
     kind: "Client",
     date: "Jul 2023",
     verified: true,
-    featured: true,
     highlight:
       "Irsha's ability to understand our requirements and transform our vision into a visually stunning and functional website was remarkable.",
     quote:
@@ -18,11 +22,15 @@ export const recommendations: Recommendation[] = [
   },
   {
     id: "ramesh-kithsiri",
+    keyPhrase: "quick in delivering tasks",
     name: "Ramesh Kithsiri",
     title: "Software Engineer, UnicornShift",
     relationship: "Worked with Irsha on the same team",
     kind: "Teammate",
     date: "Aug 2025",
+    verified: true,
+    featured: true,
+    experience: "unicornshift-software-engineer",
     highlight:
       "Irsha is quick in delivering tasks and has a remarkable ability to manage multiple responsibilities in parallel.",
     quote:
@@ -30,11 +38,13 @@ export const recommendations: Recommendation[] = [
   },
   {
     id: "akila-udara",
+    keyPhrase: "both front-end and back-end development",
     name: "Akila Udara",
     title: "Full Stack .NET Software Engineer",
     relationship: "Worked with Irsha, at different companies",
     kind: "Peer",
     date: "Aug 2025",
+    verified: true,
     highlight:
       "Her ability to seamlessly handle both front-end and back-end development made her an invaluable asset to our team.",
     quote:
@@ -42,22 +52,28 @@ export const recommendations: Recommendation[] = [
   },
   {
     id: "sanduni-perera",
+    keyPhrase: "excellent coding and problem solving skills",
     name: "Sanduni Perera",
     title: "Software Testing Professional · Lecturer, IT",
     relationship: "Worked with Irsha on the same team",
     kind: "Teammate",
     date: "Jul 2026",
+    verified: true,
+    experience: "uda-software-engineer",
     highlight: "She is technically strong, dedicated, and has excellent coding and problem solving skills.",
     quote:
       "I had the pleasure of working with Irsha and highly recommend her as a Software Engineer. She is technically strong, dedicated, and has excellent coding and problem solving skills. Her experience in software and web development, combined with her willingness to learn and take on new challenges, makes her a valuable team member.\n\nIrsha is also collaborative, reliable, and always committed to delivering quality work. I'm confident she'll be a great asset to any organization. Wishing her all the best in her career!",
   },
   {
     id: "kushan-kekirideniya",
+    keyPhrase: "consistently delivers high-quality work",
     name: "Kushan Ravindu Kekirideniya",
     title: "Marketing Consultant, Unicornshift",
     relationship: "Worked with Irsha on the same team",
     kind: "Teammate",
     date: "Aug 2025",
+    verified: true,
+    experience: "unicornshift-software-engineer",
     highlight:
       "Irsha consistently delivers high-quality work, adapts quickly to challenges, and brings a positive, team-oriented attitude to everything she does.",
     quote:

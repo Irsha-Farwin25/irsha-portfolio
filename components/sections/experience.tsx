@@ -2,13 +2,12 @@ import { GraduationCap } from "lucide-react";
 import { Container } from "@/components/ui/container";
 import { SectionHeading } from "@/components/ui/section-heading";
 import { Reveal } from "@/components/motion/reveal";
-import { ExperienceCard } from "@/components/experience/experience-card";
-import { EducationPath } from "@/components/experience/education-path";
+import { ExperienceExplorer } from "@/components/experience/experience-explorer";
+import { EducationCredentials } from "@/components/experience/education-credentials";
 import { getI18n } from "@/lib/i18n/server";
 
 export async function Experience() {
-  const { t, content } = await getI18n();
-  const { experience } = content;
+  const { t } = await getI18n();
   return (
     <section id="experience" className="scroll-mt-24 border-t border-border py-20 sm:py-28">
       <Container className="flex flex-col gap-16">
@@ -20,30 +19,21 @@ export async function Experience() {
           />
         </Reveal>
 
-        <div className="relative flex flex-col gap-5 border-s border-border ps-8">
-          {experience.map((item, i) => (
-            <Reveal key={item.id} delay={i * 0.05}>
-              <article className="relative">
-                <span
-                  className="absolute -start-[calc(2rem+5px)] top-6 size-2.5 rounded-full border-2 border-background bg-primary"
-                  aria-hidden="true"
-                />
-
-                <ExperienceCard item={item} defaultOpen={i === 0} />
-              </article>
-            </Reveal>
-          ))}
-        </div>
+        <ExperienceExplorer />
 
         <div className="flex flex-col gap-6 border-t border-border pt-14">
           <Reveal>
-            <div className="flex items-center gap-2">
-              <GraduationCap className="size-5 text-primary" />
-              <h3 className="text-lg font-semibold tracking-tight">{t.experience.education}</h3>
+            {/* Same quiet label style as the panels above, so Education reads as part of the section. */}
+            <div className="flex items-center gap-3">
+              <span className="flex size-9 items-center justify-center rounded-xl border border-primary/30 bg-primary/10 text-primary">
+                <GraduationCap className="size-4.5" />
+              </span>
+              <h3 className="text-lg font-semibold tracking-tight sm:text-xl">{t.experience.education}</h3>
+              <span aria-hidden className="h-px flex-1 bg-linear-to-r from-border to-transparent rtl:bg-linear-to-l" />
             </div>
           </Reveal>
 
-          <EducationPath />
+          <EducationCredentials />
         </div>
       </Container>
     </section>

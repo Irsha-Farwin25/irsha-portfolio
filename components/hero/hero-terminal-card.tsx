@@ -1,14 +1,18 @@
 import type { ReactNode } from "react";
-import { ChevronRight, ShieldCheck } from "lucide-react";
+import { ChevronRight, FileText, GraduationCap, ShieldCheck } from "lucide-react";
 import { Avatar } from "@/components/hero/avatar";
 import { getI18n } from "@/lib/i18n/server";
 
-/** The card's `irsha.config.ts` snippet: facts the hero beside it doesn't already state. */
+/**
+ * The card's `irsha.config.ts` snippet: facts the hero beside it doesn't already state. (The
+ * intro covers government/public platforms and "grounded" AI; the stat cards cover what shipped.)
+ */
 const CONFIG: { key: string; value: string | string[] }[] = [
+  { key: "role", value: ["Software Engineer", "AI Researcher"] },
   { key: "stack", value: ["TypeScript", "Python"] },
   { key: "research", value: "Honest AI decision support" },
-  { key: "shipped", value: "GovTech & public platforms" },
-  { key: "values", value: ["grounded", "reliable", "calibrated"] },
+  { key: "exploring", value: "LLM deployment & AI safety" },
+  { key: "values", value: ["reliable", "calibrated", "transparent"] },
 ];
 
 /**
@@ -46,9 +50,23 @@ export async function HeroTerminalCard({ action, footer }: { action?: ReactNode;
               <ShieldCheck className="size-3" />
             </span>
           </div>
-          <div className="min-w-0 flex-1 pt-0.5">
-            <p className="font-semibold">{site.name}</p>
-            <p className="text-pretty text-xs leading-relaxed text-primary">{site.role}</p>
+          {/* Beside her photo: name and credentials (her role is the first line of the config below). */}
+          <div className="flex min-w-0 flex-1 flex-col gap-2 pt-0.5">
+            <p className="font-semibold leading-tight">{site.name}</p>
+            <ul className="flex flex-wrap gap-1.5">
+              {site.credentials.map(({ icon, label }) => {
+                const Icon = icon === "paper" ? FileText : GraduationCap;
+                return (
+                  <li
+                    key={label}
+                    className="inline-flex items-center gap-1 rounded-full border border-primary/25 bg-primary/10 px-2 py-0.5 text-[11px] font-medium text-primary"
+                  >
+                    <Icon className="size-3" aria-hidden />
+                    {label}
+                  </li>
+                );
+              })}
+            </ul>
           </div>
         </div>
 
@@ -57,9 +75,14 @@ export async function HeroTerminalCard({ action, footer }: { action?: ReactNode;
             <span className="flex items-center gap-0.5 text-neutral-500">
               <ChevronRight className="size-3" /> system.env
             </span>
-            <span className="text-amber-400">TypeScript &middot; Python</span>
+            {/* A build status rather than a fact, since the card's header already gives the time zone. */}
+            <span className="flex items-center gap-1.5 text-emerald-400">
+              <span className="size-1.5 animate-pulse rounded-full bg-current motion-reduce:animate-none" />
+              compiled
+            </span>
           </div>
-          <pre dir="ltr" className="overflow-x-auto text-left font-mono text-[12px] leading-relaxed text-neutral-300">
+          {/* A touch smaller on phones, so the longest lines (role, values) fit without scrolling. */}
+          <pre dir="ltr" className="overflow-x-auto text-left font-mono text-[10.5px] leading-relaxed text-neutral-300 sm:text-[12px]">
             <code>
               <span className="text-purple-400">const</span> irsha = {"{"}
               {"\n"}

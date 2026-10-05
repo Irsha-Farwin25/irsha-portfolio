@@ -5,7 +5,7 @@ import { Reveal } from "@/components/motion/reveal";
 import { AchievementTabs, type AchievementTab } from "@/components/achievements/achievement-tabs";
 import { CertificateFan } from "@/components/achievements/certificate-fan";
 import { GalleryAlbums } from "@/components/achievements/gallery-albums";
-import { NewsClippings } from "@/components/achievements/news-clippings";
+import { PressCoverage } from "@/components/achievements/press-coverage";
 import { getI18n } from "@/lib/i18n/server";
 import type { CertificateCategory } from "@/lib/types";
 
@@ -21,7 +21,7 @@ export async function Achievements() {
     certTab("Course", "courses", t.achievements.tabs.courses, <GraduationCap />),
     certTab("Hackathon", "hackathons", t.achievements.tabs.hackathons, <Trophy />),
     certTab("Conference", "conferences", t.achievements.tabs.conferences, <Mic />),
-    { value: "news", label: t.achievements.tabs.news, icon: <Newspaper />, count: news.length, content: <NewsClippings news={news} /> },
+    { value: "news", label: t.achievements.tabs.news, icon: <Newspaper />, count: news.length, content: <PressCoverage /> },
     {
       value: "volunteering",
       label: t.achievements.tabs.volunteering,

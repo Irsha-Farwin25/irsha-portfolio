@@ -4,7 +4,7 @@ import { Container } from "@/components/ui/container";
 import { SectionHeading } from "@/components/ui/section-heading";
 import { Button } from "@/components/ui/button";
 import { Reveal } from "@/components/motion/reveal";
-import { ProjectCarousel } from "@/components/projects/project-carousel";
+import { ProjectShowcase } from "@/components/projects/project-showcase";
 import { getI18n } from "@/lib/i18n/server";
 
 export async function ProjectsPreview() {
@@ -34,9 +34,7 @@ export async function ProjectsPreview() {
           </div>
         </Reveal>
 
-        <Reveal>
-          <ProjectCarousel projects={ordered} />
-        </Reveal>
+        <ProjectShowcase projects={ordered} />
       </Container>
     </section>
   );

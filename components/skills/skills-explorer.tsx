@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, type CSSProperties, type KeyboardEvent, type PointerEvent } from "react";
+import { useEffect, useRef, useState, type CSSProperties, type KeyboardEvent, type PointerEvent } from "react";
 import { AnimatePresence, motion, useReducedMotion, type Variants } from "motion/react";
 import { useContent, useT } from "@/components/i18n/locale-provider";
 import { TechGlyph, techColor } from "@/components/icons/tech-icons";
@@ -157,7 +157,9 @@ export function SkillsExplorer() {
               <span className="size-2.5 rounded-full bg-primary/60" />
             </span>
             <span dir="ltr" className="truncate font-mono text-xs text-muted-foreground">
-              ~/stack/<span className="text-primary">{category.key}</span>
+              ~/stack/
+              {/* Keyed by area, so switching areas types the new folder name from the start. */}
+              <TypedWord key={category.key} word={category.key} className="text-primary" />
               <span aria-hidden className="ms-0.5 inline-block h-3 w-1.5 translate-y-0.5 animate-pulse bg-primary/70" />
             </span>
             <span className="ms-auto shrink-0 font-mono text-xs text-muted-foreground">
@@ -195,6 +197,40 @@ export function SkillsExplorer() {
         <MarqueeRow items={all.slice(half)} onPick={select} activeArea={active} reverse />
       </div>
     </div>
+  );
+}
+
+/** How long each typed character takes (ms). */
+const TYPE_MS = 55;
+
+/**
+ * Types a word out one character at a time, like a path being entered at a prompt. Remount it
+ * (via `key`) to type a new word. With reduced motion it shows the word straight away; screen
+ * readers always get the whole word.
+ */
+function TypedWord({ word, className }: { word: string; className?: string }) {
+  const reduce = useReducedMotion();
+  const [shown, setShown] = useState(0);
+
+  useEffect(() => {
+    if (reduce) return;
+    const id = setInterval(() => {
+      setShown((n) => {
+        if (n >= word.length) {
+          clearInterval(id);
+          return n;
+        }
+        return n + 1;
+      });
+    }, TYPE_MS);
+    return () => clearInterval(id);
+  }, [word, reduce]);
+
+  return (
+    <span className={className}>
+      <span className="sr-only">{word}</span>
+      <span aria-hidden>{reduce ? word : word.slice(0, shown)}</span>
+    </span>
   );
 }
 

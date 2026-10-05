@@ -273,6 +273,131 @@
   box-shadow: 0 18px 40px -24px color-mix(in oklch, var(--brand) 70%, transparent);
 }
 
+/* Projects: the same cursor light as the skill tiles, along each tile's border in the accent colour. */
+.project-tile {
+  --mx: -999px;
+  --my: -999px;
+}
+.project-tile::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  padding: 1px;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s;
+  background: radial-gradient(
+    260px circle at var(--mx) var(--my),
+    color-mix(in oklch, var(--primary) 95%, transparent),
+    transparent 70%
+  );
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+}
+.project-grid:hover .project-tile::before {
+  opacity: 1;
+}
+
+/* Research: small ambient motions (all stilled by the reduced-motion rule below). */
+.float-soft {
+  animation: float-soft 5s ease-in-out infinite;
+}
+@keyframes float-soft {
+  50% {
+    transform: translateY(-5px) rotate(-3deg);
+  }
+}
+/* A light travelling along a finished progress line. */
+.line-shimmer {
+  animation: line-shimmer 2.8s ease-in-out infinite;
+}
+@keyframes line-shimmer {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(400%);
+  }
+}
+/* A screenshot slowly drifting, so a still image feels alive. */
+.ken-burns {
+  animation: ken-burns 14s ease-in-out infinite alternate;
+}
+@keyframes ken-burns {
+  from {
+    transform: scale(1.05) translate(0, 0);
+  }
+  to {
+    transform: scale(1.18) translate(-4%, -6%);
+  }
+}
+/* A soft scan line moving down the lab terminal. */
+.lab-scan {
+  animation: lab-scan 6s linear infinite;
+}
+@keyframes lab-scan {
+  from {
+    transform: translateY(-100%);
+  }
+  to {
+    transform: translateY(600%);
+  }
+}
+
+/* Experience stats: a light sweeping across the big numbers. */
+.text-shine {
+  background-image: linear-gradient(
+    110deg,
+    var(--primary) 35%,
+    color-mix(in oklch, var(--primary) 30%, white) 50%,
+    var(--primary) 65%
+  );
+  background-size: 250% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: text-shine 5s linear infinite;
+}
+@keyframes text-shine {
+  from {
+    background-position: 100% 0;
+  }
+  to {
+    background-position: -150% 0;
+  }
+}
+
+/* Experience: a light travelling down the career timeline. */
+.timeline-beam {
+  animation: timeline-beam 3.6s ease-in-out infinite;
+}
+@keyframes timeline-beam {
+  from {
+    top: -4rem;
+  }
+  to {
+    top: 100%;
+  }
+}
+
+/* Experience: dashes marching down from "what's next" into the current role. */
+.dash-flow {
+  background-image: linear-gradient(
+    to bottom,
+    color-mix(in oklch, var(--primary) 70%, transparent) 50%,
+    transparent 50%
+  );
+  background-size: 1px 8px;
+  animation: dash-flow 0.9s linear infinite;
+}
+@keyframes dash-flow {
+  to {
+    background-position: 0 8px;
+  }
+}
+
 /* Skills: the whole stack drifting past in two rows, faded at the edges. */
 .marquee-row {
   -webkit-mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent);

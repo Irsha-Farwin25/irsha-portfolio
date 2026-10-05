@@ -1,12 +1,9 @@
 import type { Project } from "@/lib/types";
 
 /**
- * PLACEHOLDER CONTENT — no real projects were supplied in the brief, so every
- * entry below is a clearly-marked template (`isPlaceholder: true`), rendered
- * with a "Sample project" badge in the UI. Replace titles, descriptions,
- * links, and case-study content with real project details before launch.
- * Tech stacks reflect Irsha's actual listed skills so the structure is
- * realistic even though the specific projects are not.
+ * Real projects. An entry still marked `isPlaceholder: true` shows a "Sample project" badge until
+ * its details are confirmed. Some case studies still hold "[Describe …]" prompts; those sections
+ * are hidden in the project popup and should be filled in before they're linked anywhere.
  */
 export const projects: Project[] = [
   {
@@ -18,11 +15,10 @@ export const projects: Project[] = [
     category: "Web Platform",
     technologies: ["Next.js", "Laravel"],
     image: "/projects/MLDW.jpg",
-    role: "[Your role, e.g. Full-Stack Engineer]",
+    role: "Lead engineer · owned end-to-end",
     github: "#",
     liveUrl: "https://motherlanka.uda.lk/en",
     featured: true,
-    isPlaceholder: true,
     caseStudy: {
       overview:
         "This initiative underscores the UDA’s commitment to embracing digital innovation, strengthening governance, and fostering open dialogue, knowledge sharing, and active citizen participation in shaping the future of Sri Lanka’s urban landscape.",
@@ -62,11 +58,10 @@ export const projects: Project[] = [
     category: "AI / Research",
     technologies: ["Python", "Machine Learning", "Next.js", "REST APIs"],
     image: "/projects/CareerGuidance.jpg",
-    role: "[Your role, e.g. Research & Development]",
+    role: "Researcher & developer · MSc project (ongoing)",
     github: "#",
     liveUrl: "https://project-ai-university-advisor-platform-485.magicpatterns.app/",
     featured: true,
-    isPlaceholder: true,
     caseStudy: {
       overview:
         "PathwayAI is a research prototype designed to give students in Sri Lanka more equitable access to university and career guidance. Students upload a screenshot of their official G.C.E. A/L results, and the platform guides them through their interests and preferences to recommend suitable university pathways.",
@@ -103,7 +98,6 @@ export const projects: Project[] = [
     role: "[Your role]",
     github: "#",
     liveUrl: "https://beauty4ashesconstruction.com/default_home",
-    isPlaceholder: true,
   },
   {
     slug: "procurement-bidding-system",
@@ -114,24 +108,23 @@ export const projects: Project[] = [
     category: "Government Tech",
     technologies: ["Laravel", "React", "MySQL"],
     image: "/projects/Bidding.jpg",
-    role: "[Your role]",
+    // A module of Mother Lanka, which she owned end to end.
+    role: "Lead engineer · Mother Lanka module",
     github: "#",
     liveUrl: "https://motherlanka.uda.lk/en/bidding",
-    isPlaceholder: true,
   },
   {
     slug: "uda-financial-management-information-system",
     title: "Financial Management Information System (UDA)",
     description:
-      "This initiative aims to facilitate convenient online payments for UDA tenants through a secure, transparent, authorized, and seamless digital payment system, in line with the Government’s efforts to strengthen and expand the national digital economy.",
+      "UDA's first online payment system, now used by 13,500+ housing residents and 1,400+ marketplace merchants. It replaces paper-based payments with a secure, transparent, and seamless digital service, in line with the Government's efforts to strengthen the national digital economy.",
     pitch: "Rent payments for UDA tenants, now online. Secure and live.",
     category: "Government Tech",
     technologies: ["React", "Laravel"],
     image: "/projects/FMIS.jpg",
-    role: "[Your role]",
+    role: "Software engineer · team member",
     github: "#",
     liveUrl: "https://fmis.uda.lk/login",
-    isPlaceholder: true,
   },
   {
     slug: "unicornshift",
@@ -142,9 +135,8 @@ export const projects: Project[] = [
     category: "Web Platform",
     technologies: ["React", "Node.js"],
     image: "/projects/UnicornShift.PNG",
-    role: "[Your role]",
+    role: "Software engineer · contract",
     github: "#",
-    liveUrl: "https://share.google/nhPlvrexyh97xZS5G",
-    isPlaceholder: true,
+    liveUrl: "https://unicornshift.ai/",
   },
 ];

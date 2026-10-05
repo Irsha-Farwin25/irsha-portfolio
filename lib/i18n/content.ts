@@ -6,7 +6,7 @@ import { projects } from "@/data/projects";
 import { publications, labExperiments } from "@/data/research";
 import { skillCategories } from "@/data/skills";
 import { recommendations } from "@/data/recommendations";
-import { certificates, gallery, news, volunteering } from "@/data/achievements";
+import { certificates, gallery, news, newsStories, volunteering } from "@/data/achievements";
 import * as ar from "@/data/ar";
 
 const EN = {
@@ -22,6 +22,7 @@ const EN = {
   recommendations,
   certificates,
   news,
+  newsStories,
   volunteering,
   gallery,
 };
@@ -41,6 +42,7 @@ const AR: Content = {
   recommendations: ar.recommendationsAr,
   certificates: ar.certificatesAr,
   news: ar.newsAr,
+  newsStories: ar.newsStoriesAr,
   volunteering: ar.volunteeringAr,
   gallery: ar.galleryAr,
 };

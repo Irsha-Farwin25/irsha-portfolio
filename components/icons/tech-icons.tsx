@@ -1,7 +1,9 @@
 import type { SVGProps } from "react";
 import {
+  siBootstrap,
   siCss,
   siDocker,
+  siFirebase,
   siGit,
   siGithub,
   siGraphql,
@@ -79,6 +81,9 @@ export const TECH_ICONS: Record<string, TechIcon> = {
   vscode: lucide(CodeXml),
   architecture: lucide(Boxes),
   "api-design": lucide(Workflow),
+  // Used by experience stacks rather than the skills list.
+  firebase: brand(siFirebase),
+  bootstrap: brand(siBootstrap),
 };
 
 /** Renders a skill's icon; brand logos take their brand colour, concepts take the theme's primary. */
