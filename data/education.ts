@@ -12,6 +12,15 @@ export const education: EducationItem[] = [
     description:
       "Postgraduate study in artificial intelligence, building on an undergraduate foundation in information technology — coursework and research spanning machine learning and applied AI systems.",
     status: "in-progress",
+    // Add `expectedEnd: "YYYY-MM"` to show how far through the degree she is.
+    period: { start: "2026-01" },
+    monogram: "SLIIT",
+    logo: "/education/sliit.png",
+    modules: ["Machine Learning", "Applied AI Systems"],
+    links: [
+      { label: "PathwayAI", href: "/projects/ai-career-guidance-platform" },
+      { label: "ICODE 2026 paper", href: "/research" },
+    ],
   },
   {
     id: "bsc-moratuwa",
@@ -24,5 +33,12 @@ export const education: EducationItem[] = [
     description:
       "Undergraduate degree in information technology, including research work in digital image processing.",
     status: "completed",
+    period: { start: "2018-11" },
+    monogram: "UoM",
+    logo: "/education/moratuwa.png",
+    links: [
+      { label: "Image processing research", href: "/#skills" },
+      { label: "Hackathons", href: "/#achievements" },
+    ],
   },
 ];

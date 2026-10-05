@@ -2,24 +2,24 @@ import type { Metadata } from "next";
 import { Container } from "@/components/ui/container";
 import { SectionHeading } from "@/components/ui/section-heading";
 import { ProjectFilterGrid } from "@/components/projects/project-filter-grid";
-import { projects } from "@/data/projects";
+import { getI18n } from "@/lib/i18n/server";
 
-export const metadata: Metadata = {
-  title: "Projects",
-  description:
-    "Production platforms and applied AI projects built by Irsha Farwin — software engineer and AI engineer in training.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const { t } = await getI18n();
+  return { title: t.projects.metaTitle, description: t.projects.metaDescription };
+}
 
-export default function ProjectsPage() {
+export default async function ProjectsPage() {
+  const { t, content } = await getI18n();
   return (
     <div className="py-16 sm:py-24">
       <Container className="flex flex-col gap-12">
         <SectionHeading
-          eyebrow="Projects"
-          title="Selected work"
-          description="A mix of production platforms built in a government digital transformation context, and applied AI/research projects."
+          eyebrow={t.projects.eyebrow}
+          title={t.projects.title}
+          description={t.projects.pageDescription}
         />
-        <ProjectFilterGrid projects={projects} />
+        <ProjectFilterGrid projects={content.projects} />
       </Container>
     </div>
   );

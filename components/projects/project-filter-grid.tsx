@@ -6,17 +6,17 @@ import { Input } from "@/components/ui/input";
 import { ProjectCard } from "@/components/projects/project-card";
 import type { Project } from "@/lib/types";
 import { cn } from "@/lib/utils";
+import { useT } from "@/components/i18n/locale-provider";
 
 export function ProjectFilterGrid({ projects }: { projects: Project[] }) {
-  const categories = useMemo(
-    () => ["All", ...Array.from(new Set(projects.map((p) => p.category)))],
-    [projects]
-  );
-  const [category, setCategory] = useState("All");
+  const t = useT();
+  // "" is the "All" filter; the label comes from the dictionary.
+  const categories = useMemo(() => ["", ...Array.from(new Set(projects.map((p) => p.category)))], [projects]);
+  const [category, setCategory] = useState("");
   const [query, setQuery] = useState("");
 
   const filtered = projects.filter((p) => {
-    const matchesCategory = category === "All" || p.category === category;
+    const matchesCategory = !category || p.category === category;
     const q = query.trim().toLowerCase();
     const matchesQuery =
       q.length === 0 ||
@@ -42,26 +42,26 @@ export function ProjectFilterGrid({ projects }: { projects: Project[] }) {
                   : "border-border text-muted-foreground hover:border-primary/40 hover:text-foreground"
               )}
             >
-              {c}
+              {c || t.projects.allFilter}
             </button>
           ))}
         </div>
 
         <div className="relative w-full sm:w-64">
-          <Search className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+          <Search className="pointer-events-none absolute start-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Filter by title, stack, or keyword..."
-            className="pl-8"
-            aria-label="Filter projects"
+            placeholder={t.projects.filterPlaceholder}
+            className="ps-8"
+            aria-label={t.projects.filterAria}
           />
         </div>
       </div>
 
       {filtered.length === 0 ? (
         <p className="rounded-lg border border-dashed border-border py-16 text-center text-sm text-muted-foreground">
-          No projects found matching your criteria.
+          {t.projects.none}
         </p>
       ) : (
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">

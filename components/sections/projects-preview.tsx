@@ -5,9 +5,11 @@ import { SectionHeading } from "@/components/ui/section-heading";
 import { Button } from "@/components/ui/button";
 import { Reveal } from "@/components/motion/reveal";
 import { ProjectCarousel } from "@/components/projects/project-carousel";
-import { projects } from "@/data/projects";
+import { getI18n } from "@/lib/i18n/server";
 
-export function ProjectsPreview() {
+export async function ProjectsPreview() {
+  const { t, content } = await getI18n();
+  const { projects } = content;
   const ordered = [...projects.filter((p) => p.featured), ...projects.filter((p) => !p.featured)];
 
   return (
@@ -16,16 +18,16 @@ export function ProjectsPreview() {
         <Reveal>
           <div className="flex flex-wrap items-end justify-between gap-6">
             <SectionHeading
-              eyebrow="Projects"
-              title="Selected work"
-              description="A mix of production platforms and applied AI experiments."
+              eyebrow={t.projects.eyebrow}
+              title={t.projects.title}
+              description={t.projects.previewDescription}
             />
             <Button
               variant="outline"
               nativeButton={false}
               render={
                 <Link href="/projects">
-                  All projects <ArrowRight data-icon="inline-end" />
+                  {t.projects.all} <ArrowRight data-icon="inline-end" className="rtl:-scale-x-100" />
                 </Link>
               }
             />

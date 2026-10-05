@@ -1,3 +1,5 @@
+"use client";
+
 import { FileDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -7,20 +9,24 @@ import {
 } from "@/components/ui/tooltip";
 import { site } from "@/data/site";
 import { cn } from "@/lib/utils";
+import { useT } from "@/components/i18n/locale-provider";
 
 export function ResumeLink({
   available,
   variant = "outline",
   size,
-  label = "Resume",
+  label,
   className,
 }: {
   available: boolean;
   variant?: "outline" | "default" | "ghost";
   size?: "default" | "sm" | "lg";
+  /** Defaults to "Resume" in the visitor's language. */
   label?: string;
   className?: string;
 }) {
+  const t = useT();
+  label ??= t.resume.label;
   if (!available) {
     return (
       <Tooltip>
@@ -36,7 +42,7 @@ export function ResumeLink({
             </Button>
           }
         />
-        <TooltipContent>Resume coming soon</TooltipContent>
+        <TooltipContent>{t.resume.soon}</TooltipContent>
       </Tooltip>
     );
   }

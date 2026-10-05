@@ -4,6 +4,7 @@ import { useCallback, useState, type ReactNode } from "react";
 import { motion, useReducedMotion } from "motion/react";
 import { ArrowRight, Sparkles } from "lucide-react";
 import { useChatContext } from "@/components/assistant/chat-context";
+import { useT } from "@/components/i18n/locale-provider";
 import { ChatView } from "@/components/assistant/chat-view";
 
 /**
@@ -64,15 +65,13 @@ export function HeroFlipCard({ children }: { children: ReactNode }) {
   );
 }
 
-/** Questions offered on the card's front; picking one flips the card and asks it straight away. */
-const QUICK_QUESTIONS = ["Tell me about her research", "What are her strongest skills?"];
-
 /**
  * The card's call to the AI chat: an input-style button ("Ask my AI anything…") that flips the
  * card to the chat, plus a couple of suggested questions that open it already asking.
  */
 export function AskAiPrompt() {
   const { chat, openChat } = useChatContext();
+  const t = useT();
   const ask = (question?: string) => {
     openChat();
     if (question && chat.status === "idle") void chat.send(question);
@@ -83,16 +82,17 @@ export function AskAiPrompt() {
       <button
         type="button"
         onClick={() => ask()}
-        className="group flex w-full items-center gap-2.5 rounded-xl border border-border bg-secondary/40 px-3.5 py-2.5 text-left text-sm text-muted-foreground transition-colors hover:border-primary/40 hover:bg-secondary/70 focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+        className="group flex w-full items-center gap-2.5 rounded-xl border border-border bg-secondary/40 px-3.5 py-2.5 text-start text-sm text-muted-foreground transition-colors hover:border-primary/40 hover:bg-secondary/70 focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
       >
         <Sparkles className="size-4 shrink-0 text-primary" aria-hidden />
-        <span className="flex-1 truncate">Ask my AI anything…</span>
-        <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground transition-transform group-hover:translate-x-0.5">
-          <ArrowRight className="size-3.5" aria-hidden />
+        <span className="flex-1 truncate">{t.hero.ask}</span>
+        <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground transition-transform group-hover:translate-x-0.5 rtl:group-hover:-translate-x-0.5">
+          <ArrowRight className="size-3.5 rtl:-scale-x-100" aria-hidden />
         </span>
       </button>
       <div className="flex flex-wrap gap-1.5">
-        {QUICK_QUESTIONS.map((q) => (
+        {/* Questions offered on the card's front; picking one flips the card and asks it straight away. */}
+        {t.hero.quickQuestions.map((q) => (
           <button
             key={q}
             type="button"
@@ -110,15 +110,16 @@ export function AskAiPrompt() {
 /** Small "Ask AI" pill for the card's window bar — opens the chat right on the card. */
 export function AskAiButton() {
   const { open, openChat } = useChatContext();
+  const t = useT();
   return (
     <button
       type="button"
       onClick={openChat}
       aria-expanded={open}
-      className="inline-flex items-center gap-1 rounded-full border border-primary/30 bg-primary/10 px-2 py-0.5 font-mono text-[10px] font-medium text-primary transition-colors hover:bg-primary/20 focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+      className="inline-flex items-center gap-1 whitespace-nowrap rounded-full border border-primary/30 bg-primary/10 px-2 py-0.5 font-mono text-[10px] font-medium text-primary transition-colors hover:bg-primary/20 focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
     >
       <Sparkles className="size-3" aria-hidden />
-      Ask AI
+      {t.hero.askAi}
     </button>
   );
 }

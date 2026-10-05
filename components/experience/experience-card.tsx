@@ -5,14 +5,13 @@ import { CalendarDays, ChevronDown, CircleCheck, MapPin } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import type { ExperienceItem } from "@/lib/types";
-
-function formatRange(start: string, end: string | null) {
-  return `${start} — ${end ?? "Present"}`;
-}
+import { useT } from "@/components/i18n/locale-provider";
 
 /** Collapsible experience entry — header always visible, contributions and stack revealed on click. */
 export function ExperienceCard({ item, defaultOpen = false }: { item: ExperienceItem; defaultOpen?: boolean }) {
   const [open, setOpen] = useState(defaultOpen);
+  const t = useT();
+  const formatRange = (start: string, end: string | null) => `${start} — ${end ?? t.common.present}`;
   const panelId = useId();
   const hasDetails = item.responsibilities.length > 0 || item.technologies.length > 0;
 
@@ -29,7 +28,7 @@ export function ExperienceCard({ item, defaultOpen = false }: { item: Experience
         aria-expanded={hasDetails ? open : undefined}
         aria-controls={hasDetails ? panelId : undefined}
         disabled={!hasDetails}
-        className="flex w-full flex-col gap-3 rounded-xl p-6 text-left outline-none focus-visible:ring-3 focus-visible:ring-ring/50 enabled:cursor-pointer"
+        className="flex w-full flex-col gap-3 rounded-xl p-6 text-start outline-none focus-visible:ring-3 focus-visible:ring-ring/50 enabled:cursor-pointer"
       >
         <div className="flex w-full flex-wrap items-start justify-between gap-3">
           <div>
@@ -60,7 +59,7 @@ export function ExperienceCard({ item, defaultOpen = false }: { item: Experience
         </div>
 
         <p className="font-mono text-[11px] uppercase tracking-wider text-muted-foreground">
-          Type: {item.employmentType} · {item.locationType}
+          {t.experience.type}: {item.employmentType} · {t.experience.locationTypes[item.locationType] ?? item.locationType}
         </p>
 
         {item.summary && (
@@ -69,7 +68,7 @@ export function ExperienceCard({ item, defaultOpen = false }: { item: Experience
 
         {hasDetails && !open && (
           <span className="font-mono text-[11px] uppercase tracking-wider text-primary">
-            Show contributions & stack
+            {t.experience.showDetails}
           </span>
         )}
       </button>
@@ -78,7 +77,7 @@ export function ExperienceCard({ item, defaultOpen = false }: { item: Experience
         <div
           id={panelId}
           role="region"
-          aria-label={`${item.role} at ${item.organization} — details`}
+          aria-label={t.experience.detailsAria(item.role, item.organization)}
           hidden={!open}
           className="flex flex-col gap-4 px-6 pb-6"
         >
@@ -87,7 +86,7 @@ export function ExperienceCard({ item, defaultOpen = false }: { item: Experience
               <div className="border-t border-border" />
               <div className="flex flex-col gap-2.5">
                 <p className="font-mono text-[11px] uppercase tracking-wider text-muted-foreground">
-                  Key Contributions
+                  {t.experience.contributions}
                 </p>
                 <ul className="flex flex-col gap-2">
                   {item.responsibilities.map((r) => (
@@ -115,7 +114,7 @@ export function ExperienceCard({ item, defaultOpen = false }: { item: Experience
 
       {item.isPlaceholder && (
         <p className="px-6 pb-6 font-mono text-[11px] text-muted-foreground/70">
-          Organization name and dates are placeholders — update in data/experience.ts
+          {t.experience.placeholder}
         </p>
       )}
     </div>

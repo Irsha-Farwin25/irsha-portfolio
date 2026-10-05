@@ -18,6 +18,7 @@ import { useChatContext } from "@/components/assistant/chat-context";
 import { certificateLine, narrationMs } from "@/lib/chat/narration";
 import type { Certificate } from "@/lib/types";
 import { cn } from "@/lib/utils";
+import { useLocale, useT } from "@/components/i18n/locale-provider";
 
 // A gentle arc: a large turning radius (--fan-r below) with small steps keeps the card spacing
 // while flattening the curve.
@@ -70,6 +71,8 @@ export function CertificateFan({ items }: { items: Certificate[] }) {
   // The avatar describes the certificate under the spotlight (when she's around and not muted);
   // otherwise the description shows in the caption below.
   const { narrate, canNarrate } = useChatContext();
+  const t = useT();
+  const locale = useLocale();
   const narrateRef = useRef(narrate);
   useEffect(() => {
     narrateRef.current = narrate;
@@ -150,7 +153,7 @@ export function CertificateFan({ items }: { items: Certificate[] }) {
   };
 
   const current = items[active];
-  const spoken = canNarrate ? certificateLine(current) : undefined;
+  const spoken = canNarrate ? certificateLine(current, locale) : undefined;
 
   // Once a certificate settles under the light (and the wall is on screen), she describes it.
   useEffect(() => {
@@ -167,8 +170,10 @@ export function CertificateFan({ items }: { items: Certificate[] }) {
     // spotlight hangs from.
     // gap-2 keeps the title close under the lit frame; the stage itself ends just below the frame.
     <div className="-mt-8 flex flex-col items-center gap-2" onKeyDown={onKeyDown}>
+      {/* The wall is spatial (left = earlier), so it keeps left-to-right in Arabic too. */}
       <div
         ref={stageRef}
+        dir="ltr"
         className="relative h-[448px] w-full overflow-hidden [--fade-dim:0.12] [--fan-r:1300px] dark:[--fade-dim:0.4] [mask-image:linear-gradient(to_right,transparent,black_12%,black_88%,transparent),linear-gradient(to_bottom,black_calc(100%_-_28px),transparent)] [mask-composite:intersect] sm:h-[610px] sm:[--fan-r:2500px]"
         // Pause the walk only while the pointer rests on the certificate in the spotlight (someone
         // is looking at it) — not anywhere on the wall, where the cursor often just sits.
@@ -223,16 +228,16 @@ export function CertificateFan({ items }: { items: Certificate[] }) {
                 rel="noopener noreferrer"
                 className="mt-0.5 inline-flex items-center gap-1 text-xs font-medium text-muted-foreground underline-offset-4 transition-colors hover:text-primary hover:underline"
               >
-                {current.category === "Course" ? "Verify credential" : "View details"}{" "}
-                <ExternalLink className="size-3" />
+                {current.category === "Course" ? t.achievements.verify : t.achievements.details}{" "}
+                <ExternalLink className="size-3 rtl:-scale-x-100" />
               </a>
             )}
           </motion.div>
         </AnimatePresence>
 
-        <div className="flex items-center gap-2">
+        <div dir="ltr" className="flex items-center gap-2">
           {n > 1 && (
-            <NavButton label="Previous certificate" onClick={() => goTo(active - 1)} disabled={!wrap && active === 0}>
+            <NavButton label={t.achievements.prevCert} onClick={() => goTo(active - 1)} disabled={!wrap && active === 0}>
               <ChevronLeft className="size-4" />
             </NavButton>
           )}
@@ -240,7 +245,7 @@ export function CertificateFan({ items }: { items: Certificate[] }) {
             {active + 1} / {n}
           </span>
           {n > 1 && (
-            <NavButton label="Next certificate" onClick={() => goTo(active + 1)} disabled={!wrap && active === n - 1}>
+            <NavButton label={t.achievements.nextCert} onClick={() => goTo(active + 1)} disabled={!wrap && active === n - 1}>
               <ChevronRight className="size-4" />
             </NavButton>
           )}
@@ -423,6 +428,7 @@ function FanCard({
   isActive: boolean;
   onSelect: () => void;
 }) {
+  const t = useT();
   const reduceMotion = useReducedMotion();
   // Signed distance from the centre of the fan (wraps around for 3+ cards).
   const dist = () => {
@@ -498,7 +504,7 @@ function FanCard({
             isActive ? (
               <ImageLightbox
                 src={item.image}
-                alt={`${item.title} certificate`}
+                alt={t.achievements.certificateAlt(item.title)}
                 sizes="(min-width: 640px) 340px, 220px"
                 fit="contain"
                 caption={`${item.title} — ${item.issuer}`}
@@ -536,7 +542,7 @@ function FanCard({
           <button
             type="button"
             onClick={onSelect}
-            aria-label={`Show ${item.title}`}
+            aria-label={t.achievements.show(item.title)}
             className="absolute inset-0 cursor-pointer bg-background/0 transition-colors hover:bg-background/10"
           />
         )}

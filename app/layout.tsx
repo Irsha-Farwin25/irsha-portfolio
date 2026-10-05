@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { GeistSans } from "geist/font/sans";
 import { GeistMono } from "geist/font/mono";
+import { plexArabic } from "@/app/fonts/fonts";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -9,45 +10,54 @@ import { SiteFooter } from "@/components/layout/site-footer";
 import { AvatarDock } from "@/components/assistant/avatar-dock";
 import { ChatProvider } from "@/components/assistant/chat-context";
 import { site } from "@/data/site";
+import { LocaleProvider } from "@/components/i18n/locale-provider";
+import { getI18n } from "@/lib/i18n/server";
+import { dirOf } from "@/lib/i18n/config";
 import { resumeExists } from "@/lib/resume";
 import { avatarSrc } from "@/lib/avatar";
 
-export const metadata: Metadata = {
-  metadataBase: new URL(site.url),
-  title: {
-    default: `${site.name} — ${site.role}`,
-    template: `%s — ${site.name}`,
-  },
-  description: site.description,
-  keywords: [
-    "Irsha Farwin",
-    "Software Engineer",
-    "AI Engineer",
-    "Artificial Intelligence",
-    "Full-Stack Developer",
-    "Next.js",
-    "React",
-    "Sri Lanka",
-  ],
-  authors: [{ name: site.name }],
-  creator: site.name,
-  openGraph: {
-    type: "website",
-    url: site.url,
-    siteName: site.name,
-    title: `${site.name} — ${site.role}`,
+export async function generateMetadata(): Promise<Metadata> {
+  const { locale, content } = await getI18n();
+  const { site } = content;
+  const title = `${site.name} — ${site.role}`;
+  return {
+    metadataBase: new URL(site.url),
+    title: {
+      default: title,
+      template: `%s — ${site.name}`,
+    },
     description: site.description,
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: `${site.name} — ${site.role}`,
-    description: site.description,
-  },
-  robots: {
-    index: true,
-    follow: true,
-  },
-};
+    keywords: [
+      "Irsha Farwin",
+      "Software Engineer",
+      "AI Engineer",
+      "Artificial Intelligence",
+      "Full-Stack Developer",
+      "Next.js",
+      "React",
+      "Sri Lanka",
+    ],
+    authors: [{ name: site.name }],
+    creator: site.name,
+    openGraph: {
+      type: "website",
+      url: site.url,
+      siteName: site.name,
+      title,
+      description: site.description,
+      locale: locale === "ar" ? "ar_AE" : "en_US",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description: site.description,
+    },
+    robots: {
+      index: true,
+      follow: true,
+    },
+  };
+}
 
 const jsonLd = {
   "@context": "https://schema.org",
@@ -74,15 +84,17 @@ const jsonLd = {
   ],
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default async function RootLayout({ children }: LayoutProps<"/">) {
+  const { locale } = await getI18n();
   const hasResume = resumeExists();
   const avatarUrl = avatarSrc();
 
   return (
     <html
-      lang="en"
+      lang={locale}
+      dir={dirOf(locale)}
       data-scroll-behavior="smooth"
-      className={`${GeistSans.variable} ${GeistMono.variable} h-full scroll-smooth antialiased`}
+      className={`${GeistSans.variable} ${GeistMono.variable} ${plexArabic.variable} h-full scroll-smooth antialiased`}
       suppressHydrationWarning
     >
       <head>
@@ -94,18 +106,20 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <body className="flex min-h-full flex-col">
         <ThemeProvider
           attribute="class"
-          defaultTheme="system"
-          enableSystem
+          defaultTheme="dark"
+          enableSystem={false}
           disableTransitionOnChange
         >
-          <TooltipProvider>
-            <ChatProvider>
-              <SiteHeader hasResume={hasResume} avatarUrl={avatarUrl} />
-              <main className="flex-1 pt-16">{children}</main>
-              <SiteFooter hasResume={hasResume} />
-              <AvatarDock />
-            </ChatProvider>
-          </TooltipProvider>
+          <LocaleProvider locale={locale}>
+            <TooltipProvider>
+              <ChatProvider>
+                <SiteHeader avatarUrl={avatarUrl} />
+                <main className="flex-1 pt-16">{children}</main>
+                <SiteFooter hasResume={hasResume} />
+                <AvatarDock />
+              </ChatProvider>
+            </TooltipProvider>
+          </LocaleProvider>
         </ThemeProvider>
       </body>
     </html>

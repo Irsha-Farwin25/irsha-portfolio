@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { ChevronRight, ShieldCheck } from "lucide-react";
 import { Avatar } from "@/components/hero/avatar";
-import { site } from "@/data/site";
+import { getI18n } from "@/lib/i18n/server";
 
 /** The card's `irsha.config.ts` snippet: facts the hero beside it doesn't already state. */
 const CONFIG: { key: string; value: string | string[] }[] = [
@@ -15,7 +15,8 @@ const CONFIG: { key: string; value: string | string[] }[] = [
  * `action` replaces the decorative "LIVE" chip in the window bar (e.g. the "Ask AI" button);
  * `footer` sits at the bottom of the card (e.g. the "Ask my AI" prompt).
  */
-export function HeroTerminalCard({ action, footer }: { action?: ReactNode; footer?: ReactNode }) {
+export async function HeroTerminalCard({ action, footer }: { action?: ReactNode; footer?: ReactNode }) {
+  const { site } = (await getI18n()).content;
   return (
     <div className="w-full max-w-md overflow-hidden rounded-2xl border border-black/5 bg-card shadow-xl shadow-foreground/10 dark:border-white/5">
       <div className="grid grid-cols-3 items-center px-4 py-3">
@@ -58,7 +59,7 @@ export function HeroTerminalCard({ action, footer }: { action?: ReactNode; foote
             </span>
             <span className="text-amber-400">TypeScript &middot; Python</span>
           </div>
-          <pre className="overflow-x-auto font-mono text-[12px] leading-relaxed text-neutral-300">
+          <pre dir="ltr" className="overflow-x-auto text-left font-mono text-[12px] leading-relaxed text-neutral-300">
             <code>
               <span className="text-purple-400">const</span> irsha = {"{"}
               {"\n"}

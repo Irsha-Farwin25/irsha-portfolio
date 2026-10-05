@@ -14,7 +14,8 @@ const EASE = [0.22, 1, 0.36, 1] as const;
 function segment(text: string, accent: string) {
   const words = text.split(" ");
   const accentWords = accent.split(" ");
-  const bare = (w: string) => w.replace(/[^\w'-]/g, "");
+  // Letters and digits in any script, so Arabic words match too.
+  const bare = (w: string) => w.replace(/[^\p{L}\p{M}\p{N}'-]/gu, "");
   const start = words.findIndex((_, i) =>
     accentWords.every((a, j) => bare(words[i + j] ?? "") === a)
   );

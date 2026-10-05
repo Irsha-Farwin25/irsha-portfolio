@@ -3,11 +3,13 @@ import { Mail } from "lucide-react";
 import { GithubIcon, LinkedinIcon } from "@/components/icons/brand-icons";
 import { Container } from "@/components/ui/container";
 import { ResumeLink } from "@/components/layout/resume-link";
-import { navItems, site, socialLinks } from "@/data/site";
+import { getI18n } from "@/lib/i18n/server";
 
 const iconMap = { github: GithubIcon, linkedin: LinkedinIcon, email: Mail } as const;
 
-export function SiteFooter({ hasResume }: { hasResume: boolean }) {
+export async function SiteFooter({ hasResume }: { hasResume: boolean }) {
+  const { t, content } = await getI18n();
+  const { navItems, site, socialLinks } = content;
   return (
     <footer className="border-t border-border">
       <Container className="flex flex-col gap-8 py-12">
@@ -20,7 +22,7 @@ export function SiteFooter({ hasResume }: { hasResume: boolean }) {
             <p className="mt-2 text-sm text-muted-foreground">{site.role}</p>
           </div>
 
-          <nav className="flex flex-wrap gap-x-6 gap-y-2" aria-label="Footer">
+          <nav className="flex flex-wrap gap-x-6 gap-y-2" aria-label={t.nav.footer}>
             {navItems.map((item) => (
               <Link
                 key={item.href}
@@ -53,9 +55,9 @@ export function SiteFooter({ hasResume }: { hasResume: boolean }) {
 
         <div className="flex flex-col-reverse items-start justify-between gap-4 border-t border-border pt-6 sm:flex-row sm:items-center">
           <p className="font-mono text-xs text-muted-foreground">
-            © {new Date().getFullYear()} {site.name}. Built with Next.js.
+            © {new Date().getFullYear()} {site.name}. {t.footer.builtWith}
             <span className="block pt-1 text-muted-foreground/70">
-              3D avatar generated with{" "}
+              {t.footer.avatarCredit}{" "}
               <a
                 href="https://www.meshy.ai"
                 target="_blank"
@@ -73,7 +75,7 @@ export function SiteFooter({ hasResume }: { hasResume: boolean }) {
               >
                 CC BY 4.0
               </a>
-              ), animated with Mixamo.
+              ) {t.footer.animated}
             </span>
           </p>
           <ResumeLink available={hasResume} variant="ghost" />

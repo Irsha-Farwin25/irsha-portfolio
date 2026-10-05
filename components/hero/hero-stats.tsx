@@ -15,7 +15,8 @@ const ICONS: Record<string, LucideIcon> = {
 };
 
 /**
- * The hero's proof points as a full-width row of glass cards (2×2 on phones). Each rises in after
+ * The hero's proof points as a full-width row of glass cards (2×2 on phones), each with its icon
+ * beside the value. Each rises in after
  * the one before; numeric values count up; hovering a card lifts it with a soft accent glow.
  */
 export function HeroStats({ stats }: { stats: readonly Stat[] }) {
@@ -27,10 +28,11 @@ export function HeroStats({ stats }: { stats: readonly Stat[] }) {
       {stats.map((s, i) => {
         const Icon = s.icon ? ICONS[s.icon] : undefined;
         return (
-          // The label is the <dt> (it comes first for screen readers); the value shows above it.
+          // The icon sits to the left of the value and label. The label is the <dt> (it comes first
+          // for screen readers); the grid shows the value above it.
           <motion.div
             key={s.label}
-            className="group relative flex min-w-0 flex-col gap-1 overflow-hidden rounded-2xl border border-border/70 bg-card/60 p-4 backdrop-blur-sm transition-[border-color,box-shadow,translate] duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-[0_12px_32px_-14px] hover:shadow-primary/40 odd:last:col-span-2 sm:p-5 sm:odd:last:col-span-1"
+            className="group relative grid min-w-0 grid-cols-[auto_1fr] items-center gap-x-3.5 gap-y-0.5 overflow-hidden rounded-2xl border border-border/70 bg-card/60 p-4 backdrop-blur-sm transition-[border-color,box-shadow,translate] duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-[0_12px_32px_-14px] hover:shadow-primary/40 odd:last:col-span-2 sm:p-5 sm:odd:last:col-span-1"
             initial={reduce ? false : { opacity: 0, y: 16, filter: "blur(6px)" }}
             whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
             viewport={{ once: true, margin: "0px 0px -10% 0px" }}
@@ -44,13 +46,13 @@ export function HeroStats({ stats }: { stats: readonly Stat[] }) {
             {Icon && (
               <span
                 aria-hidden
-                className="relative mb-2 flex size-8 items-center justify-center rounded-lg border border-primary/20 bg-primary/10 text-primary"
+                className="relative row-span-2 flex size-10 items-center justify-center rounded-xl border border-primary/20 bg-primary/10 text-primary transition-transform duration-300 group-hover:scale-110 sm:size-12"
               >
-                <Icon className="size-4" />
+                <Icon className="size-5 sm:size-6" />
               </span>
             )}
-            <dt className="relative order-2 text-xs leading-snug text-muted-foreground sm:text-[13px]">{s.label}</dt>
-            <dd className="relative order-1 text-2xl font-semibold tracking-tight text-foreground sm:text-[1.7rem]">
+            <dt className="relative col-start-2 row-start-2 min-w-0 self-start text-xs leading-snug text-muted-foreground sm:text-[13px]">{s.label}</dt>
+            <dd className="relative col-start-2 row-start-1 min-w-0 self-end text-2xl leading-tight font-semibold tracking-tight text-foreground sm:text-[1.7rem]">
               {typeof s.value === "number" ? <CountUp to={s.value} /> : s.value}
               {s.suffix && <span className="text-primary">{s.suffix}</span>}
             </dd>

@@ -13,19 +13,16 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
-import { ResumeLink } from "@/components/layout/resume-link";
+import { LanguageSwitcher } from "@/components/layout/language-switcher";
+import { useContent, useLocale, useT } from "@/components/i18n/locale-provider";
 import { AvatarView } from "@/components/hero/avatar-view";
-import { navItems, site } from "@/data/site";
 import { cn } from "@/lib/utils";
 
-export function SiteHeader({
-  hasResume,
-  avatarUrl,
-}: {
-  hasResume: boolean;
-  avatarUrl: string | null;
-}) {
+export function SiteHeader({ avatarUrl }: { avatarUrl: string | null }) {
   const pathname = usePathname();
+  const t = useT();
+  const locale = useLocale();
+  const { navItems, site } = useContent();
   const [scrolled, setScrolled] = useState(false);
   const [activeHash, setActiveHash] = useState<string>("");
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -60,7 +57,7 @@ export function SiteHeader({
 
     sections.forEach((el) => observer.observe(el));
     return () => observer.disconnect();
-  }, [pathname]);
+  }, [pathname, navItems]);
 
   const isActive = (href: string) => {
     if (href.startsWith("/#")) {
@@ -78,7 +75,7 @@ export function SiteHeader({
           : "border-b border-transparent bg-transparent"
       )}
     >
-      <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-6 sm:px-8">
+      <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-6 sm:px-8 2xl:max-w-7xl">
         <Link
           href="/"
           className="flex items-center gap-2 font-mono text-sm font-medium tracking-tight text-foreground transition-colors hover:text-primary"
@@ -88,7 +85,7 @@ export function SiteHeader({
           <span className="text-primary">.</span>
         </Link>
 
-        <nav className="hidden items-center gap-1 md:flex" aria-label="Primary">
+        <nav className="hidden items-center gap-1 md:flex" aria-label={t.nav.primary}>
           {navItems.map((item) => (
             <Link
               key={item.href}
@@ -107,18 +104,18 @@ export function SiteHeader({
         </nav>
 
         <div className="hidden items-center gap-2 md:flex">
-          <ResumeLink available={hasResume} variant="outline" />
+          <LanguageSwitcher />
           <ThemeToggle />
         </div>
 
         <div className="flex items-center gap-1 md:hidden">
           <ThemeToggle />
           <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
-            <SheetContent side="right" className="w-full sm:w-80">
+            <SheetContent side={locale === "ar" ? "left" : "right"} className="w-full sm:w-80">
               <SheetHeader>
-                <SheetTitle>Navigation</SheetTitle>
+                <SheetTitle>{t.nav.menuTitle}</SheetTitle>
               </SheetHeader>
-              <nav className="flex flex-col gap-1 px-4" aria-label="Mobile">
+              <nav className="flex flex-col gap-1 px-4" aria-label={t.nav.mobile}>
                 {navItems.map((item) => (
                   <SheetClose
                     key={item.href}
@@ -138,13 +135,13 @@ export function SiteHeader({
                 ))}
               </nav>
               <div className="mt-auto flex items-center gap-2 border-t border-border p-4">
-                <ResumeLink available={hasResume} variant="outline" className="w-full" />
+                <LanguageSwitcher className="w-full" />
               </div>
             </SheetContent>
             <Button
               variant="ghost"
               size="icon"
-              aria-label="Toggle navigation menu"
+              aria-label={t.nav.toggleMenu}
               onClick={() => setMobileOpen(true)}
             >
               <Menu />

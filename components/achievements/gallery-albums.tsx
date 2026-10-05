@@ -6,6 +6,7 @@ import { Dialog } from "@base-ui/react/dialog";
 import { ChevronLeft, ChevronRight, Images, XIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { GalleryAlbum } from "@/lib/types";
+import { useT } from "@/components/i18n/locale-provider";
 
 const navButtonClass =
   "relative flex size-10 shrink-0 items-center justify-center rounded-full bg-background/90 text-foreground shadow-md transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50";
@@ -48,6 +49,7 @@ function AlbumCover({ album }: { album: GalleryAlbum }) {
 
 function AlbumCard({ album }: { album: GalleryAlbum }) {
   const [open, setOpen] = useState(false);
+  const t = useT();
   const [index, setIndex] = useState(0);
   const count = album.images.length;
   const current = album.images[index];
@@ -69,8 +71,8 @@ function AlbumCard({ album }: { album: GalleryAlbum }) {
       }}
     >
       <Dialog.Trigger
-        aria-label={`Open album: ${album.title} (${count} ${count === 1 ? "photo" : "photos"})`}
-        className="group relative aspect-[4/3] w-full cursor-zoom-in overflow-hidden rounded-xl border border-border text-left transition-[transform,box-shadow,border-color] duration-300 ease-out hover:-translate-y-1 hover:border-primary/50 hover:shadow-[0_16px_40px_-16px] hover:shadow-primary/30 focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50 motion-reduce:hover:translate-y-0"
+        aria-label={t.achievements.openAlbum(album.title, count)}
+        className="group relative aspect-[4/3] w-full cursor-zoom-in overflow-hidden rounded-xl border border-border text-start transition-[transform,box-shadow,border-color] duration-300 ease-out hover:-translate-y-1 hover:border-primary/50 hover:shadow-[0_16px_40px_-16px] hover:shadow-primary/30 focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50 motion-reduce:hover:translate-y-0"
       >
         <AlbumCover album={album} />
         <span className="pointer-events-none absolute inset-x-0 bottom-0 flex items-end justify-between gap-3 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-4 pt-12 text-white">
@@ -91,11 +93,11 @@ function AlbumCard({ album }: { album: GalleryAlbum }) {
           className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-4 p-4 transition duration-200 ease-out outline-none data-ending-style:scale-95 data-ending-style:opacity-0 data-starting-style:scale-95 data-starting-style:opacity-0 sm:p-10"
         >
           <Dialog.Title className="sr-only">{album.title}</Dialog.Title>
-          <Dialog.Close className="absolute inset-0 cursor-zoom-out" aria-label="Close album" />
+          <Dialog.Close className="absolute inset-0 cursor-zoom-out" aria-label={t.achievements.closeAlbum} />
 
-          <div className="relative flex w-full max-w-6xl items-center justify-center gap-3">
+          <div dir="ltr" className="relative flex w-full max-w-6xl items-center justify-center gap-3">
             {count > 1 && (
-              <button type="button" aria-label="Previous photo" onClick={() => go(-1)} className={cn(navButtonClass, "hidden sm:flex")}>
+              <button type="button" aria-label={t.achievements.prevPhoto} onClick={() => go(-1)} className={cn(navButtonClass, "hidden sm:flex")}>
                 <ChevronLeft className="size-5" />
               </button>
             )}
@@ -109,7 +111,7 @@ function AlbumCard({ album }: { album: GalleryAlbum }) {
               className="relative h-auto max-h-[65vh] w-auto max-w-full min-w-0 rounded-lg border border-white/10 shadow-2xl"
             />
             {count > 1 && (
-              <button type="button" aria-label="Next photo" onClick={() => go(1)} className={cn(navButtonClass, "hidden sm:flex")}>
+              <button type="button" aria-label={t.achievements.nextPhoto} onClick={() => go(1)} className={cn(navButtonClass, "hidden sm:flex")}>
                 <ChevronRight className="size-5" />
               </button>
             )}
@@ -128,7 +130,7 @@ function AlbumCard({ album }: { album: GalleryAlbum }) {
                 <button
                   key={img.id}
                   type="button"
-                  aria-label={`Show photo ${i + 1}: ${img.caption}`}
+                  aria-label={t.achievements.showPhoto(i + 1, img.caption)}
                   aria-current={i === index}
                   onClick={() => setIndex(i)}
                   className={cn(
@@ -143,8 +145,8 @@ function AlbumCard({ album }: { album: GalleryAlbum }) {
           )}
 
           <Dialog.Close
-            aria-label="Close"
-            className="absolute top-4 right-4 flex size-10 items-center justify-center rounded-full bg-background/90 text-foreground shadow-md transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+            aria-label={t.common.close}
+            className="absolute top-4 end-4 flex size-10 items-center justify-center rounded-full bg-background/90 text-foreground shadow-md transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
           >
             <XIcon className="size-5" />
           </Dialog.Close>

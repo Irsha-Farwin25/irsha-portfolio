@@ -36,7 +36,16 @@ interface ChatContextValue {
   canNarrate: boolean;
   /** The avatar registers how she speaks while she's on screen and not muted. */
   setNarrator: (fn: ((line: string) => void) | null) => void;
+  /**
+   * A message is on its way: the avatar rides over beside `card` and catches a paper plane
+   * launched from `from` (screen coordinates). Resolves once it's caught; straight away when
+   * she isn't on screen.
+   */
+  catchPlane: (from: { x: number; y: number }, card: HTMLElement) => Promise<void>;
+  setPlaneCatcher: (fn: PlaneCatcher | null) => void;
 }
+
+type PlaneCatcher = (from: { x: number; y: number }, card: HTMLElement) => Promise<void>;
 
 const ChatContext = createContext<ChatContextValue | null>(null);
 
@@ -183,6 +192,15 @@ export function ChatProvider({ children }: { children: ReactNode }) {
   }, []);
   const narrate = useCallback((line: string) => narrator?.(line), [narrator]);
 
+  const planeCatcher = useRef<PlaneCatcher | null>(null);
+  const setPlaneCatcher = useCallback((fn: PlaneCatcher | null) => {
+    planeCatcher.current = fn;
+  }, []);
+  const catchPlane = useCallback<PlaneCatcher>(
+    (from, card) => planeCatcher.current?.(from, card).catch(() => {}) ?? Promise.resolve(),
+    [],
+  );
+
   const value = useMemo(
     () => ({
       chat,
@@ -196,6 +214,8 @@ export function ChatProvider({ children }: { children: ReactNode }) {
       narrate,
       canNarrate: !!narrator,
       setNarrator,
+      catchPlane,
+      setPlaneCatcher,
     }),
     [
       chat,
@@ -209,6 +229,8 @@ export function ChatProvider({ children }: { children: ReactNode }) {
       narrate,
       narrator,
       setNarrator,
+      catchPlane,
+      setPlaneCatcher,
     ]
   );
 

@@ -1,3 +1,5 @@
+"use client";
+
 import { ExternalLink } from "lucide-react";
 import { GithubIcon } from "@/components/icons/brand-icons";
 import { Badge } from "@/components/ui/badge";
@@ -5,8 +7,10 @@ import { Button } from "@/components/ui/button";
 import { ProjectThumb } from "@/components/projects/project-thumb";
 import type { Project } from "@/lib/types";
 import { cn } from "@/lib/utils";
+import { useT } from "@/components/i18n/locale-provider";
 
 export function ProjectCard({ project, featured = false }: { project: Project; featured?: boolean }) {
+  const t = useT();
   const hasRealLinks = (project.github && project.github !== "#") || (project.liveUrl && project.liveUrl !== "#");
 
   return (
@@ -20,7 +24,7 @@ export function ProjectCard({ project, featured = false }: { project: Project; f
       <ProjectThumb
         category={project.category}
         image={project.image}
-        alt={`${project.title} screenshot`}
+        alt={t.projects.screenshot(project.title)}
         sizes="(min-width: 1024px) 400px, (min-width: 640px) 50vw, 100vw"
         className={featured ? "aspect-[16/9]" : "aspect-[16/10]"}
       />
@@ -34,7 +38,7 @@ export function ProjectCard({ project, featured = false }: { project: Project; f
               </Badge>
               {project.isPlaceholder && (
                 <Badge variant="secondary" className="font-mono text-[10px] font-normal text-muted-foreground">
-                  Sample project
+                  {t.projects.sample}
                 </Badge>
               )}
             </div>
@@ -62,17 +66,17 @@ export function ProjectCard({ project, featured = false }: { project: Project; f
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1 text-muted-foreground hover:text-foreground"
             >
-              <GithubIcon className="size-3.5" /> Source
+              <GithubIcon className="size-3.5" /> {t.common.source}
             </a>
           )}
           {hasRealLinks && project.liveUrl && project.liveUrl !== "#" && (
             <Button
               size="sm"
-              className="ml-auto"
+              className="ms-auto"
               nativeButton={false}
               render={
                 <a href={project.liveUrl} target="_blank" rel="noopener noreferrer">
-                  Live Demo <ExternalLink data-icon="inline-end" />
+                  {t.common.liveDemo} <ExternalLink data-icon="inline-end" className="rtl:-scale-x-100" />
                 </a>
               }
             />

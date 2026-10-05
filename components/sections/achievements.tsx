@@ -6,30 +6,32 @@ import { AchievementTabs, type AchievementTab } from "@/components/achievements/
 import { CertificateFan } from "@/components/achievements/certificate-fan";
 import { GalleryAlbums } from "@/components/achievements/gallery-albums";
 import { NewsClippings } from "@/components/achievements/news-clippings";
-import { certificates, gallery, news, volunteering } from "@/data/achievements";
+import { getI18n } from "@/lib/i18n/server";
 import type { CertificateCategory } from "@/lib/types";
 
-export function Achievements() {
+export async function Achievements() {
+  const { t, content } = await getI18n();
+  const { certificates, gallery, news, volunteering } = content;
   const certTab = (category: CertificateCategory, value: string, label: string, icon: React.ReactNode): AchievementTab => {
     const items = certificates.filter((c) => c.category === category);
     return { value, label, icon, count: items.length, content: <CertificateFan items={items} /> };
   };
 
   const tabs = [
-    certTab("Course", "courses", "Courses", <GraduationCap />),
-    certTab("Hackathon", "hackathons", "Hackathons", <Trophy />),
-    certTab("Conference", "conferences", "Conferences", <Mic />),
-    { value: "news", label: "News", icon: <Newspaper />, count: news.length, content: <NewsClippings news={news} /> },
+    certTab("Course", "courses", t.achievements.tabs.courses, <GraduationCap />),
+    certTab("Hackathon", "hackathons", t.achievements.tabs.hackathons, <Trophy />),
+    certTab("Conference", "conferences", t.achievements.tabs.conferences, <Mic />),
+    { value: "news", label: t.achievements.tabs.news, icon: <Newspaper />, count: news.length, content: <NewsClippings news={news} /> },
     {
       value: "volunteering",
-      label: "Volunteering",
+      label: t.achievements.tabs.volunteering,
       icon: <HandHeart />,
       count: volunteering.reduce((n, album) => n + album.images.length, 0),
       content: <GalleryAlbums albums={volunteering} />,
     },
     {
       value: "gallery",
-      label: "Gallery",
+      label: t.achievements.tabs.gallery,
       icon: <Images />,
       count: gallery.reduce((n, album) => n + album.images.length, 0),
       content: <GalleryAlbums albums={gallery} />,
@@ -43,9 +45,9 @@ export function Achievements() {
       <Container className="flex flex-col gap-12">
         <Reveal>
           <SectionHeading
-            eyebrow="Achievements"
-            title="Certificates & recognition"
-            description="Courses, hackathons, and conferences that have shaped how I build — alongside moments worth remembering."
+            eyebrow={t.achievements.eyebrow}
+            title={t.achievements.title}
+            description={t.achievements.description}
           />
         </Reveal>
 

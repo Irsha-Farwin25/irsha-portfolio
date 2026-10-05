@@ -5,6 +5,8 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { animate, motion, useAnimationFrame, useMotionValue, useReducedMotion } from "motion/react";
 import { ProjectCard } from "@/components/projects/project-card";
 import type { Project } from "@/lib/types";
+import { useLocale, useT } from "@/components/i18n/locale-provider";
+import { dirOf } from "@/lib/i18n/config";
 
 const SPEED = 0.04; // px per ms of auto-scroll
 
@@ -20,6 +22,8 @@ export function ProjectCarousel({ projects }: { projects: Project[] }) {
   const nudging = useRef(false);
   const x = useMotionValue(0);
   const reduceMotion = useReducedMotion();
+  const t = useT();
+  const dir = dirOf(useLocale());
 
   useEffect(() => {
     const el = trackRef.current;
@@ -73,7 +77,8 @@ export function ProjectCarousel({ projects }: { projects: Project[] }) {
         key={`${hidden ? "dup-" : ""}${project.slug}`}
         aria-hidden={hidden || undefined}
         inert={hidden || undefined}
-        className="w-[280px] shrink-0 pr-6 sm:w-[360px]"
+        dir={dir}
+        className="w-[280px] shrink-0 pe-6 sm:w-[360px]"
       >
         <div
           data-card
@@ -87,8 +92,10 @@ export function ProjectCarousel({ projects }: { projects: Project[] }) {
   const arrowClass =
     "absolute top-1/2 z-10 flex size-10 -translate-y-1/2 items-center justify-center rounded-full border border-border bg-background/80 text-foreground shadow-md backdrop-blur transition-colors hover:border-primary hover:text-primary focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50";
 
+  // The track always runs left to right (the loop maths assumes it); each card keeps the page's
+  // direction for its own text.
   return (
-    <div className="relative -mx-6 sm:-mx-8">
+    <div dir="ltr" className="relative -mx-6 sm:-mx-8">
       <div
         className="-my-6 overflow-hidden px-6 py-6 [mask-image:linear-gradient(to_right,transparent,black_6%,black_94%,transparent)] sm:px-8"
         onMouseEnter={() => (paused.current = true)}
@@ -104,10 +111,10 @@ export function ProjectCarousel({ projects }: { projects: Project[] }) {
         </motion.div>
       </div>
 
-      <button type="button" aria-label="Previous project" onClick={() => nudge(-1)} className={`${arrowClass} left-2 sm:left-3`}>
+      <button type="button" aria-label={t.projects.prev} onClick={() => nudge(-1)} className={`${arrowClass} left-2 sm:left-3`}>
         <ChevronLeft className="size-5" />
       </button>
-      <button type="button" aria-label="Next project" onClick={() => nudge(1)} className={`${arrowClass} right-2 sm:right-3`}>
+      <button type="button" aria-label={t.projects.next} onClick={() => nudge(1)} className={`${arrowClass} right-2 sm:right-3`}>
         <ChevronRight className="size-5" />
       </button>
     </div>

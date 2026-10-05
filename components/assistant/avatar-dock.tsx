@@ -2,13 +2,24 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
+import { usePathname } from "next/navigation";
 import { AnimatePresence, animate, motion, useMotionValue, useReducedMotion } from "motion/react";
-import { Sparkles, Volume2, VolumeX, XIcon } from "lucide-react";
+import { Send, Sparkles, Volume2, VolumeX, XIcon } from "lucide-react";
 import { useHasMounted } from "@/lib/hooks/use-has-mounted";
 import { cn } from "@/lib/utils";
 import { useChatContext } from "@/components/assistant/chat-context";
 import { Typewriter } from "@/components/assistant/chat-view";
-import { SECTION_LINES, narrationMs } from "@/lib/chat/narration";
+import {
+  introLine,
+  mutedGreeting,
+  narrationMs,
+  nudgeLines,
+  pageLine,
+  returnLine,
+  sectionLines,
+} from "@/lib/chat/narration";
+import { useLocale, useT } from "@/components/i18n/locale-provider";
+import { speak, stopSpeaking } from "@/lib/chat/voice";
 import {
   GESTURE_FLICK_MS,
   type AvatarModelUrls,
@@ -63,6 +74,25 @@ function readMuted() {
   }
 }
 
+/** Set once the visitor has clicked her, so the "click me" hints stop for good. */
+const CHATTED_KEY = "avatar-chat-tried";
+
+function readChatted() {
+  try {
+    return localStorage.getItem(CHATTED_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
+/** Touch screen (she says "tap") or mouse ("click"). */
+function isTouch() {
+  return window.matchMedia("(pointer: coarse)").matches;
+}
+
+/** Quiet time (no bubble) before she nudges a visitor who hasn't clicked her yet. */
+const NUDGE_AFTER_QUIET_MS = 15000;
+
 function writeHidden(hidden: boolean) {
   try {
     localStorage.setItem(HIDDEN_KEY, hidden ? "1" : "0");
@@ -81,6 +111,9 @@ export function AvatarDock() {
   return <Dock reduceMotion={!!reduce} />;
 }
 
+/** How long the visitor stays on a page before she introduces it. */
+const PAGE_DWELL_MS = 3000;
+
 function Dock({ reduceMotion }: { reduceMotion: boolean }) {
   const [supported] = useState(() => !reduceMotion && canRender3D());
   const [hidden, setHidden] = useState(readHidden);
@@ -89,6 +122,13 @@ function Dock({ reduceMotion }: { reduceMotion: boolean }) {
   /** What she's saying above her head: short greetings, or a section's narration (typed out). */
   const [bubble, setBubble] = useState<{ text: string; typed: boolean; id: number } | null>(null);
   const [muted, setMuted] = useState(readMuted);
+  const mutedRef = useRef(muted);
+  useEffect(() => {
+    mutedRef.current = muted;
+  }, [muted]);
+  const [chatted, setChatted] = useState(readChatted);
+  /** When her current line finishes, so other lines wait their turn instead of cutting her off. */
+  const speakingUntil = useRef(0);
 
   const boxRef = useRef<HTMLDivElement>(null);
   const bubbleTimer = useRef<number | undefined>(undefined);
@@ -115,16 +155,32 @@ function Dock({ reduceMotion }: { reduceMotion: boolean }) {
     atCard.current = value;
     setStandingAtCard(value);
   };
-  /** Sections she has introduced since this page loaded (scrolling back won't repeat them). */
+  const pathname = usePathname();
+  const t = useT();
+  const locale = useLocale();
+  /** For callbacks that outlive a render (timers, speech): the language she speaks right now. */
+  const localeRef = useRef(locale);
+  useEffect(() => {
+    localeRef.current = locale;
+  }, [locale]);
+  /** Sections and pages she has introduced this visit (coming back won't repeat them). */
   const narrated = useRef(new Set<string>());
   const cardRef = useRef<HTMLElement | null>(null);
+  /** A sent message's paper plane, flying from the send button to her hand. */
+  const [plane, setPlane] = useState<{
+    from: { x: number; y: number };
+    to: { x: number; y: number };
+    done: () => void;
+  } | null>(null);
+  const planeHomeTimer = useRef<number | undefined>(undefined);
   const [spark, setSpark] = useState<{
     from: { x: number; y: number };
     to: { x: number; y: number };
     done: () => void;
   } | null>(null);
 
-  const { open: chatOpen, toggleFromAvatar, setModeListener, setFlipAnimator, setNarrator } = useChatContext();
+  const { open: chatOpen, toggleFromAvatar, setModeListener, setFlipAnimator, setNarrator, setPlaneCatcher } =
+    useChatContext();
 
   // Thinking / talking from the chat (wherever it's showing) drives her animation.
   useEffect(() => {
@@ -139,6 +195,8 @@ function Dock({ reduceMotion }: { reduceMotion: boolean }) {
     signals.current.waveAt = now;
     if (!line) return;
     setBubble({ text: line, typed: false, id: now });
+    speakingUntil.current = now + 2800;
+    if (!mutedRef.current) speak(line, localeRef.current);
     window.clearTimeout(bubbleTimer.current);
     bubbleTimer.current = window.setTimeout(() => setBubble(null), 2800);
   }, []);
@@ -153,6 +211,8 @@ function Dock({ reduceMotion }: { reduceMotion: boolean }) {
     signals.current.mode = "talking";
     const typing = narrationMs(line);
     setBubble({ text: line, typed: true, id: now });
+    speakingUntil.current = now + typing + 2000;
+    if (!mutedRef.current) speak(line, localeRef.current);
     window.clearTimeout(talkTimer.current);
     talkTimer.current = window.setTimeout(() => {
       if (!chatOpenRef.current) signals.current.mode = "idle";
@@ -221,7 +281,8 @@ function Dock({ reduceMotion }: { reduceMotion: boolean }) {
   // Quiet while the chat is open, while muted, and during fast scrolling.
   useEffect(() => {
     if (!ready || hidden || muted) return;
-    const sections = Object.keys(SECTION_LINES)
+    const lines = sectionLines(locale);
+    const sections = Object.keys(lines)
       .map((id) => document.getElementById(id))
       .filter((el): el is HTMLElement => !!el);
     if (!sections.length) return;
@@ -231,6 +292,11 @@ function Dock({ reduceMotion }: { reduceMotion: boolean }) {
 
     const onSettled = () => {
       if (chatOpenRef.current && atCard.current) return;
+      const busy = speakingUntil.current - performance.now();
+      if (busy > 0) {
+        settle = window.setTimeout(onSettled, busy);
+        return;
+      }
       let best: string | null = null;
       let bestShare = 0.3; // the section fills at least 30% of the screen
       for (const [id, share] of ratios) {
@@ -241,7 +307,7 @@ function Dock({ reduceMotion }: { reduceMotion: boolean }) {
       }
       if (!best || narrated.current.has(best)) return;
       narrated.current.add(best);
-      narrate(SECTION_LINES[best]);
+      narrate(lines[best]);
     };
     const schedule = () => {
       window.clearTimeout(settle);
@@ -263,11 +329,67 @@ function Dock({ reduceMotion }: { reduceMotion: boolean }) {
       window.removeEventListener("scroll", schedule);
       window.clearTimeout(settle);
     };
-  }, [ready, hidden, muted, narrate]);
+    // `pathname`: the sections only exist on the home page, so look again after navigating.
+  }, [ready, hidden, muted, narrate, pathname, locale]);
+
+  // On other pages, she introduces the page once the visitor has stayed on it for a moment
+  // (long enough for her greeting to finish on a first visit). Once per page per visit.
+  useEffect(() => {
+    if (!ready || hidden || muted) return;
+    const line = pageLine(pathname, locale);
+    if (!line || narrated.current.has(pathname)) return;
+    let id: number | undefined;
+    const speak = () => {
+      if (chatOpenRef.current && atCard.current) return;
+      const busy = speakingUntil.current - performance.now();
+      if (busy > 0) {
+        id = window.setTimeout(speak, busy);
+        return;
+      }
+      narrated.current.add(pathname);
+      narrate(line);
+    };
+    id = window.setTimeout(speak, PAGE_DWELL_MS);
+    return () => window.clearTimeout(id);
+  }, [ready, hidden, muted, narrate, pathname, locale]);
 
   useEffect(() => {
     chatOpenRef.current = chatOpen;
   }, [chatOpen]);
+
+  // Browsers keep her silent until the visitor first clicks, taps or types. If she's mid-line
+  // (usually her intro) at that moment, she says it aloud then.
+  const bubbleRef = useRef(bubble);
+  useEffect(() => {
+    bubbleRef.current = bubble;
+  }, [bubble]);
+  useEffect(() => {
+    const onFirst = () => {
+      const b = bubbleRef.current;
+      if (b && !mutedRef.current && performance.now() < speakingUntil.current) speak(b.text, localeRef.current);
+    };
+    window.addEventListener("pointerdown", onFirst, { once: true, capture: true });
+    window.addEventListener("keydown", onFirst, { once: true, capture: true });
+    return () => {
+      window.removeEventListener("pointerdown", onFirst, { capture: true });
+      window.removeEventListener("keydown", onFirst, { capture: true });
+    };
+  }, []);
+
+  // Until the visitor first clicks her, she drops a short, hiring-focused hint during quiet
+  // moments, each one once per visit.
+  useEffect(() => {
+    if (!ready || hidden || muted || chatted) return;
+    const lines = nudgeLines(locale, isTouch());
+    let next = 0;
+    const id = window.setInterval(() => {
+      if (next >= lines.length) return window.clearInterval(id);
+      if (chatOpenRef.current) return;
+      if (performance.now() - speakingUntil.current < NUDGE_AFTER_QUIET_MS) return;
+      narrate(lines[next++]);
+    }, 2000);
+    return () => window.clearInterval(id);
+  }, [ready, hidden, muted, chatted, narrate, locale]);
 
   // Lets the page hand her lines to say (e.g. the certificate under the spotlight). Only while
   // she's on screen and not muted, so the page knows to show the text itself otherwise.
@@ -284,16 +406,20 @@ function Dock({ reduceMotion }: { reduceMotion: boolean }) {
     () => () => {
       window.clearTimeout(bubbleTimer.current);
       window.clearTimeout(talkTimer.current);
+      stopSpeaking();
     },
     [],
   );
 
   /**
-   * How wide her bubble may grow: it opens leftward from beside her mouth, filling the empty
-   * margin between the page content and her (up to 270px). Where that margin is narrow it keeps
-   * a readable 200px and reaches a little over the content's edge (its glass is near-opaque).
+   * Where her bubble goes and how wide it may grow. Beside her mouth it opens leftward into the
+   * empty margin between the page content and her (up to 270px). When that margin is too narrow
+   * it sits above her head instead, spanning the margin from her right edge, so it never covers
+   * the content. Only where neither fits (small screens) does it keep a readable 200px beside
+   * her and reach over the content's edge (its glass is near-opaque).
    */
   const [bubbleMaxW, setBubbleMaxW] = useState(270);
+  const [bubbleAbove, setBubbleAbove] = useState(false);
   const fitBubble = useCallback(() => {
     const box = boxRef.current?.getBoundingClientRect();
     if (!box) return;
@@ -304,9 +430,16 @@ function Dock({ reduceMotion }: { reduceMotion: boolean }) {
       contentRight = r.right - parseFloat(getComputedStyle(container).paddingRight);
     }
     const mouthX = box.left + box.width * (1 - MOUTH_FROM_RIGHT);
-    const margin = mouthX - contentRight - 12;
+    const beside = mouthX - contentRight - 12;
+    const above = box.right - contentRight - 12;
+    if (beside < 200 && above >= 180) {
+      setBubbleAbove(true);
+      setBubbleMaxW(Math.min(270, above));
+      return;
+    }
+    setBubbleAbove(false);
     // Never wider than the screen allows to the left of her mouth.
-    setBubbleMaxW(Math.min(Math.max(200, Math.min(270, margin)), mouthX - 16));
+    setBubbleMaxW(Math.min(Math.max(200, Math.min(270, beside)), mouthX - 16));
   }, []);
 
   useEffect(() => {
@@ -323,6 +456,7 @@ function Dock({ reduceMotion }: { reduceMotion: boolean }) {
       localStorage.setItem(MUTED_KEY, next ? "1" : "0");
     } catch {}
     if (next) {
+      stopSpeaking();
       setBubble(null);
       if (!chatOpenRef.current) signals.current.mode = "idle";
     }
@@ -331,18 +465,27 @@ function Dock({ reduceMotion }: { reduceMotion: boolean }) {
 
   const onReady = useCallback(() => {
     setReady(true);
-    window.setTimeout(() => wave("Hi! Ask me about Irsha 👋"), 500);
-  }, [wave]);
+    window.setTimeout(() => {
+      if (readChatted()) wave(returnLine(localeRef.current));
+      // First visit: she introduces herself and says how to start, unless narration is muted.
+      else if (readMuted()) wave(mutedGreeting(localeRef.current, isTouch()));
+      else {
+        signals.current.waveAt = performance.now();
+        narrate(introLine(localeRef.current, isTouch()));
+      }
+    }, 500);
+  }, [wave, narrate]);
 
   const hide = () => {
     setHidden(true);
     setBubble(null);
+    stopSpeaking();
     writeHidden(true);
   };
   const show = () => {
     setHidden(false);
     writeHidden(false);
-    if (ready) window.setTimeout(() => wave("Welcome back! 👋"), 300);
+    if (ready) window.setTimeout(() => wave(t.avatar.welcomeBack), 300);
   };
 
   /**
@@ -416,6 +559,33 @@ function Dock({ reduceMotion }: { reduceMotion: boolean }) {
     return () => setFlipAnimator(null);
   }, [ready, hidden, setFlipAnimator, offsetBesideCard, rideTo]);
 
+  // A message is sent from the contact card: she rides over beside it (when there's room and the
+  // chat isn't holding her at the hero card), catches the paper plane, waves, and heads home.
+  useEffect(() => {
+    if (!ready || hidden) return;
+    setPlaneCatcher(async (from, card) => {
+      setBubble(null);
+      stopSpeaking();
+      window.clearTimeout(planeHomeTimer.current);
+      const beside = chatOpenRef.current ? null : offsetBesideCard(card);
+      if (beside) await rideTo(beside);
+      const box = boxRef.current?.getBoundingClientRect();
+      if (!box) return;
+      const palm = { x: box.left + hand.current.x * box.width, y: box.top + hand.current.y * box.height };
+      await new Promise<void>((done) => setPlane({ from, to: palm, done }));
+      signals.current.waveAt = performance.now();
+      if (beside) {
+        planeHomeTimer.current = window.setTimeout(() => {
+          if (!chatOpenRef.current && !atCard.current) void rideTo({ x: 0, y: 0 });
+        }, 4500);
+      }
+    });
+    return () => {
+      setPlaneCatcher(null);
+      window.clearTimeout(planeHomeTimer.current);
+    };
+  }, [ready, hidden, setPlaneCatcher, offsetBesideCard, rideTo]);
+
   // While the chat is open she stays beside the card as the page scrolls; if the card leaves the
   // screen she rides home, and comes back when it returns. Closing the chat sends her home.
   useEffect(() => {
@@ -459,7 +629,16 @@ function Dock({ reduceMotion }: { reduceMotion: boolean }) {
 
   // Opening plays the swipe above as part of the flip; closing flips straight back.
   const onAvatarClick = () => {
-    if (!chatOpen) setBubble(null);
+    if (!chatOpen) {
+      setBubble(null);
+      stopSpeaking();
+    }
+    if (!chatted) {
+      setChatted(true);
+      try {
+        localStorage.setItem(CHATTED_KEY, "1");
+      } catch {}
+    }
     toggleFromAvatar();
   };
 
@@ -472,7 +651,7 @@ function Dock({ reduceMotion }: { reduceMotion: boolean }) {
         className="fixed right-4 bottom-4 z-30 inline-flex items-center gap-2 rounded-full border border-border bg-card px-4 py-2.5 text-sm font-medium text-foreground shadow-lg transition-colors hover:border-primary hover:text-primary focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50 sm:right-6 sm:bottom-6"
       >
         <Sparkles className="size-4 text-primary" aria-hidden />
-        Ask about Irsha
+        {t.avatar.fallbackButton}
       </button>
     );
   }
@@ -489,6 +668,16 @@ function Dock({ reduceMotion }: { reduceMotion: boolean }) {
           }}
         />
       )}
+      {plane && (
+        <PaperPlane
+          from={plane.from}
+          to={plane.to}
+          onDone={() => {
+            setPlane(null);
+            plane.done();
+          }}
+        />
+      )}
       {touch && <TouchRipple key={touch.id} x={touch.x} y={touch.y} onDone={() => setTouch(null)} />}
       <motion.div
         className="pointer-events-none fixed right-3 bottom-3 z-30 sm:right-6 sm:bottom-5"
@@ -500,7 +689,7 @@ function Dock({ reduceMotion }: { reduceMotion: boolean }) {
             key="restore"
             type="button"
             onClick={show}
-            aria-label="Show Irsha's avatar"
+            aria-label={t.avatar.show}
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.8 }}
@@ -530,7 +719,7 @@ function Dock({ reduceMotion }: { reduceMotion: boolean }) {
 
               <button
                 type="button"
-                aria-label="Chat with Irsha's AI assistant"
+                aria-label={t.avatar.chat}
                 aria-expanded={chatOpen}
                 onClick={onAvatarClick}
                 className="pointer-events-auto absolute inset-0 cursor-pointer rounded-2xl focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
@@ -543,12 +732,32 @@ function Dock({ reduceMotion }: { reduceMotion: boolean }) {
                 />
               </button>
 
+              {/* Until the visitor first clicks her, a chip at her feet says she's clickable. */}
+              <AnimatePresence>
+                {ready && !chatted && !chatOpen && (
+                  <motion.span
+                    aria-hidden
+                    initial={{ opacity: 0, y: 6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 6 }}
+                    transition={{ delay: 1.2 }}
+                    className="pointer-events-none absolute -bottom-1 left-1/2 flex -translate-x-1/2 items-center gap-1.5 rounded-full border border-primary/40 bg-card/95 px-2.5 py-1 text-[11px] font-medium whitespace-nowrap text-foreground shadow-md shadow-primary/20 backdrop-blur"
+                  >
+                    <span className="relative flex size-2">
+                      <span className="absolute inline-flex size-full animate-ping rounded-full bg-primary opacity-75" />
+                      <span className="relative inline-flex size-2 rounded-full bg-primary" />
+                    </span>
+                    {t.avatar.chip}
+                  </motion.span>
+                )}
+              </AnimatePresence>
+
               <button
                 type="button"
                 onClick={toggleMuted}
                 aria-pressed={muted}
-                aria-label={muted ? "Turn guide narration on" : "Mute guide narration"}
-                title={muted ? "Turn guide narration on" : "Mute guide narration"}
+                aria-label={muted ? t.avatar.unmute : t.avatar.mute}
+                title={muted ? t.avatar.unmute : t.avatar.mute}
                 className="pointer-events-auto absolute top-2 right-9 flex size-7 items-center justify-center rounded-full border border-border bg-card/90 text-muted-foreground opacity-0 shadow-sm backdrop-blur transition-opacity group-hover:opacity-100 hover:text-foreground focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50 [@media(hover:none)]:opacity-100"
               >
                 {muted ? <VolumeX className="size-3.5" /> : <Volume2 className="size-3.5" />}
@@ -557,7 +766,7 @@ function Dock({ reduceMotion }: { reduceMotion: boolean }) {
               <button
                 type="button"
                 onClick={hide}
-                aria-label="Hide avatar"
+                aria-label={t.avatar.hide}
                 className="pointer-events-auto absolute top-2 right-1 flex size-7 items-center justify-center rounded-full border border-border bg-card/90 text-muted-foreground opacity-0 shadow-sm backdrop-blur transition-opacity group-hover:opacity-100 hover:text-foreground focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50 [@media(hover:none)]:opacity-100"
               >
                 <XIcon className="size-3.5" />
@@ -573,7 +782,13 @@ function Dock({ reduceMotion }: { reduceMotion: boolean }) {
               {/* The bubble's squared-off bottom-right corner sits just beside her mouth — about
                   18% down the dock, just left of her hijab — and it opens up and to the left. No
                   tail: the sound waves from her mouth carry the link. */}
-              <div aria-live="polite" className="absolute right-[58%] bottom-[82%]">
+              <div
+                aria-live="polite"
+                className={cn(
+                  "absolute flex w-max justify-end",
+                  bubbleAbove ? "right-0 bottom-[97%]" : "right-[58%] bottom-[82%]",
+                )}
+              >
                 <AnimatePresence>
                   {bubble && !(chatOpen && standingAtCard) && (
                     <motion.div
@@ -594,7 +809,7 @@ function Dock({ reduceMotion }: { reduceMotion: boolean }) {
                           "relative z-10 rounded-[17px] rounded-br-[4px] bg-card/95 text-foreground backdrop-blur-xl",
                           bubble.typed
                             ? "flex items-start gap-2.5 px-3.5 py-2.5 text-[13px] leading-snug font-medium text-pretty"
-                            : "px-3.5 py-1.5 text-xs font-medium whitespace-nowrap"
+                            : "px-3.5 py-1.5 text-xs font-medium text-pretty"
                         )}
                       >
                         {bubble.typed && <SpeakingWave ms={narrationMs(bubble.text)} />}
@@ -684,6 +899,50 @@ function TouchRipple({ x, y, onDone }: { x: number; y: number; onDone: () => voi
 }
 
 /** A glowing dot that arcs from her hand to the card, with a short fading trail. */
+/** A paper plane gliding in an arc from the send button into her hand, trailing a dashed path. */
+function PaperPlane({
+  from,
+  to,
+  onDone,
+}: {
+  from: { x: number; y: number };
+  to: { x: number; y: number };
+  onDone: () => void;
+}) {
+  const dx = to.x - from.x;
+  const dy = to.y - from.y;
+  // Loop up and over before diving into her hand.
+  const lift = Math.min(220, Math.hypot(dx, dy) * 0.45 + 60);
+  const xs = [0, dx * 0.35, dx * 0.75, dx];
+  const ys = [0, dy * 0.35 - lift, dy * 0.75 - lift * 0.6, dy];
+  const flight = { duration: 1.15, ease: [0.45, 0, 0.25, 1] as const, times: [0, 0.35, 0.75, 1] };
+  const heading = (Math.atan2(dy, dx) * 180) / Math.PI;
+
+  return (
+    <div aria-hidden className="pointer-events-none fixed z-50" style={{ left: from.x, top: from.y }}>
+      {[0.08, 0.16, 0.24].map((lag, i) => (
+        <motion.span
+          key={lag}
+          className="absolute -top-0.5 -left-0.5 size-1 rounded-full bg-primary"
+          initial={{ x: 0, y: 0, opacity: 0 }}
+          animate={{ x: xs, y: ys, opacity: [0, 0.7 - i * 0.2, 0.5 - i * 0.15, 0] }}
+          transition={{ ...flight, delay: lag }}
+        />
+      ))}
+      <motion.span
+        className="absolute -top-3 -left-3 flex size-6 items-center justify-center text-primary drop-shadow-[0_0_8px_var(--primary)]"
+        // The icon points up-right (-45°); turning it by heading + 45 points it along the flight.
+        initial={{ x: 0, y: 0, scale: 0.6, rotate: 0 }}
+        animate={{ x: xs, y: ys, scale: [0.6, 1.25, 1.1, 0.5], rotate: [0, -15, heading + 20, heading + 45] }}
+        transition={flight}
+        onAnimationComplete={onDone}
+      >
+        <Send className="size-5 fill-primary/20" />
+      </motion.span>
+    </div>
+  );
+}
+
 function Spark({
   from,
   to,

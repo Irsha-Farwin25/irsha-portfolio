@@ -37,10 +37,29 @@ export interface EducationItem {
   description: string;
   status: "in-progress" | "completed";
   isPlaceholder?: boolean;
+  /**
+   * Machine-readable months ("2026-01") for the progress bar. The bar shows a percentage only
+   * when `expectedEnd` is set; until then it shows "in progress".
+   */
+  period?: { start: string; expectedEnd?: string };
+  /** What she's studying right now, e.g. "Deep Learning" (shown as "Currently studying"). */
+  currentModule?: string;
+  /** Focus areas or key modules, listed on the back of the card. */
+  modules?: string[];
+  /** Final result, e.g. "First Class Honours" (back of the card). */
+  result?: string;
+  /** University crest under /public, e.g. "/education/moratuwa.png". Falls back to `monogram`. */
+  logo?: string;
+  /** Short letters for the crest badge when there's no logo, e.g. "UoM". */
+  monogram?: string;
+  /** Where this study shows up in her work: chips linking to projects, research, etc. */
+  links?: { label: string; href: string }[];
 }
 
 export interface Skill {
   name: string;
+  /** Key into the tech icon registry (components/icons/tech-icons.tsx). */
+  icon?: string;
 }
 
 export interface SkillCategory {
@@ -54,6 +73,8 @@ export interface Project {
   slug: string;
   title: string;
   description: string;
+  /** What the avatar says on the project's page: one short, punchy line. */
+  pitch?: string;
   category: string;
   technologies: string[];
   /** Thumbnail path under /public, e.g. "/projects/my-project.png". Falls back to a category icon. */

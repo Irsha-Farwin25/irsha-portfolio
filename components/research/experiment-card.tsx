@@ -2,6 +2,7 @@ import { GithubIcon } from "@/components/icons/brand-icons";
 import { Badge } from "@/components/ui/badge";
 import type { ExperimentStatus, LabExperiment } from "@/lib/types";
 import { cn } from "@/lib/utils";
+import { getI18n } from "@/lib/i18n/server";
 
 const statusStyles: Record<ExperimentStatus, string> = {
   Research: "border-chart-2/40 text-chart-2",
@@ -10,7 +11,8 @@ const statusStyles: Record<ExperimentStatus, string> = {
   "In Development": "border-chart-4/40 text-chart-4",
 };
 
-export function ExperimentCard({ experiment }: { experiment: LabExperiment }) {
+export async function ExperimentCard({ experiment }: { experiment: LabExperiment }) {
+  const { t } = await getI18n();
   return (
     <article className="flex h-full flex-col gap-3 rounded-lg border border-dashed border-border p-5">
       <div className="flex items-center justify-between gap-2">
@@ -18,14 +20,14 @@ export function ExperimentCard({ experiment }: { experiment: LabExperiment }) {
           variant="outline"
           className={cn("font-mono text-[10px] font-normal", statusStyles[experiment.status])}
         >
-          {experiment.status}
+          {t.research.experimentStatuses[experiment.status] ?? experiment.status}
         </Badge>
         {experiment.github && experiment.github !== "#" && (
           <a
             href={experiment.github}
             target="_blank"
             rel="noopener noreferrer"
-            aria-label="View source"
+            aria-label={t.common.viewSource}
             className="text-muted-foreground hover:text-foreground"
           >
             <GithubIcon className="size-4" />

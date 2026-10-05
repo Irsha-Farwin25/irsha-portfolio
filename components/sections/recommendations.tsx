@@ -4,25 +4,33 @@ import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { createPortal } from "react-dom";
 import { AnimatePresence, motion, useInView, useReducedMotion, type Variants } from "motion/react";
 import { Kalam } from "next/font/google";
+import { ruqaa } from "@/app/fonts/fonts";
 import { ArrowLeft, ArrowRight, ArrowUpRight, XIcon } from "lucide-react";
 import { Container } from "@/components/ui/container";
 import { SectionHeading } from "@/components/ui/section-heading";
 import { Reveal } from "@/components/motion/reveal";
 import { LinkedinIcon } from "@/components/icons/brand-icons";
-import { recommendations } from "@/data/recommendations";
-import { socialLinks } from "@/data/site";
+import { useContent, useLocale, useT } from "@/components/i18n/locale-provider";
 import { useHasMounted } from "@/lib/hooks/use-has-mounted";
 import { cn } from "@/lib/utils";
 import type { Recommendation } from "@/lib/types";
 
 const hand = Kalam({ subsets: ["latin"], weight: ["400", "700"], display: "swap" });
 
-const featured = recommendations.find((r) => r.featured);
-/** Board + dialog navigation order: the featured note first, then the rest. */
-const ordered = featured ? [featured, ...recommendations.filter((r) => r !== featured)] : recommendations;
+/** The handwriting font for the visitor's language. */
+function useHand() {
+  return useLocale() === "ar" ? ruqaa : hand;
+}
 
-const years = recommendations.map((r) => Number(r.date.slice(-4)));
-const yearSpan = `${Math.min(...years)} – ${Math.max(...years)}`;
+/** The notes in the visitor's language: board + dialog order puts the featured note first. */
+function useNotes() {
+  const { recommendations } = useContent();
+  const featured = recommendations.find((r) => r.featured);
+  const ordered = featured ? [featured, ...recommendations.filter((r) => r !== featured)] : recommendations;
+  const years = recommendations.map((r) => Number(r.date.slice(-4)));
+  const yearSpan = `${Math.min(...years)} – ${Math.max(...years)}`;
+  return { recommendations, featured, ordered, yearSpan };
+}
 
 type Fastener = "tape" | "pin-red" | "pin-blue" | "pin-green" | "pin-amber";
 
@@ -89,10 +97,11 @@ function PaperShading() {
 }
 
 function KindLine({ item }: { item: Recommendation }) {
+  const t = useT();
   return (
     <div className="flex items-center justify-between gap-2 font-mono text-[10px] uppercase tracking-[0.15em] text-black/50">
       <span className={item.kind === "Client" ? "font-semibold text-[#3730a3]" : undefined}>
-        {item.kind === "Client" ? "★ Client" : item.kind}
+        {t.recommendations.kinds[item.kind] ?? item.kind}
       </span>
       <span>{item.date}</span>
     </div>
@@ -100,11 +109,12 @@ function KindLine({ item }: { item: Recommendation }) {
 }
 
 function Signature({ item }: { item: Recommendation }) {
+  const t = useT();
   return (
     <div className="min-w-0">
       <p className="flex items-center gap-1.5 text-sm font-semibold">
         <span className="truncate">{item.name}</span>
-        {item.verified && <LinkedinIcon className="size-3.5 shrink-0 text-[#0a66c2]" aria-label="LinkedIn verified" />}
+        {item.verified && <LinkedinIcon className="size-3.5 shrink-0 text-[#0a66c2]" aria-label={t.recommendations.verified} />}
       </p>
       <p className="truncate text-xs text-black/55">{item.title}</p>
     </div>
@@ -112,6 +122,7 @@ function Signature({ item }: { item: Recommendation }) {
 }
 
 function NoteFace({ item, big }: { item: Recommendation; big: boolean }) {
+  const hand = useHand();
   return (
     <>
       <KindLine item={item} />
@@ -155,6 +166,7 @@ function BoardNote({
   register: (index: number, el: HTMLButtonElement | null) => void;
 }) {
   const look = NOTE_LOOKS[index % NOTE_LOOKS.length];
+  const { featured } = useNotes();
   const big = item === featured;
   const tilt = reduce ? 0 : look.tilt;
   const dragged = useRef(false);
@@ -256,6 +268,9 @@ function NoteDialog({
   onClose: () => void;
   onStep: (delta: number) => void;
 }) {
+  const { ordered } = useNotes();
+  const t = useT();
+  const hand = useHand();
   const item = ordered[index];
   const look = NOTE_LOOKS[index % NOTE_LOOKS.length];
   const dialogRef = useRef<HTMLDivElement>(null);
@@ -335,9 +350,9 @@ function NoteDialog({
               <button
                 ref={closeRef}
                 type="button"
-                aria-label="Close"
+                aria-label={t.common.close}
                 onClick={onClose}
-                className="-mt-1 -mr-2 flex size-8 shrink-0 items-center justify-center rounded-full text-black/55 transition-colors hover:bg-black/8 hover:text-black focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/40"
+                className="-mt-1 -me-2 flex size-8 shrink-0 items-center justify-center rounded-full text-black/55 transition-colors hover:bg-black/8 hover:text-black focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/40"
               >
                 <XIcon className="size-4" />
               </button>
@@ -365,15 +380,15 @@ function NoteDialog({
             {ordered.length > 1 && (
               <div className="flex shrink-0 items-center justify-between gap-3 border-t border-dashed border-black/20 px-4 py-3 sm:px-6">
                 <button type="button" onClick={() => onStep(-1)} className={navButton}>
-                  <ArrowLeft className="size-3.5" />
-                  Previous
+                  <ArrowLeft className="size-3.5 rtl:-scale-x-100" />
+                  {t.common.previous}
                 </button>
                 <span className="font-mono text-[10px] tracking-[0.15em] text-black/45" aria-live="polite">
                   {String(index + 1).padStart(2, "0")} / {String(ordered.length).padStart(2, "0")}
                 </span>
                 <button type="button" onClick={() => onStep(1)} className={navButton}>
-                  Next
-                  <ArrowRight className="size-3.5" />
+                  {t.common.next}
+                  <ArrowRight className="size-3.5 rtl:-scale-x-100" />
                 </button>
               </div>
             )}
@@ -385,6 +400,9 @@ function NoteDialog({
 }
 
 export function Recommendations() {
+  const t = useT();
+  const { socialLinks } = useContent();
+  const { recommendations, ordered, yearSpan } = useNotes();
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(0);
   const triggers = useRef<(HTMLButtonElement | null)[]>([]);
@@ -439,13 +457,13 @@ export function Recommendations() {
         <Reveal>
           <div className="flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-end">
             <SectionHeading
-              eyebrow="Recommendations"
-              title="What colleagues & clients say"
-              description="Notes from people I've worked with directly — teammates, and a client I built a site for."
+              eyebrow={t.recommendations.eyebrow}
+              title={t.recommendations.title}
+              description={t.recommendations.description}
             />
             <div className="flex shrink-0 flex-col items-start gap-3 sm:items-end">
               <p className="font-mono text-[11px] uppercase tracking-[0.15em] text-muted-foreground">
-                {String(recommendations.length).padStart(2, "0")} notes · {clientCount} client · {yearSpan}
+                {t.recommendations.summary(String(recommendations.length).padStart(2, "0"), clientCount, yearSpan)}
               </p>
               {linkedin && (
                 <a
@@ -455,7 +473,7 @@ export function Recommendations() {
                   className="inline-flex items-center gap-2 rounded-full border border-border px-3.5 py-2 text-xs font-medium text-foreground transition-colors hover:border-primary hover:text-primary"
                 >
                   <LinkedinIcon className="size-3.5" />
-                  View on LinkedIn
+                  {t.recommendations.viewOnLinkedIn}
                 </a>
               )}
             </div>
@@ -480,9 +498,10 @@ export function Recommendations() {
               ))}
             </div>
             <p className="mt-3 text-center font-mono text-[10px] uppercase tracking-[0.2em] text-[#3b2410]/70 sm:mt-6">
-              <span className="sm:hidden">Swipe · tap a note to read it</span>
+              <span className="sm:hidden">{t.recommendations.swipe}</span>
               <span className="hidden sm:inline">
-                Click a note to read it in full{canDrag && " · drag to move it around"}
+                {t.recommendations.click}
+                {canDrag && t.recommendations.drag}
               </span>
             </p>
           </div>

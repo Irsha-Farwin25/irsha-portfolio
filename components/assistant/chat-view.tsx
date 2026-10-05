@@ -3,18 +3,10 @@
 import { useEffect, useId, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
 import { useReducedMotion } from "motion/react";
 import { ArrowUp, RotateCcw, XIcon } from "lucide-react";
-import { site } from "@/data/site";
+import { useContent, useT } from "@/components/i18n/locale-provider";
 import type { ChatMessage, ChatStatus } from "@/components/assistant/use-chat";
 
 const MAX_CHARS = 500;
-const SUGGESTIONS = [
-  "What does Irsha work on?",
-  "Tell me about her research",
-  "What are her strongest skills?",
-  "How can I contact her?",
-];
-const GREETING =
-  "Hi! I'm Irsha's AI assistant. Ask me about her experience, projects, research or how to get in touch.";
 
 /** Turns URLs and email addresses in an answer into links. */
 function linkify(text: string): ReactNode[] {
@@ -162,6 +154,8 @@ interface ChatViewProps {
  * each one as speech bubbles pointing toward the avatar, and the input at the bottom.
  */
 export function ChatView({ messages, status, error, onSend, onRetry, onClose, onHeightChange }: ChatViewProps) {
+  const t = useT();
+  const { site } = useContent();
   const titleId = useId();
   const inputId = useId();
   const [draft, setDraft] = useState("");
@@ -252,12 +246,12 @@ export function ChatView({ messages, status, error, onSend, onRetry, onClose, on
           </div>
           <h2 id={titleId} className="justify-self-center whitespace-nowrap font-mono text-xs text-muted-foreground">
             <span aria-hidden="true">ask-irsha.ai</span>
-            <span className="sr-only">Ask about {site.name.split(" ")[0]}, AI assistant</span>
+            <span className="sr-only">{t.chat.srTitle(site.firstName)}</span>
           </h2>
           <button
             type="button"
             onClick={onClose}
-            aria-label="Close chat"
+            aria-label={t.chat.closeChat}
             className="flex size-7 items-center justify-center justify-self-end rounded-full text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
           >
             <XIcon className="size-4" />
@@ -274,10 +268,10 @@ export function ChatView({ messages, status, error, onSend, onRetry, onClose, on
           {messages.length === 0 && (
             <>
               <SpeechBubble>
-                <Typewriter text={GREETING} />
+                <Typewriter text={t.chat.greeting} />
               </SpeechBubble>
               <div className="flex flex-wrap gap-2">
-                {SUGGESTIONS.map((s) => (
+                {t.chat.suggestions.map((s) => (
                   <button
                     key={s}
                     type="button"
@@ -318,7 +312,7 @@ export function ChatView({ messages, status, error, onSend, onRetry, onClose, on
                 className="inline-flex shrink-0 items-center gap-1 text-xs font-semibold text-primary hover:underline"
               >
                 <RotateCcw className="size-3.5" aria-hidden />
-                Retry
+                {t.chat.retry}
               </button>
             </div>
           )}
@@ -326,7 +320,7 @@ export function ChatView({ messages, status, error, onSend, onRetry, onClose, on
       </div>
 
       <p className="sr-only" aria-live="polite">
-        {status === "waiting" ? "Assistant is thinking" : status === "idle" && lastAnswer ? "Answer received" : ""}
+        {status === "waiting" ? t.chat.thinking : status === "idle" && lastAnswer ? t.chat.received : ""}
       </p>
 
       <form
@@ -339,7 +333,7 @@ export function ChatView({ messages, status, error, onSend, onRetry, onClose, on
       >
         <div className="flex items-end gap-2 rounded-xl border border-input bg-background px-3 py-1.5 focus-within:border-primary focus-within:ring-3 focus-within:ring-ring/30">
           <label htmlFor={inputId} className="sr-only">
-            Ask a question about Irsha
+            {t.chat.inputLabel}
           </label>
           <textarea
             id={inputId}
@@ -349,20 +343,20 @@ export function ChatView({ messages, status, error, onSend, onRetry, onClose, on
             onChange={(e) => setDraft(e.target.value)}
             onKeyDown={onKeyDown}
             maxLength={MAX_CHARS}
-            placeholder="Ask about Irsha's work…"
+            placeholder={t.chat.placeholder}
             className="max-h-22 flex-1 resize-none bg-transparent py-1 text-sm outline-none placeholder:text-muted-foreground"
           />
           <button
             type="submit"
             disabled={busy || !draft.trim()}
-            aria-label="Send"
+            aria-label={t.chat.send}
             className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground transition-opacity disabled:opacity-40 focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
           >
             <ArrowUp className="size-4" />
           </button>
         </div>
         <div className="mt-1.5 flex items-center justify-between gap-2 px-1 text-[11px] text-muted-foreground">
-          <span>AI answers can be wrong. For anything important, email Irsha.</span>
+          <span>{t.chat.disclaimer}</span>
           {draft.length > MAX_CHARS - 80 && (
             <span className="shrink-0 tabular-nums">
               {draft.length}/{MAX_CHARS}

@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useT } from "@/components/i18n/locale-provider";
 
 export interface ChatMessage {
   id: string;
@@ -23,6 +24,7 @@ export function useChat(onModeChange: (mode: "idle" | "thinking" | "talking") =>
   const [error, setError] = useState<string | null>(null);
   const abortRef = useRef<AbortController | null>(null);
   const modeRef = useRef(onModeChange);
+  const t = useT();
 
   useEffect(() => {
     modeRef.current = onModeChange;
@@ -56,7 +58,7 @@ export function useChat(onModeChange: (mode: "idle" | "thinking" | "talking") =>
 
         if (!res.ok || !res.body) {
           const data = (await res.json().catch(() => null)) as { error?: string } | null;
-          throw new Error(data?.error ?? "Something went wrong. Please try again.");
+          throw new Error(data?.error ?? t.chat.errors.generic);
         }
 
         const reader = res.body.getReader();
@@ -78,17 +80,17 @@ export function useChat(onModeChange: (mode: "idle" | "thinking" | "talking") =>
             return [...rest, { id: assistantId, role: "assistant", content: current }];
           });
         }
-        if (!answer.trim()) throw new Error("No answer came back. Please try again.");
+        if (!answer.trim()) throw new Error(t.chat.errors.empty);
       } catch (err) {
         if (controller.signal.aborted) return;
-        setError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
+        setError(err instanceof Error ? err.message : t.chat.errors.generic);
       } finally {
         if (abortRef.current === controller) abortRef.current = null;
         setStatus("idle");
         modeRef.current("idle");
       }
     },
-    []
+    [t]
   );
 
   /** Re-asks the last question after an error. */

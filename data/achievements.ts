@@ -18,7 +18,7 @@ export const certificates: Certificate[] = [
     category: "Course",
     date: "May 2026",
     narration:
-      "Stanford and DeepLearning.AI trained her in the maths behind machine learning: regression, classification and gradient descent. It's the foundation of her AI work.",
+      "Machine learning from Stanford and DeepLearning.AI. The maths behind her AI.",
     image: "/achievements/certificates/supervised-ml.jpeg",
     link: "https://coursera.org/verify/ZCRA7SZ4TELE",
   },
@@ -29,7 +29,7 @@ export const certificates: Certificate[] = [
     category: "Course",
     date: "Dec 2025",
     narration:
-      "Front-end the way Meta's engineers teach it: HTML, CSS, JavaScript and React. It's the craft behind the interfaces she ships.",
+      "Front-end, trained by Meta. React, done right.",
     image: "/achievements/certificates/meta-frontend.jpeg",
     link: "https://coursera.org/verify/VMKD2KYDKU5V",
   },
@@ -41,7 +41,7 @@ export const certificates: Certificate[] = [
     date: "Dec 2022",
     description: "Passed the TestDome public MySQL skills test, ranking in the top 25%.",
     narration:
-      "Top 25% of everyone who's taken TestDome's timed MySQL test. She writes SQL that's clean, correct and quick.",
+      "Top 25% on TestDome's MySQL test. Fast, clean SQL.",
     image: "/achievements/certificates/testdome-mysql.jpg",
     link: "https://www.testdome.com/certificates/8c233f37407441ebbb3e1408cb02dedb",
   },
@@ -52,7 +52,7 @@ export const certificates: Certificate[] = [
     category: "Course",
     date: "Jul 2021",
     narration:
-      "Strategic leadership and sustainable development. She leads with the bigger picture in mind, not just the next sprint.",
+      "Strategic leadership. She sees past the next sprint.",
     image: "/achievements/certificates/volunteering.jpg",
   },
   {
@@ -63,7 +63,7 @@ export const certificates: Certificate[] = [
     date: "Dec 2020",
     description: "Developer certification representing approximately 300 hours of coursework.",
     narration:
-      "Around 300 hours of responsive web design with freeCodeCamp. That's why her pages look sharp on every screen, from phones to wide monitors.",
+      "300 hours of responsive design. Sharp on every screen.",
     image: "/achievements/certificates/webdesigncourse.jpg",
     link: "https://freecodecamp.org/certification/fcc5323b5e0-6889-41b6-9b8c-18f984a00c83/responsive-web-design",
   },
@@ -74,7 +74,7 @@ export const certificates: Certificate[] = [
     category: "Course",
     date: "Jul 2020",
     narration:
-      "She was building cross-platform mobile apps with Flutter and Dart back in 2020: one codebase, running on both Android and iOS.",
+      "Flutter in 2020. One codebase, Android and iOS.",
     image: "/achievements/certificates/FlutterCourse.png",
   },
   {
@@ -84,7 +84,7 @@ export const certificates: Certificate[] = [
     category: "Course",
     date: "May 2020",
     narration:
-      "Where her data journey began: SQL with DataCamp in 2020. Querying, joining and making sense of data has been her thing ever since.",
+      "SQL since 2020. Where her data story began.",
     image: "/achievements/certificates/SQLcourse.jpg",
   },
 
@@ -96,7 +96,7 @@ export const certificates: Certificate[] = [
     category: "Hackathon",
     date: "Jan 2021",
     description: "Certificate of participation.",
-    narration: "HackMoral 3.0: turning an idea into working code against the clock. Hackathons are where she thrives.",
+    narration: "HackMoral 3.0. Idea to working code, against the clock.",
     image: "/achievements/certificates/hackathon2.jpg",
   },
   {
@@ -107,7 +107,7 @@ export const certificates: Certificate[] = [
     date: "Jun 2020",
     description: "Competed as a member of team CODE_RAIN.",
     narration:
-      "Code Rush 2020: competitive coding with team CODE_RAIN. Quick thinking and fast problem-solving under pressure.",
+      "Code Rush 2020 with team CODE_RAIN. Sharp under pressure.",
     image: "/achievements/certificates/hackathon.jpg",
   },
   {
@@ -118,7 +118,7 @@ export const certificates: Certificate[] = [
     date: "Apr 2020",
     description: "Participated as a member of team Ada.",
     narration:
-      "While the world stayed home in 2020, she was hacking with team Ada, building something new together, fully remote.",
+      "Lockdown 2020? She was hacking with team Ada.",
     image: "/achievements/certificates/homeAloneHackathon.jpg",
   },
 
@@ -132,7 +132,7 @@ export const certificates: Certificate[] = [
     description:
       "Presented the research paper “AI-Powered University and Career Guidance Platform for Equitable Access in Sri Lanka” at the International Conference on Open and Digital Education.",
     narration:
-      "She presented her own research at ICODE 2026: an AI-powered platform making university and career guidance fairer for students across Sri Lanka.",
+      "Her own research, presented at ICODE 2026. AI for fairer futures.",
     image: "/achievements/certificates/conference-certificate.png",
     link: "https://icode.bit.uom.lk/proceedings",
   },
@@ -145,7 +145,7 @@ export const certificates: Certificate[] = [
     description:
       "Certificate of participation for a workshop on machine learning and its practical applications in engineering.",
     narration:
-      "Two days on machine learning for real engineering problems. She keeps sharpening her AI skills for practical impact.",
+      "Two days of ML for real engineering. Always sharpening.",
     image: "/achievements/certificates/workshop.jpg",
   },
   {
@@ -156,7 +156,7 @@ export const certificates: Certificate[] = [
     date: "Feb 2022",
     description: "Participated in the largest online conference for the Python community in Sri Lanka.",
     narration:
-      "PyCon Sri Lanka 2022, the country's largest online Python event. She's always learning alongside the wider developer community.",
+      "PyCon Sri Lanka 2022. Learning with the community.",
     image: "/achievements/certificates/pythonconference.jpg",
   },
 ];

@@ -9,6 +9,8 @@ import { ImageLightbox } from "@/components/projects/image-lightbox";
 import { useHasMounted } from "@/lib/hooks/use-has-mounted";
 import { cn } from "@/lib/utils";
 import type { NewsItem } from "@/lib/types";
+import { useLocale, useT } from "@/components/i18n/locale-provider";
+import { dirOf } from "@/lib/i18n/config";
 
 /** Newspaper type: a heavy serif for headlines, blackletter for the nameplate. */
 const headlineFont = Playfair_Display({
@@ -85,6 +87,7 @@ function PrintedPhoto({ children }: { children: React.ReactNode }) {
 
 /** The outlet's name set as a newspaper nameplate, with a date line and a double rule. */
 function Nameplate({ item, compact = false }: { item: NewsItem; compact?: boolean }) {
+  const t = useT();
   return (
     <div className="shrink-0 text-center">
       <p
@@ -98,8 +101,8 @@ function Nameplate({ item, compact = false }: { item: NewsItem; compact?: boolea
         {item.source}
       </p>
       <div className="mt-2 flex items-center justify-between border-y border-[#1c1a17]/70 py-0.5 font-serif text-[8px] uppercase tracking-[0.18em] text-[#1c1a17]/70">
-        <span>{item.date ?? "Press"}</span>
-        <span>In the news</span>
+        <span>{item.date ?? t.achievements.press}</span>
+        <span>{t.achievements.inTheNews}</span>
       </div>
       <div className="mt-[2px] border-t-2 border-[#1c1a17]" />
     </div>
@@ -129,6 +132,7 @@ function useMediaQuery(query: string) {
 }
 
 function ClippingLinks({ item }: { item: NewsItem }) {
+  const t = useT();
   if (!item.link && !item.extraLinks?.length) return null;
   // "Continued" lines in newspaper style: small caps in ink, with the red rule on hover.
   const linkClass =
@@ -138,7 +142,7 @@ function ClippingLinks({ item }: { item: NewsItem }) {
       {item.link && (
         <a href={item.link} target="_blank" rel="noopener noreferrer" className={linkClass}>
           <span className="border-b border-[#1c1a17]/40 pb-0.5 transition-colors group-hover/link:border-[#9b1c1c]">
-            {item.linkLabel ?? "Read the full story"}
+            {item.linkLabel ?? t.achievements.readStory}
           </span>
           <ExternalLink className="size-3 shrink-0 transition-transform duration-200 group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5" />
         </a>
@@ -165,9 +169,10 @@ function ClippingLinks({ item }: { item: NewsItem }) {
  * `absolute inset-0` wrapper that isn't touched by the library.
  */
 const ImagePage = forwardRef<HTMLDivElement, { item: NewsItem }>(function ImagePage({ item }, ref) {
+  const dir = dirOf(useLocale());
   return (
     <div ref={ref} style={{ position: "relative" }}>
-      <div className={cn("absolute inset-0 flex h-full w-full flex-col gap-3 overflow-hidden p-5", NEWSPRINT)}>
+      <div dir={dir} className={cn("absolute inset-0 flex h-full w-full flex-col gap-3 overflow-hidden p-5", NEWSPRINT)}>
         <PaperTexture />
         <Gutter side="right" />
         <div className="relative flex min-h-0 flex-1 flex-col gap-3">
@@ -208,10 +213,11 @@ function SectionRule({ children }: { children: React.ReactNode }) {
  * turns the book to its own spread.
  */
 function AlsoReported({ others, onGoTo }: { others: { item: NewsItem; index: number }[]; onGoTo: (index: number) => void }) {
+  const t = useT();
   if (!others.length) return null;
   return (
     <div className="shrink-0 border border-[#1c1a17]/30 bg-[#1c1a17]/[0.03] px-3 py-2.5">
-      <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-[#9b1c1c]">Also reported by</p>
+      <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-[#9b1c1c]">{t.achievements.alsoReported}</p>
       <p className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[13px] font-semibold">
         {others.map(({ item, index }, i) => (
           <span key={item.id} className="inline-flex items-center gap-2">
@@ -235,17 +241,18 @@ function AlsoReported({ others, onGoTo }: { others: { item: NewsItem; index: num
  * each turning to its spread, with the page number like a real index.
  */
 function EditionIndex({ entries, onGoTo }: { entries: { item: NewsItem; index: number }[]; onGoTo: (index: number) => void }) {
+  const t = useT();
   if (!entries.length) return null;
   return (
     <div className="shrink-0">
-      <SectionRule>In this edition</SectionRule>
+      <SectionRule>{t.achievements.inThisEdition}</SectionRule>
       <ul className="divide-y divide-[#1c1a17]/15">
         {entries.map(({ item, index }) => (
           <li key={item.id}>
             <button
               type="button"
               onClick={() => onGoTo(index)}
-              className="group/idx flex w-full items-baseline gap-3 py-1.5 text-left"
+              className="group/idx flex w-full items-baseline gap-3 py-1.5 text-start"
             >
               <span className="min-w-0 flex-1">
                 <span className="block text-[8.5px] uppercase tracking-[0.16em] text-[#1c1a17]/55">{item.source}</span>
@@ -258,7 +265,7 @@ function EditionIndex({ entries, onGoTo }: { entries: { item: NewsItem; index: n
                   {item.title}
                 </span>
               </span>
-              <span className="shrink-0 text-[9px] text-[#1c1a17]/50 italic">p. {index * 2 + 1}</span>
+              <span className="shrink-0 text-[9px] text-[#1c1a17]/50 italic">{t.achievements.page(index * 2 + 1)}</span>
             </button>
           </li>
         ))}
@@ -277,11 +284,13 @@ const TextPage = forwardRef<
     onGoTo: (index: number) => void;
   }
 >(function TextPage({ item, others, edition, onGoTo }, ref) {
+  const t = useT();
+  const dir = dirOf(useLocale());
   // Long stories set in two ruled columns like a real paper; short ones stay one column.
   const columns = (item.summary?.length ?? 0) > 200;
   return (
     <div ref={ref} style={{ position: "relative" }}>
-      <div className={cn("absolute inset-0 flex h-full w-full flex-col overflow-hidden", NEWSPRINT)}>
+      <div dir={dir} className={cn("absolute inset-0 flex h-full w-full flex-col overflow-hidden", NEWSPRINT)}>
         <PaperTexture />
         <Gutter side="left" />
         <div className={cn("relative flex flex-1 flex-col gap-3.5 overflow-hidden p-6 font-serif", INK)}>
@@ -291,7 +300,7 @@ const TextPage = forwardRef<
             <span>{item.date}</span>
           </div>
 
-          <p className="shrink-0 text-[10px] font-bold uppercase tracking-[0.22em] text-[#9b1c1c]">In the news</p>
+          <p className="shrink-0 text-[10px] font-bold uppercase tracking-[0.22em] text-[#9b1c1c]">{t.achievements.inTheNews}</p>
 
           <h3
             className={cn(
@@ -335,9 +344,10 @@ const TextPage = forwardRef<
 
 /** Mobile page: nameplate, photo and story stacked on one page, since there's no room for a spread. See ImagePage for why layout is on an inner wrapper. */
 const CombinedPage = forwardRef<HTMLDivElement, { item: NewsItem }>(function CombinedPage({ item }, ref) {
+  const dir = dirOf(useLocale());
   return (
     <div ref={ref} style={{ position: "relative" }}>
-      <div className={cn("absolute inset-0 flex h-full w-full flex-col overflow-hidden", NEWSPRINT)}>
+      <div dir={dir} className={cn("absolute inset-0 flex h-full w-full flex-col overflow-hidden", NEWSPRINT)}>
         <PaperTexture />
         <div className={cn("relative flex flex-1 flex-col gap-2.5 overflow-hidden p-4 font-serif", INK)}>
           <Nameplate item={item} compact />
@@ -378,6 +388,7 @@ const CombinedPage = forwardRef<HTMLDivElement, { item: NewsItem }>(function Com
 
 /** News stories as an open, physically page-turnable book (powered by react-pageflip's page-curl engine). */
 export function NewsClippings({ news }: { news: NewsItem[] }) {
+  const t = useT();
   const n = news.length;
   const isDesktop = useMediaQuery("(min-width: 640px)");
   const flipRef = useRef<{ pageFlip: () => PageFlipController } | null>(null);
@@ -426,7 +437,8 @@ export function NewsClippings({ news }: { news: NewsItem[] }) {
         {/* Soft ground shadow the resting book casts on the page. */}
         <div aria-hidden className="absolute inset-x-10 bottom-1 h-8 rounded-[100%] bg-black/20 blur-2xl" />
 
-        <div className="relative mx-auto overflow-hidden rounded-sm shadow-[0_20px_45px_-18px_rgba(0,0,0,0.55)] ring-1 ring-black/10">
+        {/* The book turns left to right in either language; each page sets its own text direction. */}
+        <div dir="ltr" className="relative mx-auto overflow-hidden rounded-sm shadow-[0_20px_45px_-18px_rgba(0,0,0,0.55)] ring-1 ring-black/10">
           {!mounted ? (
             <div className={cn("h-[520px] w-full animate-pulse", NEWSPRINT)} />
           ) : isDesktop ? (
@@ -509,19 +521,19 @@ export function NewsClippings({ news }: { news: NewsItem[] }) {
 
       {n > 1 && (
         <div className="flex flex-col items-center gap-2">
-          <div className="flex items-center gap-3">
-            <NavButton label="Previous story" onClick={flipPrev} disabled={!canGoBack}>
+          <div dir="ltr" className="flex items-center gap-3">
+            <NavButton label={t.achievements.prevStory} onClick={flipPrev} disabled={!canGoBack}>
               <ChevronLeft className="size-4" />
             </NavButton>
             <span className="min-w-14 text-center font-mono text-xs tabular-nums text-muted-foreground">
               {articleIndex + 1} / {n}
             </span>
-            <NavButton label="Next story" onClick={flipNext} disabled={!canGoForward}>
+            <NavButton label={t.achievements.nextStory} onClick={flipNext} disabled={!canGoForward}>
               <ChevronRight className="size-4" />
             </NavButton>
           </div>
           <p className="flex items-center gap-1 text-[11px] text-muted-foreground">
-            <MoveHorizontal className="size-3" /> Turn the page — click, drag, or use the arrows
+            <MoveHorizontal className="size-3" /> {t.achievements.turnHint}
           </p>
         </div>
       )}

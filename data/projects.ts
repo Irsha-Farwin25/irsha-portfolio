@@ -14,6 +14,7 @@ export const projects: Project[] = [
     title: "UDA Mother Lanka Digital Platform",
     description:
       "A citizen-engagement platform for gathering public feedback on development plans and regulatory frameworks, facilitating real-time stakeholder dialogue, and providing access to urban planning resources.",
+    pitch: "Mother Lanka: Sri Lankans shaping their own cities, online. Live now.",
     category: "Web Platform",
     technologies: ["Next.js", "Laravel"],
     image: "/projects/MLDW.jpg",
@@ -57,6 +58,7 @@ export const projects: Project[] = [
     title: "PathwayAI — University & Career Guidance Platform",
     description:
       "An AI-powered guidance platform for Sri Lankan G.C.E. A/L students — upload your results and get personalised university pathway recommendations shaped by your interests and preferences. Part of my MSc research, presented at ICODE 2026.",
+    pitch: "PathwayAI: upload your A/L results, get your university path. Her MSc research.",
     category: "AI / Research",
     technologies: ["Python", "Machine Learning", "Next.js", "REST APIs"],
     image: "/projects/CareerGuidance.jpg",
@@ -94,6 +96,7 @@ export const projects: Project[] = [
     title: "Beauty for Ashes Construction",
     description:
       "Company website for an award-winning Northwest Arkansas builder, showcasing custom homes, whole-home remodels, and major additions — with featured projects, client testimonials, and a six-phase build process.",
+    pitch: "A sharp site for an award-winning Arkansas builder.",
     category: "Web Platform",
     technologies: ["React", "Ruby on Rails"],
     image: "/projects/Beauty4Ashes.jpg",
@@ -107,6 +110,7 @@ export const projects: Project[] = [
     title: "UDA Property Bidding Portal",
     description:
       "A sealed-bid property tender portal within the UDA Mother Lanka platform, where registered bidders can explore verified government-owned commercial and residential properties and submit confidential bids — with the highest valid bid winning through a transparent process.",
+    pitch: "Government property tenders, sealed and fully online.",
     category: "Government Tech",
     technologies: ["Laravel", "React", "MySQL"],
     image: "/projects/Bidding.jpg",
@@ -120,6 +124,7 @@ export const projects: Project[] = [
     title: "Financial Management Information System (UDA)",
     description:
       "This initiative aims to facilitate convenient online payments for UDA tenants through a secure, transparent, authorized, and seamless digital payment system, in line with the Government’s efforts to strengthen and expand the national digital economy.",
+    pitch: "Rent payments for UDA tenants, now online. Secure and live.",
     category: "Government Tech",
     technologies: ["React", "Laravel"],
     image: "/projects/FMIS.jpg",
@@ -133,6 +138,7 @@ export const projects: Project[] = [
     title: "UnicornShift",
     description:
       "AI-powered civil infrastructure platform connecting head contractors with subcontractors — streamlining operations and automating maintenance workflows.",
+    pitch: "UnicornShift: AI that connects contractors and automates maintenance.",
     category: "Web Platform",
     technologies: ["React", "Node.js"],
     image: "/projects/UnicornShift.PNG",

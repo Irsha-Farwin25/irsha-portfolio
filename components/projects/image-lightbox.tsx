@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { Dialog } from "@base-ui/react/dialog";
 import { Maximize2, XIcon } from "lucide-react";
+import { useT } from "@/components/i18n/locale-provider";
 
 /**
  * Clickable project thumbnail that opens the full screenshot in a lightbox.
@@ -25,10 +26,11 @@ export function ImageLightbox({
   /** Shown under the full-size image. */
   caption?: string;
 }) {
+  const t = useT();
   return (
     <Dialog.Root>
       <Dialog.Trigger
-        aria-label={`View full image: ${alt}`}
+        aria-label={t.achievements.viewImage(alt)}
         className="group/thumb absolute inset-0 cursor-zoom-in focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
       >
         <Image
@@ -50,7 +52,7 @@ export function ImageLightbox({
         <Dialog.Backdrop className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm transition-opacity duration-200 data-ending-style:opacity-0 data-starting-style:opacity-0" />
         <Dialog.Popup className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-3 p-4 transition duration-200 ease-out outline-none data-ending-style:scale-95 data-ending-style:opacity-0 data-starting-style:scale-95 data-starting-style:opacity-0 sm:p-10">
           <Dialog.Title className="sr-only">{alt}</Dialog.Title>
-          <Dialog.Close className="absolute inset-0 cursor-zoom-out" aria-label="Close image" />
+          <Dialog.Close className="absolute inset-0 cursor-zoom-out" aria-label={t.achievements.closeImage} />
           <Image
             src={src}
             alt={alt}
@@ -61,7 +63,7 @@ export function ImageLightbox({
           />
           {caption && <p className="relative max-w-2xl text-center text-sm text-white/90">{caption}</p>}
           <Dialog.Close
-            aria-label="Close"
+            aria-label={t.common.close}
             className="absolute top-4 right-4 flex size-10 items-center justify-center rounded-full bg-background/90 text-foreground shadow-md transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
           >
             <XIcon className="size-5" />

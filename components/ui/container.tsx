@@ -9,7 +9,7 @@ export function Container({
 }) {
   return (
     // data-page-container: the avatar measures this to keep her speech bubble off the content.
-    <div data-page-container className={cn("mx-auto w-full max-w-6xl px-6 sm:px-8", className)}>
+    <div data-page-container className={cn("mx-auto w-full max-w-6xl px-6 sm:px-8 2xl:max-w-7xl", className)}>
       {children}
     </div>
   );

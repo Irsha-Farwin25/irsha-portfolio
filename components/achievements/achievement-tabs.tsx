@@ -3,6 +3,7 @@
 import { useId, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { cn } from "@/lib/utils";
+import { useLocale, useT } from "@/components/i18n/locale-provider";
 
 export interface AchievementTab {
   value: string;
@@ -18,10 +19,13 @@ export function AchievementTabs({ tabs }: { tabs: AchievementTab[] }) {
   const reduceMotion = useReducedMotion();
   const id = useId();
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
+  const t = useT();
+  // In Arabic the tabs run right to left, so → moves back a tab.
+  const rtl = useLocale() === "ar";
   const current = tabs.find((t) => t.value === active) ?? tabs[0];
 
   const onKeyDown = (e: KeyboardEvent, index: number) => {
-    const dir = e.key === "ArrowRight" ? 1 : e.key === "ArrowLeft" ? -1 : 0;
+    const dir = (e.key === "ArrowRight" ? 1 : e.key === "ArrowLeft" ? -1 : 0) * (rtl ? -1 : 1);
     if (!dir) return;
     e.preventDefault();
     const next = (index + dir + tabs.length) % tabs.length;
@@ -34,7 +38,7 @@ export function AchievementTabs({ tabs }: { tabs: AchievementTab[] }) {
       <div className="-mx-6 flex overflow-x-auto px-6 [scrollbar-width:none] sm:mx-0 sm:justify-center sm:px-0 [&::-webkit-scrollbar]:hidden">
         <div
           role="tablist"
-          aria-label="Achievements"
+          aria-label={t.achievements.tabsAria}
           className="inline-flex gap-1 rounded-full border border-border bg-secondary/40 p-1"
         >
           {tabs.map((t, i) => {

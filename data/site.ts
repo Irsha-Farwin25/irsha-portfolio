@@ -10,6 +10,8 @@ import type { NavItem, SocialLink } from "@/lib/types";
  */
 export const site = {
   name: "Irsha Farwin",
+  /** Used in sentences ("Irsha's AI guide") and by the spoken voice. */
+  firstName: "Irsha",
   initials: "IF",
   /** Her title everywhere it appears (hero byline, profile card, footer, page title). */
   role: "Software Engineer & AI Researcher",
@@ -37,6 +39,9 @@ export const site = {
     { value: "ICODE '26", label: "Research paper presented", icon: "paper" },
   ],
   statusPill: "Open to new opportunities",
+  /** Two lines a recruiter can paste straight into their notes (the Contact section's "Copy bio"). */
+  recruiterBio:
+    "Irsha Farwin, Software Engineer & AI Researcher (Sri Lanka). 3+ years building production systems for government and public platforms (React, Next.js, Laravel). Pursuing an MSc in AI, with first-author research presented at ICODE 2026.",
   currentlyFocus: "MSc in Artificial Intelligence",
   focusAreas: ["Full-Stack", "AI/ML", "GovTech"],
   currentlyShort: "MSc (AI)",
@@ -44,7 +49,9 @@ export const site = {
   email: "rsahanab96@gmail.com",
   resumeUrl: "/resume.pdf",
   url: "https://irshafarwin.dev",
-} as const;
+};
+
+export type Site = typeof site;
 
 export const socialLinks: SocialLink[] = [
   { label: "GitHub", href: "https://github.com/Irsha-Farwin25", icon: "github" },
