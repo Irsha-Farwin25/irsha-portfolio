@@ -419,6 +419,16 @@
   }
 }
 
+/* Hero headline: the blinking caret after the word being typed. */
+.type-caret {
+  animation: caret-blink 1.05s steps(1, end) infinite;
+}
+@keyframes caret-blink {
+  50% {
+    opacity: 0;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

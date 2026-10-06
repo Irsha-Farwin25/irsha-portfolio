@@ -71,79 +71,75 @@ export function HeroHeadline({ text, accent, decode = [] }: { text: string; acce
   );
 }
 
-const LATIN = "abcdefghijklmnopqrstuvwxyz<>/{}[]=_$#";
-const ARABIC = "ابتثجحخدذرزسشصضطظعغفقكلمنهوي";
-
-/** How long each word holds before decoding into the next. */
+/** How long each word holds before the next is typed over it. */
 const HOLD_MS = 3500;
-/** How long a word takes to decode (scramble, then lock in letter by letter). */
-const DECODE_MS = 900;
+/** Per letter: backspacing the old word, then typing the new one. */
+const ERASE_MS = 45;
+const TYPE_MS = 85;
+/** The beat between the word being cleared and the next one being typed. */
+const GAP_MS = 280;
 
 /**
- * Words that take turns: each "decodes" into the next, its letters cycling through random
- * characters and locking in left to right (in reading order), like code compiling. The first
- * decode plays as the word lands; hovering replays the current one. Every word sits invisibly in
- * the same spot, so the slot is always as wide as the longest and nothing around it shifts.
+ * Words that take turns, typed like code in an editor: the current word is backspaced letter
+ * by letter and the next one typed in behind a blinking caret. Every frame is real text (never
+ * random characters, which read as a typo when caught mid-animation). Hovering retypes the
+ * current word. Every word sits invisibly in the same spot, so the slot is always as wide as the
+ * longest and nothing around it shifts.
  */
 function Decode({ words, startAt, reduce }: { words: string[]; startAt: number; reduce: boolean }) {
-  // What's on screen: the letters already locked in, and the scrambled rest ("" when settled).
-  // Both always render, so updates only change text and never add or remove DOM nodes (which
-  // browser translators and extensions can disturb, crashing React's removeChild).
-  const [frame, setFrame] = useState({ locked: words[0] ?? "", noise: "" });
+  // What's on screen. It's one text node that only ever changes text, never adds or removes DOM
+  // nodes (which browser translators and extensions can disturb, crashing React's removeChild).
+  const [shown, setShown] = useState(words[0] ?? "");
+  const shownRef = useRef(words[0] ?? "");
   const indexRef = useRef(0);
-  // Lets a hover replay the current word through the chain below.
+  // Lets a hover retype the current word through the chain below.
   const replay = useRef<(() => void) | null>(null);
 
-  // One chain at a time: decode a word, hold it, then decode the next. Starting a decode cancels
-  // whatever was pending, so a hover or a return to the tab can never overlap two animations.
+  // One chain at a time: erase, type the next word, hold, repeat. Starting a run cancels whatever
+  // was pending, so a hover can never overlap two animations.
   useEffect(() => {
     if (reduce) return;
-    let raf: number | null = null;
-    let hold: ReturnType<typeof setTimeout> | null = null;
-    const stop = () => {
-      if (raf !== null) cancelAnimationFrame(raf);
-      if (hold !== null) clearTimeout(hold);
-      raf = hold = null;
+    let timer: ReturnType<typeof setTimeout> | null = null;
+    let busy = false;
+    const after = (ms: number, fn: () => void) => {
+      timer = setTimeout(fn, ms);
+    };
+    const show = (text: string) => {
+      shownRef.current = text;
+      setShown(text);
     };
 
-    const decode = (to: number) => {
-      stop();
-      const target = words[to];
-      const letters = [...target];
-      const charset = /\p{Script=Arabic}/u.test(target) ? ARABIC : LATIN;
-      const noise = (from: number) =>
-        letters
-          .slice(from)
-          .map((ch) => (ch === " " ? " " : charset[Math.floor(Math.random() * charset.length)]))
-          .join("");
-
-      // The new word goes in with the first scrambled frame, so it never flashes before scrambling.
+    const run = (to: number) => {
+      if (timer !== null) clearTimeout(timer);
+      busy = true;
       indexRef.current = to;
-      setFrame({ locked: "", noise: noise(0) });
+      let current = [...shownRef.current];
+      const target = [...words[to]];
+      let typed = 0;
 
-      const start = performance.now();
-      const tick = (now: number) => {
-        const progress = Math.min(1, (now - start) / DECODE_MS);
-        const locked = Math.floor(progress * letters.length);
-        if (progress < 1) {
-          setFrame({ locked: letters.slice(0, locked).join(""), noise: noise(locked) });
-          raf = requestAnimationFrame(tick);
-          return;
-        }
-        raf = null;
-        setFrame({ locked: target, noise: "" });
-        if (words.length > 1) hold = setTimeout(() => decode((indexRef.current + 1) % words.length), HOLD_MS);
+      const type = () => {
+        typed += 1;
+        show(target.slice(0, typed).join(""));
+        if (typed < target.length) return after(TYPE_MS, type);
+        busy = false;
+        if (words.length > 1) after(HOLD_MS, () => run((to + 1) % words.length));
       };
-      raf = requestAnimationFrame(tick);
+      const erase = () => {
+        if (!current.length) return after(GAP_MS, type);
+        current = current.slice(0, -1);
+        show(current.join(""));
+        after(ERASE_MS, erase);
+      };
+      erase();
     };
 
     replay.current = () => {
-      if (raf === null) decode(indexRef.current); // only between decodes, never mid-scramble
+      if (!busy) run(indexRef.current); // only between runs, never mid-typing
     };
-    // The first decode plays as the word lands; the chain carries on from there.
-    hold = setTimeout(() => decode(0), startAt * 1000);
+    // The first word lands with the rest of the headline; the next one follows after a hold.
+    if (words.length > 1) after(startAt * 1000 + HOLD_MS, () => run(1));
     return () => {
-      stop();
+      if (timer !== null) clearTimeout(timer);
       replay.current = null;
     };
   }, [words, startAt, reduce]);
@@ -158,11 +154,10 @@ function Decode({ words, startAt, reduce }: { words: string[]; startAt: number; 
       ))}
       {/* Screen readers hear every word once ("software / AI"), not the animation. */}
       <span className="sr-only">{words.join(" / ")}</span>
-      {/* Laid over the slot rather than in it, so wide scrambled characters can't stretch it. */}
+      {/* Laid over the slot, so the caret can sit past the end of the widest word. */}
       <span aria-hidden className="absolute inset-y-0 start-0 whitespace-nowrap">
-        {/* Locked letters already look final; only the still-scrambling ones are tinted. */}
-        <span>{frame.locked}</span>
-        <span className="text-primary/80">{frame.noise}</span>
+        {shown}
+        {!reduce && <span className="type-caret ms-[0.06em] inline-block h-[0.82em] w-[0.07em] rounded-full bg-primary align-[-0.06em]" />}
       </span>
     </span>
   );

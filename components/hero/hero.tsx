@@ -31,8 +31,8 @@ export async function Hero() {
   return (
     <section className="relative overflow-hidden pt-10 sm:pt-12">
       <HeroBackground />
-      {/* A generous gap between the intro and the stat row, so the proof reads as its own band. */}
-      <Container className="flex flex-col gap-14 pb-20 sm:gap-16 sm:pb-28 lg:gap-20">
+      {/* A modest gap between the intro and the stat row: close enough to read as one hero. */}
+      <Container className="flex flex-col gap-10 pb-20 sm:gap-12 sm:pb-28 lg:gap-10">
         <div className="grid items-center gap-14 lg:grid-cols-[1.1fr_0.9fr] lg:gap-12">
           <div className="flex min-w-0 flex-col gap-7">
             <Reveal>
