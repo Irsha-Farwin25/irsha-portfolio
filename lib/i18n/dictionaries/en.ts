@@ -37,6 +37,32 @@ export const en = {
 
     quickQuestions: ["Tell me about her research", "What are her strongest skills?"],
   },
+  about: {
+    eyebrow: "About",
+    title: "Engineer first, now building trustworthy AI",
+    paragraphs: [
+      "I turn real-world needs into software people trust. Over **4+ years**, I've owned **the full lifecycle**: gathering requirements with stakeholders, designing the system, building it, testing it and seeing it into production.",
+      "Building for the public taught me one thing: **when people rely on your software, trust is a feature**. That conviction led me to AI. In my MSc, I research decision support that **knows the limits of what it knows**.",
+      "Next: a team where I can **ship production systems and bring AI into them responsibly**, with the same care from the first conversation to the final release.",
+    ],
+    valuesLabel: "What I care about",
+    values: [
+      { title: "Reliable AI", body: "Systems that are honest about what they don't know.", proof: "MSc research · ICODE 2026" },
+      { title: "Built for real users", body: "Software in daily public use, not just demos.", proof: "Mother Lanka · 6 of 7 modules live" },
+      { title: "Equitable access", body: "Technology that widens who gets good guidance and services.", proof: "PathwayAI research" },
+      { title: "End-to-end ownership", body: "Interface, API and database, treated as one system.", proof: "Full stack across 3 roles" },
+    ],
+    facts: {
+      based: "Based in",
+      basedValue: "Colombo, Sri Lanka",
+      openTo: "Open to",
+      openToValue: "Relocation to the UK, Europe, Australia or the Gulf",
+      languages: "Languages",
+      languagesValue: "English and Tamil (fluent), Sinhala (conversational), Arabic (reading)",
+      now: "Currently",
+      nowValue: "MSc in Artificial Intelligence, SLIIT",
+    },
+  },
   experience: {
     eyebrow: "Experience",
     title: "Where I've been building",

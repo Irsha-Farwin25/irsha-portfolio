@@ -51,6 +51,7 @@ export function sectionLines(locale: Locale): Record<string, string> {
   if (locale === "ar") {
     const statuses = getDictionary("ar").research.statuses;
     return {
+      about: `مهندسة برمجيات تبني ذكاءً اصطناعيًا جديرًا بالثقة. ومنفتحة على الانتقال.`,
       experience: current
         ? `تعمل ${current.endDate === null ? "الآن" : "مؤخرًا"} ${current.role} في ${current.organization}.${previous ? ` وقبلها في ${previous.organization}.` : ""}`
         : `مسيرة ${site.firstName} المهنية حتى الآن.`,
@@ -65,6 +66,7 @@ export function sectionLines(locale: Locale): Record<string, string> {
   }
 
   return {
+    about: `Engineer first, now building trustworthy AI. Open to relocation.`,
     experience: current
       ? `Now a ${current.role} at the ${current.organization}.${previous ? ` Before that, ${previous.organization}.` : ""}`
       : `${site.firstName}'s work, so far.`,

@@ -216,6 +216,7 @@ function Accent({ word, drawAt, reduce }: { word: string; drawAt: number; reduce
             x2="0"
             y1="0"
             y2="0"
+            initial={{ x1: -60, x2: 0 }}
             animate={reduce ? undefined : { x1: [-60, 200], x2: [0, 260] }}
             transition={{ duration: 1.4, delay: drawAt + 1, repeat: Infinity, repeatDelay: 3.2, ease: "easeInOut" }}
           >

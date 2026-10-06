@@ -71,6 +71,7 @@ export const socialLinksAr: SocialLink[] = socialLinks.map((l) =>
 );
 
 const NAV_AR: Record<string, string> = {
+  "/#about": "نبذة عني",
   "/#experience": "الخبرات",
   "/#projects": "المشاريع",
   "/#research": "الأبحاث",

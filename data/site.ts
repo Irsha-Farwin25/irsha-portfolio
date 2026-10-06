@@ -70,6 +70,7 @@ export const socialLinks: SocialLink[] = [
 ];
 
 export const navItems: NavItem[] = [
+  { label: "About", href: "/#about" },
   { label: "Experience", href: "/#experience" },
   // Sections on the home page; each one's "All …" button leads on to its full page.
   { label: "Projects", href: "/#projects" },

@@ -26,13 +26,13 @@ export function SectionBackdrop({ side = "start" }: { side?: "start" | "end" }) 
       />
       <div
         className={cn(
-          "absolute -top-40 size-[620px] rounded-full bg-primary/10 blur-3xl dark:bg-primary/[0.12]",
+          "absolute -top-40 size-[620px] rounded-full bg-primary/[0.05] blur-3xl dark:bg-primary/[0.12]",
           start ? "-start-48" : "-end-48"
         )}
       />
       <div
         className={cn(
-          "absolute -bottom-48 size-[520px] rounded-full bg-chart-2/[0.07] blur-3xl dark:bg-chart-2/[0.09]",
+          "absolute -bottom-48 size-[520px] rounded-full bg-chart-2/[0.05] blur-3xl dark:bg-chart-2/[0.09]",
           start ? "-end-40" : "-start-40"
         )}
       />

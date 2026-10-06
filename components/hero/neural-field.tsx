@@ -184,7 +184,8 @@ export function NeuralField() {
       ctx.clearRect(0, 0, width, height);
       // Light adds up on a dark page, so crossings glow; on a light page it would wash out.
       ctx.globalCompositeOperation = dark ? "lighter" : "source-over";
-      const strength = dark ? 1 : 1.4;
+      // On a light page lines stack up dark instead of glowing, so it runs at half strength there.
+      const strength = dark ? 1 : 0.5;
 
       // The weights: hairlines, fainter on the far side, brighter near the pointer.
       ctx.lineWidth = 0.75;
@@ -248,7 +249,8 @@ export function NeuralField() {
       });
 
       // The output layer's probabilities, beside each output node (wide screens only).
-      if (width >= 1280) {
+      // Dark mode only: on a light page the labels read as stray text at the screen edge.
+      if (width >= 1280 && dark) {
         ctx.globalCompositeOperation = "source-over";
         ctx.font = "10px ui-monospace, SFMono-Regular, Menlo, monospace";
         ctx.textBaseline = "middle";

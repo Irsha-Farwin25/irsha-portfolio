@@ -90,7 +90,10 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
   const avatarUrl = avatarSrc();
 
   return (
+    // The site has its own English and Arabic, so browser translation is switched off: it rewrites
+    // text React manages, which crashes the page ("Failed to execute removeChild").
     <html
+      translate="no"
       lang={locale}
       dir={dirOf(locale)}
       data-scroll-behavior="smooth"

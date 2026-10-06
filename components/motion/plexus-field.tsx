@@ -57,8 +57,8 @@ export function PlexusField() {
 
     function draw() {
       ctx!.clearRect(0, 0, width, height);
-      // Fainter on a dark page, where the accent already glows; a touch stronger on a light one.
-      const strength = dark ? 1 : 1.5;
+      // Quieter on a light page, where dark lines stack up and crowd the headings.
+      const strength = dark ? 1 : 0.6;
       ctx!.strokeStyle = color;
       ctx!.fillStyle = color;
       ctx!.lineWidth = 0.7;
