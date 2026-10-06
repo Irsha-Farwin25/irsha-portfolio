@@ -2,13 +2,7 @@
 
 import { FileDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { site } from "@/data/site";
-import { cn } from "@/lib/utils";
 import { useT } from "@/components/i18n/locale-provider";
 
 export function ResumeLink({
@@ -27,25 +21,8 @@ export function ResumeLink({
 }) {
   const t = useT();
   label ??= t.resume.label;
-  if (!available) {
-    return (
-      <Tooltip>
-        <TooltipTrigger
-          render={
-            <Button
-              variant={variant}
-              size={size}
-              className={cn("cursor-not-allowed opacity-60", className)}
-              aria-disabled="true"
-            >
-              <FileDown data-icon="inline-start" /> {label}
-            </Button>
-          }
-        />
-        <TooltipContent>{t.resume.soon}</TooltipContent>
-      </Tooltip>
-    );
-  }
+  // No resume PDF yet: show nothing rather than a disabled "coming soon" button.
+  if (!available) return null;
 
   return (
     <Button

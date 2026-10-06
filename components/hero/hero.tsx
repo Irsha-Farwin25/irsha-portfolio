@@ -29,11 +29,13 @@ export async function Hero() {
   ].filter((l) => !!l);
 
   return (
-    <section className="relative overflow-hidden pt-10 sm:pt-12">
+    // On large screens the hero fills the viewport below the fixed header (4rem), so the stat row
+    // rests near the bottom of the screen whatever its height, rather than floating up under the intro.
+    <section className="relative flex flex-col overflow-hidden pt-10 sm:pt-12 lg:min-h-[calc(100svh-4rem)]">
       <HeroBackground />
-      {/* A modest gap between the intro and the stat row: close enough to read as one hero. */}
-      <Container className="flex flex-col gap-10 pb-20 sm:gap-12 sm:pb-28 lg:gap-10">
-        <div className="grid items-center gap-14 lg:grid-cols-[1.1fr_0.9fr] lg:gap-12">
+      {/* The intro centres in whatever room is left; the gap below is only the minimum. */}
+      <Container className="flex flex-1 flex-col gap-10 pb-20 sm:gap-12 sm:pb-28 lg:gap-10 lg:pb-12">
+        <div className="grid items-center gap-14 lg:flex-1 lg:grid-cols-[1.1fr_0.9fr] lg:content-center lg:gap-12">
           <div className="flex min-w-0 flex-col gap-7">
             <Reveal>
               <span className="inline-flex w-fit items-center gap-2 rounded-full border border-border bg-card px-3.5 py-1.5 text-xs font-medium text-foreground/80 shadow-sm xl:px-4 xl:py-2 xl:text-sm">

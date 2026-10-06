@@ -4,16 +4,19 @@ import { useRef, useState, type FormEvent, type PointerEvent } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import {
   ArrowRight,
+  BadgeCheck,
   Briefcase,
   FlaskConical,
   Hand,
   Loader2,
+  Mail,
   Rocket,
   Send,
   Sparkles,
   TriangleAlert,
 } from "lucide-react";
 import { LinkedinIcon } from "@/components/icons/brand-icons";
+import { RecruiterPack } from "@/components/contact/contact-extras";
 import { useChatContext } from "@/components/assistant/chat-context";
 import { useContent, useLocale, useT } from "@/components/i18n/locale-provider";
 import type { Dictionary } from "@/lib/i18n/dictionaries";
@@ -28,11 +31,16 @@ const INTENTS = [
 ] as const;
 
 type IntentKey = (typeof INTENTS)[number]["key"];
+
+/** The card's two sides: write a message, or the recruiter pack (bio, links, CV). */
+const PANES = ["message", "recruiter"] as const;
+type Pane = (typeof PANES)[number];
 type Status = "idle" | "sending" | "sent" | "error";
 type FieldError = keyof Dictionary["contact"]["errors"];
 
-export function ContactComposer() {
+export function ContactComposer({ hasResume }: { hasResume: boolean }) {
   const reduce = useReducedMotion();
+  const [pane, setPane] = useState<Pane>("message");
   const { narrate, toggleFromAvatar, catchPlane } = useChatContext();
   const t = useT();
   const rtl = useLocale() === "ar";
@@ -134,27 +142,89 @@ export function ContactComposer() {
     <div
       ref={cardRef}
       onPointerMove={onPointerMove}
-      className="contact-border group/card relative rounded-2xl p-px shadow-[0_30px_80px_-30px] shadow-primary/30"
+      className="group/card relative overflow-hidden rounded-2xl border border-border bg-card shadow-[0_30px_80px_-40px] shadow-primary/40"
     >
-      <div className="relative overflow-hidden rounded-[15px] bg-card">
+        {/* Dotted texture in the top corner and a soft glow, as on the experience panel. */}
+        <div aria-hidden className="pointer-events-none absolute inset-0">
+          <div className="absolute inset-0 bg-[radial-gradient(var(--border)_1px,transparent_1px)] bg-size-[18px_18px] mask-[radial-gradient(ellipse_70%_55%_at_100%_0%,black,transparent)] rtl:mask-[radial-gradient(ellipse_70%_55%_at_0%_0%,black,transparent)]" />
+          <div className="absolute -top-24 -end-24 size-72 rounded-full bg-primary/10 blur-3xl" />
+        </div>
         {/* Cursor spotlight */}
         <div
           aria-hidden
           className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-500 group-hover/card:opacity-100"
           style={{
             background:
-              "radial-gradient(420px circle at var(--mx, 50%) var(--my, 0%), color-mix(in oklch, var(--primary) 14%, transparent), transparent 65%)",
+              "radial-gradient(420px circle at var(--mx, 50%) var(--my, 0%), color-mix(in oklch, var(--primary) 12%, transparent), transparent 65%)",
           }}
         />
-        {/* Progress: fills as the message comes together */}
-        <div className="absolute inset-x-0 top-0 h-0.5 bg-border/60">
-          <motion.div
-            className="h-full origin-left bg-linear-to-r from-primary/60 via-primary to-chart-2 rtl:origin-right rtl:bg-linear-to-l"
-            animate={{ scaleX: status === "sent" ? 1 : Math.max(progress, 0.04) }}
+
+        {/* Title bar, as on the skills and research panels: window dots, then the card's two sides
+            as file tabs, and how ready the message is. Its bottom edge fills as the message comes
+            together. */}
+        <div className="relative flex items-center gap-4 border-b border-border px-4 sm:px-5">
+          <span aria-hidden className="flex gap-1.5">
+            <span className="size-2.5 rounded-full bg-border" />
+            <span className="size-2.5 rounded-full bg-border" />
+            <span className="size-2.5 rounded-full bg-primary/60" />
+          </span>
+          <div role="tablist" className="flex min-w-0">
+            {PANES.map((key) => {
+              const active = key === pane;
+              const Icon = key === "message" ? Mail : BadgeCheck;
+              return (
+                <button
+                  key={key}
+                  type="button"
+                  role="tab"
+                  id={`contact-tab-${key}`}
+                  aria-selected={active}
+                  aria-controls={`contact-pane-${key}`}
+                  onClick={() => setPane(key)}
+                  className={cn(
+                    "relative inline-flex items-center gap-2 px-3 py-3.5 text-sm font-medium whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:ring-inset",
+                    active ? "text-foreground" : "text-muted-foreground hover:text-foreground"
+                  )}
+                >
+                  <Icon className={cn("size-4 transition-colors", active && "text-primary")} aria-hidden />
+                  {key === "message" ? t.contact.newMessage : t.contact.recruiterPack}
+                  {active && (
+                    <motion.span
+                      layoutId="contact-pane"
+                      aria-hidden
+                      className="absolute inset-x-2 -bottom-px h-0.5 rounded-full bg-primary shadow-[0_0_10px_1px] shadow-primary/60"
+                      transition={{ type: "spring", stiffness: 420, damping: 34 }}
+                    />
+                  )}
+                </button>
+              );
+            })}
+          </div>
+          {pane === "message" && status !== "sent" && (
+            <ReadyRing value={progress} label={t.contact.ready(Math.round(progress * 100))} />
+          )}
+          {/* Progress along the bar's bottom edge. */}
+          <motion.span
+            aria-hidden
+            className="absolute inset-x-0 -bottom-px h-px origin-left bg-linear-to-r from-primary/30 via-primary/70 to-chart-2 rtl:origin-right rtl:bg-linear-to-l"
+            animate={{ scaleX: pane !== "message" ? 0 : status === "sent" ? 1 : progress }}
             transition={{ type: "spring", stiffness: 120, damping: 20 }}
           />
         </div>
 
+        {/* Both sides share one grid cell, so the card keeps the taller side's height and never
+            jumps; the hidden side turns away (a flip) and is taken out of the tab order. */}
+        <div className="grid [perspective:1400px] [&>*]:[grid-area:1/1]">
+          <motion.div
+            id="contact-pane-message"
+            role="tabpanel"
+            aria-labelledby="contact-tab-message"
+            inert={pane !== "message"}
+            initial={false}
+            animate={pane === "message" ? { rotateY: 0, opacity: 1 } : { rotateY: rtl ? 90 : -90, opacity: 0 }}
+            transition={reduce ? { duration: 0 } : { duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+            className={cn("[backface-visibility:hidden]", pane !== "message" && "pointer-events-none")}
+          >
         <AnimatePresence mode="wait" initial={false}>
           {status === "sent" ? (
             <Sent key="sent" reduce={!!reduce} onReset={reset} first={first} />
@@ -167,16 +237,8 @@ export function ContactComposer() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -12, filter: "blur(6px)" }}
               transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-              className="relative flex flex-col gap-5 p-5 sm:p-7"
+              className="relative flex flex-col gap-5 px-5 pt-6 pb-5 sm:px-7 sm:pb-7"
             >
-              <div className="flex items-center justify-between gap-4">
-                <p className="font-mono text-xs tracking-wide text-muted-foreground uppercase">
-                  {t.contact.newMessage}
-                </p>
-                <p className="font-mono text-xs text-muted-foreground tabular-nums">
-                  {t.contact.ready(Math.round(progress * 100))}
-                </p>
-              </div>
 
               {/* 1 · What it's about */}
               <fieldset className="flex flex-col gap-3">
@@ -305,7 +367,38 @@ export function ContactComposer() {
             </motion.form>
           )}
         </AnimatePresence>
-      </div>
+          </motion.div>
+
+          <motion.div
+            id="contact-pane-recruiter"
+            role="tabpanel"
+            aria-labelledby="contact-tab-recruiter"
+            inert={pane !== "recruiter"}
+            initial={false}
+            animate={pane === "recruiter" ? { rotateY: 0, opacity: 1 } : { rotateY: rtl ? -90 : 90, opacity: 0 }}
+            transition={reduce ? { duration: 0 } : { duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+            className={cn(
+              "flex flex-col justify-center px-5 pt-6 pb-5 [backface-visibility:hidden] sm:px-7 sm:pb-7",
+              pane !== "recruiter" && "pointer-events-none"
+            )}
+          >
+            <div className="flex flex-col gap-6">
+              {/* Her headline facts at a glance, above the pack. */}
+              <ul className="grid grid-cols-3 gap-2">
+                {site.heroStats.map((s) => (
+                  <li key={s.label} className="flex flex-col gap-1 rounded-xl border border-border bg-background/60 p-3 sm:p-4">
+                    <span dir="ltr" className="text-lg font-semibold tracking-tight text-primary sm:text-xl">
+                      {s.value}
+                      {"suffix" in s && s.suffix ? <span className="text-sm text-primary/70">{s.suffix}</span> : null}
+                    </span>
+                    <span className="text-xs leading-snug text-muted-foreground">{s.label}</span>
+                  </li>
+                ))}
+              </ul>
+              <RecruiterPack hasResume={hasResume} bare />
+            </div>
+          </motion.div>
+        </div>
     </div>
   );
 }
@@ -499,5 +592,31 @@ function Sent({ reduce, onReset, first }: { reduce: boolean; onReset: () => void
         </button>
       </div>
     </motion.div>
+  );
+}
+
+/** How ready the message is, as a small ring that fills, beside its percentage. */
+function ReadyRing({ value, label }: { value: number; label: string }) {
+  const r = 7;
+  const c = 2 * Math.PI * r;
+  return (
+    <span className="ms-auto hidden shrink-0 items-center gap-2 font-mono text-xs text-muted-foreground tabular-nums sm:inline-flex">
+      <svg viewBox="0 0 18 18" className="size-4.5 -rotate-90 rtl:rotate-90 rtl:-scale-y-100" aria-hidden>
+        <circle cx="9" cy="9" r={r} fill="none" strokeWidth="2" className="stroke-border" />
+        <motion.circle
+          cx="9"
+          cy="9"
+          r={r}
+          fill="none"
+          strokeWidth="2"
+          strokeLinecap="round"
+          className="stroke-primary"
+          strokeDasharray={c}
+          animate={{ strokeDashoffset: c * (1 - value) }}
+          transition={{ type: "spring", stiffness: 120, damping: 20 }}
+        />
+      </svg>
+      {label}
+    </span>
   );
 }

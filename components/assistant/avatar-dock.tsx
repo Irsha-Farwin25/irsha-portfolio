@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import { usePathname } from "next/navigation";
 import { AnimatePresence, animate, motion, useMotionValue, useReducedMotion } from "motion/react";
@@ -131,6 +131,7 @@ function Dock({ reduceMotion }: { reduceMotion: boolean }) {
   const speakingUntil = useRef(0);
 
   const boxRef = useRef<HTMLDivElement>(null);
+  const wrapRef = useRef<HTMLDivElement>(null);
   const bubbleTimer = useRef<number | undefined>(undefined);
   const signals = useRef<AvatarSignals>({
     waveAt: 0,
@@ -414,14 +415,16 @@ function Dock({ reduceMotion }: { reduceMotion: boolean }) {
   /**
    * Where her bubble goes and how wide it may grow. Beside her mouth it opens leftward into the
    * empty margin between the page content and her (up to 270px). When that margin is too narrow
-   * it sits above her head instead, spanning the margin from her right edge, so it never covers
-   * the content. Only where neither fits (small screens) does it keep a readable 200px beside
+   * it sits above her head instead, spanning the margin from her right edge (down to 140px wide),
+   * so it never covers the content. Only where neither fits (small screens) does it keep a readable 200px beside
    * her and reach over the content's edge (its glass is near-opaque).
    */
   const [bubbleMaxW, setBubbleMaxW] = useState(270);
   const [bubbleAbove, setBubbleAbove] = useState(false);
   const fitBubble = useCallback(() => {
-    const box = boxRef.current?.getBoundingClientRect();
+    // The fixed wrapper, not the dock: the dock is still scaling in when her first line starts,
+    // and its shrunken box would make the margin look too narrow for the bubble.
+    const box = wrapRef.current?.getBoundingClientRect();
     if (!box) return;
     const container = document.querySelector<HTMLElement>("[data-page-container]");
     let contentRight = 0;
@@ -432,7 +435,9 @@ function Dock({ reduceMotion }: { reduceMotion: boolean }) {
     const mouthX = box.left + box.width * (1 - MOUTH_FROM_RIGHT);
     const beside = mouthX - contentRight - 12;
     const above = box.right - contentRight - 12;
-    if (beside < 200 && above >= 180) {
+    // Above her head even when the margin is fairly narrow (~1440px screens give about 140px): a
+    // taller, narrower bubble beats one that covers the content.
+    if (beside < 200 && above >= 140) {
       setBubbleAbove(true);
       setBubbleMaxW(Math.min(270, above));
       return;
@@ -442,7 +447,8 @@ function Dock({ reduceMotion }: { reduceMotion: boolean }) {
     setBubbleMaxW(Math.min(Math.max(200, Math.min(270, beside)), mouthX - 16));
   }, []);
 
-  useEffect(() => {
+  // Before paint, so a new bubble never shows for a frame in the wrong place and animates across.
+  useLayoutEffect(() => {
     if (!bubble) return;
     fitBubble();
     window.addEventListener("resize", fitBubble);
@@ -680,6 +686,7 @@ function Dock({ reduceMotion }: { reduceMotion: boolean }) {
       )}
       {touch && <TouchRipple key={touch.id} x={touch.x} y={touch.y} onDone={() => setTouch(null)} />}
       <motion.div
+        ref={wrapRef}
         className="pointer-events-none fixed right-3 bottom-3 z-30 sm:right-6 sm:bottom-5"
         style={{ x: travelX, y: travelY }}
       >

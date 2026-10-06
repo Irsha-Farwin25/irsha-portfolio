@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import Image from "next/image";
+import { SignalDivider } from "@/components/motion/signal";
+import { SectionBackdrop } from "@/components/ui/section-backdrop";
 import { createPortal } from "react-dom";
 import { AnimatePresence, motion, useInView, useReducedMotion, type Variants } from "motion/react";
 import { Kalam } from "next/font/google";
@@ -958,7 +960,9 @@ export function Recommendations() {
   const step = (delta: number) => setActive((i) => (i + delta + ordered.length) % ordered.length);
 
   return (
-    <section id="recommendations" className="scroll-mt-24 border-t border-border py-20 sm:py-28">
+    <section id="recommendations" className="relative isolate py-16 sm:py-24">
+      <SignalDivider />
+      <SectionBackdrop side="end" />
       <Container className="flex flex-col gap-12">
         <Reveal>
           <div className="flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-end">

@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { NeuralField } from "@/components/hero/neural-field";
+import { cn } from "@/lib/utils";
 
 const GRID_MASK = "radial-gradient(ellipse 90% 100% at 50% 35%, black 55%, transparent 100%)";
 /** Reveals the lit layers only in a circle around the pointer (position set via CSS vars). */
@@ -11,7 +13,14 @@ const SPOT_MASK = "radial-gradient(220px circle at var(--spot-x) var(--spot-y), 
  * accent colour with a soft glow beneath them — a spotlight that follows the cursor. The pointer
  * position is written straight to CSS variables, so moving the mouse never re-renders React.
  */
-export function HeroBackground() {
+export function HeroBackground({
+  network = true,
+  className,
+}: {
+  /** The neural network over the grid: the home hero has it; other pages' headers don't. */
+  network?: boolean;
+  className?: string;
+} = {}) {
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -45,10 +54,15 @@ export function HeroBackground() {
     <div
       ref={ref}
       aria-hidden="true"
-      className="pointer-events-none absolute inset-0 -z-10 [--spot-on:0] [--spot-x:50%] [--spot-y:30%]"
+      className={cn(
+        "pointer-events-none absolute inset-0 -z-10 [--spot-on:0] [--spot-x:50%] [--spot-y:30%]",
+        className
+      )}
       style={{ maskImage: GRID_MASK, WebkitMaskImage: GRID_MASK }}
     >
       <div className="absolute inset-0 bg-[radial-gradient(var(--color-border)_1px,transparent_1px)] [background-size:22px_22px]" />
+      {/* A neural network wired across the grid's dots, with signals moving through it. */}
+      {network && <NeuralField />}
       {/* Lit layers: accent dots plus a faint glow, both shown only around the pointer. */}
       <div
         className="absolute inset-0 opacity-[var(--spot-on)] transition-opacity duration-500"

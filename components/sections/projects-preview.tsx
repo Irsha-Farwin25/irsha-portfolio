@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { SignalDivider } from "@/components/motion/signal";
+import { SectionBackdrop } from "@/components/ui/section-backdrop";
 import { ArrowRight } from "lucide-react";
 import { Container } from "@/components/ui/container";
 import { SectionHeading } from "@/components/ui/section-heading";
@@ -13,7 +15,9 @@ export async function ProjectsPreview() {
   const ordered = [...projects.filter((p) => p.featured), ...projects.filter((p) => !p.featured)];
 
   return (
-    <section id="projects" className="scroll-mt-24 border-t border-border py-20 sm:py-28">
+    <section id="projects" className="relative isolate py-16 sm:py-24">
+      <SignalDivider />
+      <SectionBackdrop side="end" />
       <Container className="flex flex-col gap-12">
         <Reveal>
           <div className="flex flex-wrap items-end justify-between gap-6">

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Container } from "@/components/ui/container";
+import { HeroBackground } from "@/components/hero/hero-background";
 import { SectionHeading } from "@/components/ui/section-heading";
 import { Eyebrow } from "@/components/ui/section-heading";
 import { PublicationCard } from "@/components/research/publication-card";
@@ -15,7 +16,9 @@ export default async function ResearchPage() {
   const { t, content } = await getI18n();
   const { publications, labExperiments } = content;
   return (
-    <div className="py-16 sm:py-24">
+    <div className="relative isolate overflow-hidden py-16 sm:py-24">
+      {/* The hero's dot grid and cursor spotlight behind the page header, without the network. */}
+      <HeroBackground network={false} className="bottom-auto h-[640px]" />
       <Container className="flex flex-col gap-16">
         <SectionHeading
           eyebrow={t.research.eyebrow}

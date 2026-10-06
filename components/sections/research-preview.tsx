@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { SignalDivider } from "@/components/motion/signal";
+import { SectionBackdrop } from "@/components/ui/section-backdrop";
 import { ArrowRight } from "lucide-react";
 import { Container } from "@/components/ui/container";
 import { SectionHeading } from "@/components/ui/section-heading";
@@ -10,7 +12,9 @@ import { getI18n } from "@/lib/i18n/server";
 export async function ResearchPreview() {
   const { t } = await getI18n();
   return (
-    <section id="research" className="scroll-mt-24 border-t border-border py-20 sm:py-28">
+    <section id="research" className="relative isolate py-16 sm:py-24">
+      <SignalDivider />
+      <SectionBackdrop side="start" />
       <Container className="flex flex-col gap-12">
         <Reveal>
           <div className="flex flex-wrap items-end justify-between gap-6">

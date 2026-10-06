@@ -102,7 +102,7 @@ export const ar: Dictionary = {
     sectors: { government: "جهة حكومية", international: "شركة دولية" },
     countries: { LK: "سريلانكا", AU: "أستراليا" },
     glance: {
-      years: (year) => `سنوات في تطوير برمجيات إنتاجية منذ ${year}`,
+      years: (year) => `سنوات في الإنتاج منذ ${year}`,
       shipped: "منتجات متاحة مباشرة",
       shippedProof: "جميعها مرتبطة في قسم المشاريع",
       unitYears: (n) => (n === 1 ? "سنة" : n === 2 ? "سنتان" : "سنوات"),
@@ -268,6 +268,7 @@ export const ar: Dictionary = {
     copyEmailAria: (email) => `نسخ البريد الإلكتروني ${email}`,
     emailCopiedAria: "تم نسخ البريد الإلكتروني",
     recruiterPack: "حزمة مسؤولي التوظيف",
+    openShort: "متاحة للعمل",
     oneClick: "· كل ما تحتاجه بنقرة واحدة",
     downloadCv: "تحميل السيرة الذاتية",
     cvSoon: "السيرة الذاتية قريبًا",

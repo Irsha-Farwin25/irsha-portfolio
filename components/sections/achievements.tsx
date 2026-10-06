@@ -1,4 +1,6 @@
 import { GraduationCap, HandHeart, Images, Mic, Newspaper, Trophy } from "lucide-react";
+import { SignalDivider } from "@/components/motion/signal";
+import { SectionBackdrop } from "@/components/ui/section-backdrop";
 import { Container } from "@/components/ui/container";
 import { SectionHeading } from "@/components/ui/section-heading";
 import { Reveal } from "@/components/motion/reveal";
@@ -41,7 +43,9 @@ export async function Achievements() {
   if (tabs.length === 0) return null;
 
   return (
-    <section id="achievements" className="scroll-mt-24 border-t border-border py-20 sm:py-28">
+    <section id="achievements" className="relative isolate py-16 sm:py-24">
+      <SignalDivider />
+      <SectionBackdrop side="start" />
       <Container className="flex flex-col gap-12">
         <Reveal>
           <SectionHeading

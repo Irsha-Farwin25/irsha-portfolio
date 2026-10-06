@@ -217,7 +217,8 @@ export function ProjectShowcase({ projects }: { projects: Project[] }) {
                 <span className="relative flex min-w-0 flex-1 flex-col gap-0.5">
                   <span
                     className={cn(
-                      "truncate text-sm font-semibold transition-colors sm:text-base",
+                      // Up to two lines, so long names ("Financial Management Information System") aren't cut off.
+                      "line-clamp-2 text-pretty text-sm leading-snug font-semibold transition-colors sm:text-base",
                       selected ? "text-foreground" : "text-foreground lg:text-muted-foreground lg:group-hover:text-foreground"
                     )}
                   >

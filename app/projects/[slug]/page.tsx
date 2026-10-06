@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { ArrowLeft, ExternalLink } from "lucide-react";
 import { GithubIcon } from "@/components/icons/brand-icons";
 import { Container } from "@/components/ui/container";
+import { HeroBackground } from "@/components/hero/hero-background";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ProjectThumb } from "@/components/projects/project-thumb";
@@ -61,7 +62,9 @@ export default async function ProjectDetailPage(
     );
 
   return (
-    <div className="py-16 sm:py-24">
+    <div className="relative isolate overflow-hidden py-16 sm:py-24">
+      {/* The hero's dot grid and cursor spotlight behind the page header, without the network. */}
+      <HeroBackground network={false} className="bottom-auto h-[640px]" />
       <Container className="flex flex-col gap-10">
         <Link
           href="/projects"

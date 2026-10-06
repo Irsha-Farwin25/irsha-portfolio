@@ -99,7 +99,7 @@ export const en = {
     sectors: { government: "Government", international: "International company" } as Record<string, string>,
     countries: { LK: "Sri Lanka", AU: "Australia" } as Record<string, string>,
     glance: {
-      years: (year: string) => `Years shipping production software since ${year}`,
+      years: (year: string) => `Years in production since ${year}`,
       shipped: "Live products",
       shippedProof: "Every one linked in Projects",
       unitYears: (n: number): string => (n === 1 ? "yr" : "yrs"),
@@ -267,6 +267,8 @@ export const en = {
     copyEmailAria: (email: string) => `Copy email address ${email}`,
     emailCopiedAria: "Email copied",
     recruiterPack: "Recruiter pack",
+    /** Short status for the tag pinned at Colombo on the contact map. */
+    openShort: "Open to work",
     oneClick: "· everything in one click",
     downloadCv: "Download CV",
     cvSoon: "CV coming soon",

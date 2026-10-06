@@ -6,6 +6,7 @@ import { Check, Copy, FileDown, Mail, Zap } from "lucide-react";
 import { GithubIcon, LinkedinIcon } from "@/components/icons/brand-icons";
 import { useHasMounted } from "@/lib/hooks/use-has-mounted";
 import { useContent, useT } from "@/components/i18n/locale-provider";
+import { cn } from "@/lib/utils";
 
 /** The headline's last word, swapping every few seconds. */
 export function RotatingWord({ words }: { words: string[] }) {
@@ -49,8 +50,18 @@ function partOfDay(hour: number) {
   return { key: "night", icon: "🌙" } as const;
 }
 
-/** Her status and a live clock in her time zone, so visitors know when she'll see the message. */
-export function LiveStatus() {
+/**
+ * Her status and a live clock in her time zone, so visitors know when she'll see the message.
+ * `tag` is a compact glowing pill, for pinning beside Colombo on the contact map; `align`
+ * "end" puts its green dot at the right, for when it sits to Colombo's left.
+ */
+export function LiveStatus({
+  variant = "line",
+  align = "start",
+}: {
+  variant?: "line" | "tag";
+  align?: "start" | "end";
+}) {
   const t = useT();
   const { site } = useContent();
   const mounted = useHasMounted();
@@ -70,6 +81,34 @@ export function LiveStatus() {
     new Intl.DateTimeFormat("en-GB", { timeZone: TIME_ZONE, hour: "numeric", hourCycle: "h23" }).format(now),
   );
   const day = partOfDay(hour);
+
+  if (variant === "tag") {
+    // One glowing pill: "● Open to work · 10:43 ☀️". Right-aligned ("end"), the green dot moves to
+    // the far end, next to Colombo (in Arabic the start is already the right, so nothing moves).
+    const end = align === "end";
+    const short = new Intl.DateTimeFormat("en-GB", { timeZone: TIME_ZONE, hour: "2-digit", minute: "2-digit" }).format(now);
+    return (
+      <div
+        title={`${site.statusPill} · ${t.contact.localTimeIn(site.location, t.contact.dayParts[day.key])}`}
+        className="flex w-max items-center gap-2 rounded-full border border-emerald-500/30 bg-card/85 py-1.5 ps-2.5 pe-3 text-xs font-medium shadow-[0_0_18px_-2px] shadow-emerald-500/35 backdrop-blur-md"
+      >
+        <span className={cn("relative flex size-2", end && "order-last rtl:order-none")}>
+          <span className="absolute inline-flex size-full animate-ping rounded-full bg-emerald-400 opacity-60" />
+          <span className="relative inline-flex size-2 rounded-full bg-emerald-500" />
+        </span>
+        <span>{t.contact.openShort}</span>
+        {mounted && (
+          <>
+            <span aria-hidden className="text-muted-foreground/60">·</span>
+            <span dir="ltr" className="font-mono text-muted-foreground tabular-nums">
+              {short}
+            </span>
+            <span aria-hidden>{day.icon}</span>
+          </>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
@@ -218,10 +257,11 @@ function Magnetic({
 }
 
 /**
- * For busy recruiters: the three things they need, one click each. Until a resume PDF is in
- * /public, the CV button says it's coming soon (like the hero's).
+ * For busy recruiters: the three things they need, one click each. The CV button only appears
+ * once a resume PDF is in /public, so visitors never see a placeholder. `bare` drops its own frame
+ * and shows the whole bio, for when it sits inside another card (the message card's second side).
  */
-export function RecruiterPack({ hasResume }: { hasResume: boolean }) {
+export function RecruiterPack({ hasResume, bare = false }: { hasResume: boolean; bare?: boolean }) {
   const t = useT();
   const { site } = useContent();
   const [copied, setCopied] = useState(false);
@@ -238,7 +278,7 @@ export function RecruiterPack({ hasResume }: { hasResume: boolean }) {
   };
 
   return (
-    <div className="flex flex-col gap-3 rounded-xl border border-border bg-card/60 p-4 backdrop-blur">
+    <div className={cn("flex flex-col gap-3", !bare && "rounded-xl border border-border bg-card/60 p-4 backdrop-blur")}>
       <div className="flex items-center gap-2">
         <span className="flex size-6 items-center justify-center rounded-md bg-primary/15 text-primary">
           <Zap className="size-3.5" aria-hidden />
@@ -247,12 +287,17 @@ export function RecruiterPack({ hasResume }: { hasResume: boolean }) {
         <span className="hidden font-mono text-[11px] text-muted-foreground sm:inline">{t.contact.oneClick}</span>
       </div>
 
-      <p className="line-clamp-2 border-s-2 border-primary/40 ps-3 text-xs leading-relaxed text-pretty text-muted-foreground">
+      <p
+        className={cn(
+          "border-s-2 border-primary/40 ps-3 leading-relaxed text-pretty text-muted-foreground",
+          bare ? "text-sm" : "line-clamp-2 text-xs"
+        )}
+      >
         {site.recruiterBio}
       </p>
 
       <div className="flex flex-wrap items-center gap-2">
-        {hasResume ? (
+        {hasResume && (
           <motion.a
             href={site.resumeUrl}
             download
@@ -262,14 +307,6 @@ export function RecruiterPack({ hasResume }: { hasResume: boolean }) {
           >
             <FileDown className="size-4" aria-hidden /> {t.contact.downloadCv}
           </motion.a>
-        ) : (
-          <span
-            aria-disabled="true"
-            title={t.resume.soon}
-            className="inline-flex h-9 cursor-not-allowed items-center gap-2 rounded-full bg-primary/40 px-4 text-sm font-medium text-primary-foreground/80"
-          >
-            <FileDown className="size-4" aria-hidden /> {t.contact.cvSoon}
-          </span>
         )}
         <motion.button
           type="button"
@@ -304,7 +341,7 @@ export function RecruiterPack({ hasResume }: { hasResume: boolean }) {
           </AnimatePresence>
         </motion.button>
         {/* On phones these would wrap onto a row of their own; the hero and footer have them. */}
-        <div className="ms-auto hidden sm:block">
+        <div className={cn("ms-auto", !bare && "hidden sm:block")}>
           <MagneticSocials />
         </div>
       </div>

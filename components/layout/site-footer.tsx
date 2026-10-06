@@ -7,11 +7,23 @@ import { getI18n } from "@/lib/i18n/server";
 
 const iconMap = { github: GithubIcon, linkedin: LinkedinIcon, email: Mail } as const;
 
+/** The grid is strongest along the bottom edge and fades out towards the top of the footer. */
+const FOOTER_FADE = "linear-gradient(to top, black, transparent 90%)";
+
 export async function SiteFooter({ hasResume }: { hasResume: boolean }) {
   const { t, content } = await getI18n();
   const { navItems, site, socialLinks } = content;
   return (
-    <footer className="border-t border-border">
+    <footer className="relative isolate overflow-hidden border-t border-border">
+      {/* The hero's dot grid closes the page, with a slow band of light passing through it. */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 -z-10"
+        style={{ maskImage: FOOTER_FADE, WebkitMaskImage: FOOTER_FADE }}
+      >
+        <div className="absolute inset-0 bg-[radial-gradient(var(--color-border)_1px,transparent_1px)] [background-size:22px_22px]" />
+        <div className="footer-wave absolute inset-0 bg-[radial-gradient(var(--color-primary)_1.6px,transparent_1.6px)] [background-size:22px_22px] motion-reduce:hidden" />
+      </div>
       <Container className="flex flex-col gap-8 py-12">
         <div className="flex flex-col justify-between gap-8 sm:flex-row">
           <div className="max-w-sm">

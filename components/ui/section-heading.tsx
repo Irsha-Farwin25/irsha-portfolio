@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { EyebrowLine } from "@/components/motion/signal";
 
 export function Eyebrow({ children, className }: { children: React.ReactNode; className?: string }) {
   return (
@@ -8,7 +9,7 @@ export function Eyebrow({ children, className }: { children: React.ReactNode; cl
         className
       )}
     >
-      <span className="h-px w-6 bg-primary/60" aria-hidden="true" />
+      <EyebrowLine />
       {children}
     </span>
   );

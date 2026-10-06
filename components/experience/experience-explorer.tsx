@@ -1074,8 +1074,8 @@ export function CareerStats() {
                   <s.Icon className="size-4.5" />
                 </span>
               </div>
-              {/* Room for two lines on every card, so labels and what follows line up across the row. */}
-              <dt className="min-h-[2.75em] text-sm font-medium leading-snug text-foreground/90">{s.label}</dt>
+              {/* One line, no reserved space; if a label wraps, the meter's mt-auto keeps the bars aligned across the row. */}
+              <dt className="text-sm font-medium leading-snug text-foreground/90">{s.label}</dt>
             </div>
 
             {/* Meter: one segment per unit, lighting up in turn. */}

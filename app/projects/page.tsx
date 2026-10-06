@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Container } from "@/components/ui/container";
+import { HeroBackground } from "@/components/hero/hero-background";
 import { SectionHeading } from "@/components/ui/section-heading";
 import { ProjectFilterGrid } from "@/components/projects/project-filter-grid";
 import { getI18n } from "@/lib/i18n/server";
@@ -12,7 +13,9 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function ProjectsPage() {
   const { t, content } = await getI18n();
   return (
-    <div className="py-16 sm:py-24">
+    <div className="relative isolate overflow-hidden py-16 sm:py-24">
+      {/* The hero's dot grid and cursor spotlight behind the page header, without the network. */}
+      <HeroBackground network={false} className="bottom-auto h-[640px]" />
       <Container className="flex flex-col gap-12">
         <SectionHeading
           eyebrow={t.projects.eyebrow}
