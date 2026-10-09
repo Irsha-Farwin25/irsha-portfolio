@@ -64,7 +64,7 @@ export function SkillsExplorer() {
 
   return (
     <div className="flex flex-col gap-12">
-      <div className="grid gap-5 lg:grid-cols-[minmax(0,4fr)_minmax(0,8fr)] lg:gap-8">
+      <div className="grid grid-cols-[minmax(0,1fr)] gap-5 lg:grid-cols-[minmax(0,4fr)_minmax(0,8fr)] lg:gap-8">
         {/* The areas: a scrolling row of chips on phones, a vertical rail on large screens. */}
         <div
           role="tablist"

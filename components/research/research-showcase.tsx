@@ -100,7 +100,7 @@ export function ResearchShowcase() {
       initial={reduce ? false : "hidden"}
       whileInView="show"
       viewport={{ once: true, margin: "0px 0px -10% 0px" }}
-      className="project-grid grid items-stretch gap-6 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:gap-8"
+      className="project-grid grid grid-cols-[minmax(0,1fr)] items-stretch gap-6 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:gap-8"
     >
       <div className="flex flex-col gap-6">
         {publications.map((pub) => (

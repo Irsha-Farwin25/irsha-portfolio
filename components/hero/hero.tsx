@@ -35,7 +35,7 @@ export async function Hero() {
       <HeroBackground />
       {/* The intro centres in whatever room is left; the gap below is only the minimum. */}
       <Container className="flex flex-1 flex-col gap-10 pb-20 sm:gap-12 sm:pb-28 lg:gap-10 lg:pb-12">
-        <div className="grid items-center gap-14 lg:flex-1 lg:grid-cols-[1.1fr_0.9fr] lg:content-center lg:gap-12">
+        <div className="grid grid-cols-[minmax(0,1fr)] items-center gap-14 lg:flex-1 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:content-center lg:gap-12">
           <div className="flex min-w-0 flex-col gap-7">
             <Reveal>
               <span className="inline-flex w-fit items-center gap-2 rounded-full border border-border bg-card px-3.5 py-1.5 text-xs font-medium text-foreground/80 shadow-sm xl:px-4 xl:py-2 xl:text-sm">
@@ -65,7 +65,7 @@ export async function Hero() {
 
             {/* One row of actions: the CV and GitHub, then icon-only LinkedIn and email. */}
             <Reveal delay={0.2}>
-              <div className="flex flex-wrap items-center gap-3">
+              <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                 <ResumeLink available={hasResume} variant="default" size="lg" label={t.resume.download} className={SHINE} />
                 {github && (
                   <Button
@@ -89,7 +89,7 @@ export async function Hero() {
                     title={label}
                     target={href.startsWith("http") ? "_blank" : undefined}
                     rel={href.startsWith("http") ? "noopener noreferrer" : undefined}
-                    className="flex size-10 items-center justify-center rounded-full border border-border text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+                    className="flex size-9 items-center justify-center rounded-full border border-border text-muted-foreground sm:size-10 transition-colors hover:border-primary/40 hover:text-foreground focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
                   >
                     <Icon className="size-4" />
                   </a>

@@ -15,7 +15,7 @@ import {
 import { Award, ChevronLeft, ChevronRight, ExternalLink } from "lucide-react";
 import { ImageLightbox } from "@/components/projects/image-lightbox";
 import { useChatContext } from "@/components/assistant/chat-context";
-import { certificateLine, narrationMs } from "@/lib/chat/narration";
+import { certificateLine } from "@/lib/chat/narration";
 import type { Certificate } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { useLocale, useT } from "@/components/i18n/locale-provider";
@@ -26,6 +26,7 @@ const STEP = 7.5; // degrees between fanned cards
 const DWELL_MS = 4200; // how long each certificate rests under the spotlight…
 const NARRATE_DELAY_MS = 700; // …the avatar starts describing it once it has settled…
 const AFTER_NARRATION_MS = 1800; // …and the walk waits this long after she finishes
+const MAX_NARRATION_MS = 12000; // a safety cap on waiting for her to finish
 const RESUME_AFTER_MS = 6000; // pause the exhibition walk after manual navigation
 const STACK_TILT = [0, -6, 5, -3];
 const SPOTLIGHT_ZOOM = 1.12; // the certificate in the spotlight steps forward by this much
@@ -65,8 +66,10 @@ export function CertificateFan({ items }: { items: Certificate[] }) {
   const lastStep = useRef(0);
   const nudged = useRef(false);
   const stageRef = useRef<HTMLDivElement>(null);
-  /** How long the current certificate rests: longer while the avatar is describing it. */
+  /** How long the current certificate rests (counted from when she finishes describing it). */
   const dwell = useRef(DWELL_MS);
+  /** True while the avatar is describing the spotlit certificate: the walk holds until she's done. */
+  const narrating = useRef(false);
 
   // The avatar describes the certificate under the spotlight (when she's around and not muted);
   // otherwise the description shows in the caption below.
@@ -139,6 +142,11 @@ export function CertificateFan({ items }: { items: Certificate[] }) {
       if (!inView.current || hovered) lastStep.current = time;
       return;
     }
+    // Never move on mid-sentence: the rest starts counting once she has finished.
+    if (narrating.current) {
+      lastStep.current = time;
+      return;
+    }
     if (time - lastStep.current > dwell.current) {
       lastStep.current = time;
       goTo(activeRef.current + 1, false);
@@ -155,14 +163,32 @@ export function CertificateFan({ items }: { items: Certificate[] }) {
   const current = items[active];
   const spoken = canNarrate ? certificateLine(current, locale) : undefined;
 
-  // Once a certificate settles under the light (and the wall is on screen), she describes it.
+  // Once a certificate settles under the light (and the wall is on screen), she describes it, and
+  // the walk waits until she has actually finished saying it (her voice is slower than the bubble
+  // types), then rests a moment before the next one.
   useEffect(() => {
-    dwell.current = spoken ? Math.max(DWELL_MS, NARRATE_DELAY_MS + narrationMs(spoken) + AFTER_NARRATION_MS) : DWELL_MS;
+    dwell.current = DWELL_MS;
     if (!spoken) return;
+    let current = true;
+    narrating.current = true;
     const id = window.setTimeout(() => {
-      if (inView.current) narrateRef.current(spoken);
+      if (!inView.current) {
+        narrating.current = false;
+        return;
+      }
+      // Capped, so a lost "finished" signal can never stall the wall.
+      const cap = new Promise<void>((resolve) => window.setTimeout(resolve, MAX_NARRATION_MS));
+      void Promise.race([narrateRef.current(spoken), cap]).then(() => {
+        if (!current) return;
+        narrating.current = false;
+        dwell.current = AFTER_NARRATION_MS;
+      });
     }, NARRATE_DELAY_MS);
-    return () => window.clearTimeout(id);
+    return () => {
+      current = false;
+      narrating.current = false;
+      window.clearTimeout(id);
+    };
   }, [spoken, active]);
 
   return (

@@ -286,6 +286,10 @@ export const publicationsAr = localize<Publication, "id">(publications, "id", {
 
 const TECH_AR: Record<string, string> = {
   "Machine Learning": "تعلّم الآلة",
+  "Spiking Neural Networks": "الشبكات العصبية النبضية",
+  "Natural Language Processing": "معالجة اللغات الطبيعية",
+  "Deep Learning": "التعلّم العميق",
+  "Computational Neuroscience": "علم الأعصاب الحاسوبي",
   "Artificial Intelligence": "الذكاء الاصطناعي",
   "Computer Vision": "الرؤية الحاسوبية",
   "Generative AI": "الذكاء الاصطناعي التوليدي",
@@ -295,17 +299,20 @@ const TECH_AR: Record<string, string> = {
 };
 
 export const labExperimentsAr = localize<LabExperiment, "id">(labExperiments, "id", {
-  "cv-experiment-1": {
-    title: "[تجربة في الرؤية الحاسوبية]",
-    description: "[وصف تجربة في الرؤية الحاسوبية — ترتبط ببحثك الجامعي في معالجة الصور الرقمية.]",
+  "snn-mnist": {
+    title: "شبكة عصبية نبضية لتصنيف أرقام MNIST",
+    description:
+      "شبكة عصبية نبضية غير مُشرفة تتعلّم التعرّف على الأرقام المكتوبة بخط اليد عبر قاعدة STDP، دون أن ترى أي تسمية أثناء التدريب. بلغت دقتها 64% على عيّنة اختبار من MNIST (مقابل 10% بالصدفة). مبنية بمحاكي Brian2 وفق نموذج Diehl وCook (2015)، ضمن مقرر الماجستير IT5092 في علم الأعصاب والحوسبة العصبية.",
   },
-  "llm-experiment-1": {
-    title: "[نموذج أولي لتطبيق قائم على النماذج اللغوية الكبيرة]",
-    description: "[وصف نموذج أولي لتطبيق قائم على النماذج اللغوية الكبيرة بنيتَه أو تعمل عليه.]",
+  "pos-pcfg-news": {
+    title: "مُوسِّم أقسام الكلام ومحلّل PCFG للأخبار السريلانكية",
+    description:
+      "مُوسِّم لأقسام الكلام قائم على نموذج ماركوف المخفي (HMM) ثنائي الكلمات، وقواعد نحوية احتمالية (PCFG) مُدرَّبة على Penn Treebank، ثم اختُبرت على 150 جملة من الأخبار السريلانكية وُسِمت يدويًا. بلغت دقة الوسم 89.8% مقارنةً بالوسم البشري (κ = 0.89)، مع تحليل نحوي كامل لـ98.7% من الجمل، وتجميع يوضّح أين يتعثّر نموذج مُدرَّب على أخبار مالية من عام 1989. ضمن مقرر الماجستير في معالجة اللغات الطبيعية.",
   },
-  "ml-experiment-1": {
-    title: "[مقرر أو تجربة في تعلّم الآلة]",
-    description: "[وصف تجربة في تعلّم الآلة من مقررات الماجستير أو الدراسة الذاتية.]",
+  "dbvae-face-detection": {
+    title: "إزالة التحيّز من كشف الوجوه باستخدام DB-VAE",
+    description:
+      "كاشف وجوه خضع لتدقيق في التحيّز بحسب لون البشرة والجنس. يتعلّم مُرمِّز ذاتي تبايني لإزالة التحيّز (DB-VAE) البنية الكامنة للوجوه دون تسميات، ويعيد أخذ عيّنات الوجوه النادرة أثناء التدريب، فارتفعت ثقة الكشف لدى الفئة الأقل خدمة (الرجال ذوو البشرة الداكنة) من 0.47 إلى 0.68، ولدى النساء ذوات البشرة الداكنة من 0.61 إلى 0.86. مبني على مقرر MIT 6.S191، ضمن مقرر الماجستير في التعلّم العميق (IT5062).",
   },
 }).map((e) => ({ ...e, technologies: e.technologies.map((t) => TECH_AR[t] ?? t) }));
 
@@ -391,81 +398,81 @@ export const certificatesAr = localize<Certificate, "id">(certificates, "id", {
     title: "التعلّم الآلي الموجَّه: الانحدار والتصنيف",
     issuer: "DeepLearning.AI وStanford Online · Coursera",
     date: "مايو 2026",
-    narration: "تعلّم الآلة من ستانفورد وDeepLearning.AI. الرياضيات وراء ذكائها الاصطناعي.",
+    narration: "تعلّم الآلة من ستانفورد، أساس ذكائها الاصطناعي.",
   },
   "meta-frontend": {
     title: "مقدمة في تطوير الواجهات الأمامية",
     date: "ديسمبر 2025",
-    narration: "الواجهات الأمامية بتدريب من Meta. React كما يجب.",
+    narration: "الواجهات الأمامية بتدريب من Meta.",
   },
   "testdome-mysql": {
     title: "MySQL — ضمن أفضل 25%",
     date: "ديسمبر 2022",
     description: "اجتازت اختبار مهارات MySQL العام من TestDome، ضمن أفضل 25% من المتقدمين.",
-    narration: "ضمن أفضل 25% في اختبار MySQL من TestDome. استعلامات سريعة ونظيفة.",
+    narration: "ضمن أفضل 25% في اختبار MySQL من TestDome.",
   },
   "canopylab-strategic-leadership": {
     title: "القيادة الاستراتيجية والتنمية المستدامة",
     date: "يوليو 2021",
-    narration: "قيادة استراتيجية. ترى أبعد من المرحلة القادمة.",
+    narration: "قيادة استراتيجية، برؤية أبعد من المرحلة القادمة.",
   },
   "fcc-responsive-web-design": {
     title: "تصميم الويب المتجاوب",
     date: "ديسمبر 2020",
     description: "شهادة للمطوّرين تعادل نحو 300 ساعة من الدراسة.",
-    narration: "300 ساعة في التصميم المتجاوب. واجهات أنيقة على كل شاشة.",
+    narration: "300 ساعة في التصميم المتجاوب.",
   },
   "flutter-dart": {
     title: "مقدمة في تطوير Flutter باستخدام Dart",
     date: "يوليو 2020",
-    narration: "Flutter منذ 2020. شيفرة واحدة لأندرويد وiOS.",
+    narration: "Flutter: شيفرة واحدة لأندرويد وiOS.",
   },
   "datacamp-sql": {
     title: "مقدمة في SQL",
     date: "مايو 2020",
-    narration: "SQL منذ 2020. هنا بدأت قصتها مع البيانات.",
+    narration: "SQL منذ 2020، بداية قصتها مع البيانات.",
   },
   "hackmoral-3": {
     title: "HackMoral 3.0 — هاكاثون مصغّر",
     issuer: MORATUWA_IT,
     date: "يناير 2021",
     description: "شهادة مشاركة.",
-    narration: "HackMoral 3.0. من الفكرة إلى شيفرة تعمل، في سباق مع الوقت.",
+    narration: "HackMoral 3.0: من الفكرة إلى شيفرة تعمل.",
   },
   "code-rush-2020": {
     title: "Code Rush 2020 — مسابقة برمجة داخلية في الكلية",
     issuer: MORATUWA_IT,
     date: "يونيو 2020",
     description: "شاركت ضمن فريق CODE_RAIN.",
-    narration: "Code Rush 2020 مع فريق CODE_RAIN. تركيز عالٍ تحت الضغط.",
+    narration: "Code Rush 2020 مع فريق CODE_RAIN.",
   },
   "homealone-2020": {
     title: "HomeAlone 2020 — هاكاثون افتراضي مصغّر",
     issuer: "اتحاد الطلاب، كلية تكنولوجيا المعلومات، جامعة موراتووا",
     date: "أبريل 2020",
     description: "شاركت ضمن فريق Ada.",
-    narration: "إغلاق 2020؟ كانت تبرمج في هاكاثون مع فريق Ada.",
+    narration: "إغلاق 2020؟ كانت تبرمج مع فريق Ada.",
   },
   "icode-2026-presentation": {
     title: "ICODE 2026 — شهادة تقديم بحث",
     issuer: "مركز التعليم المفتوح والتعلّم عن بُعد (CODL)، جامعة موراتووا",
     date: "أغسطس 2026",
     description: `قدّمت الورقة البحثية «${PUBLICATION_TITLE_AR}» في المؤتمر الدولي للتعليم المفتوح والرقمي.`,
-    narration: "بحثها الخاص، قُدِّم في ICODE 2026. ذكاء اصطناعي من أجل مستقبل أكثر إنصافًا.",
+    narration: "بحثها الخاص، قُدِّم في ICODE 2026.",
   },
   "lincoln-ml-engineers": {
     title: "تعلّم الآلة للمهندسين — ورشة عمل إلكترونية لمدة يومين",
     issuer: "قسم الهندسة، كلية جامعة لينكولن، سريلانكا",
     date: "مايو 2026",
     description: "شهادة مشاركة في ورشة عمل حول تعلّم الآلة وتطبيقاته العملية في الهندسة.",
-    narration: "يومان من تعلّم الآلة لهندسة حقيقية. تطوّر مهاراتها باستمرار.",
+    narration: "يومان من تعلّم الآلة للمهندسين.",
   },
   "pycon-sl-2022": {
     title: "PyCon سريلانكا 2022",
     issuer: "PyCon سريلانكا · AIESEC في جامعة موراتووا",
     date: "فبراير 2022",
     description: "شاركت في أكبر مؤتمر إلكتروني لمجتمع Python في سريلانكا.",
-    narration: "PyCon سريلانكا 2022. تتعلّم مع المجتمع.",
+    narration: "PyCon سريلانكا 2022، مع المجتمع.",
   },
 });
 

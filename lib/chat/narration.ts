@@ -1,6 +1,5 @@
 import type { Locale } from "@/lib/i18n/config";
 import { getContent } from "@/lib/i18n/content";
-import { getDictionary } from "@/lib/i18n/dictionaries";
 import type { Certificate } from "@/lib/types";
 
 /**
@@ -31,6 +30,11 @@ function shortTitle(title: string) {
   return title.replace(/[[\]]/g, "").split(" — ")[0];
 }
 
+/** Drops a trailing "(…)": "SLIIT (Sri Lanka Institute of …)" → "SLIIT", "BSc (Hons)" → "BSc". */
+function bare(text: string) {
+  return text.replace(/\s*\([^)]*\)\s*$/, "").trim();
+}
+
 /** Click with a mouse, tap on a touch screen. */
 function verb(locale: Locale, touch: boolean) {
   if (locale === "ar") return touch ? "اضغط" : "انقر";
@@ -39,7 +43,11 @@ function verb(locale: Locale, touch: boolean) {
 
 /** What she says as the visitor reaches each home-page section (by the section's element id). */
 export function sectionLines(locale: Locale): Record<string, string> {
-  const { site, experience, projects, publications, skillCategories, recommendations } = getContent(locale);
+  const { site, experience, education, projects, publications, skillCategories, recommendations, certificates } =
+    getContent(locale);
+  const studying = education.find((e) => e.status === "in-progress");
+  const graduated = education.find((e) => e.status === "completed");
+  const hackathons = certificates.filter((c) => c.category === "Hackathon").length;
   const current = experience.find((e) => e.endDate === null) ?? experience[0];
   const previous = experience.find((e) => e !== current);
   const publication = publications[0];
@@ -49,17 +57,28 @@ export function sectionLines(locale: Locale): Record<string, string> {
     .filter((s): s is string => !!s);
 
   if (locale === "ar") {
-    const statuses = getDictionary("ar").research.statuses;
     return {
       about: `مهندسة برمجيات تبني ذكاءً اصطناعيًا جديرًا بالثقة. ومنفتحة على الانتقال.`,
       experience: current
         ? `تعمل ${current.endDate === null ? "الآن" : "مؤخرًا"} ${current.role} في ${current.organization}.${previous ? ` وقبلها في ${previous.organization}.` : ""}`
         : `مسيرة ${site.firstName} المهنية حتى الآن.`,
+      education: [
+        studying && `${bare(studying.degree)} ${studying.field} في ${bare(studying.institution)}، قيد الدراسة.`,
+        graduated && `${studying ? "و" : ""}${bare(graduated.degree)} ${graduated.field} من ${bare(graduated.institution)}.`,
+      ]
+        .filter(Boolean)
+        .join(" "),
       projects: `${countAr(projects.length, { one: "مشروع واحد", two: "مشروعان", few: "مشاريع", many: "مشروعًا" })} لمستخدمين حقيقيين. من المنصات الحكومية إلى الذكاء الاصطناعي.`,
       research: publication
-        ? `${statuses[publication.status] ?? publication.status} في ${publication.venue}: ذكاء اصطناعي من أجل إرشاد جامعي أكثر إنصافًا.`
+        ? `ورقتها البحثية في ${publication.venue}: ذكاء اصطناعي للإرشاد الجامعي والمهني.`
         : `أبحاث ${site.firstName} وتجاربها.`,
-      skills: `${topSkills.join("، ")}. من الواجهات الأمامية إلى الذكاء الاصطناعي، بشكل متكامل.`,
+      skills: `${topSkills.join(" و")}. من الواجهات الأمامية إلى الذكاء الاصطناعي، بشكل متكامل.`,
+      process: "عشر خطوات في حلقة واحدة: الفهم، التخطيط، البناء، الإطلاق، ثم التعلّم من الاستخدام الفعلي.",
+      achievements: `${countAr(certificates.length, { one: "شهادة واحدة", two: "شهادتان", few: "شهادات", many: "شهادة" })}${
+        hackathons
+          ? ` و${countAr(hackathons, { one: "هاكاثون واحد", two: "هاكاثونان", few: "هاكاثونات", many: "هاكاثونًا" })}`
+          : ""
+      }، والقصص وراءها.`,
       recommendations: `${countAr(recommendations.length, { one: "شخص واحد", two: "شخصان", few: "أشخاص", many: "شخصًا" })} يشهدون لها. اقرأ لماذا.`,
       contact: `تبحث عن موظفين؟ إنها ${site.statusPill}. راسلها الآن.`,
     };
@@ -70,11 +89,22 @@ export function sectionLines(locale: Locale): Record<string, string> {
     experience: current
       ? `Now a ${current.role} at the ${current.organization}.${previous ? ` Before that, ${previous.organization}.` : ""}`
       : `${site.firstName}'s work, so far.`,
+    education: [
+      studying && `${bare(studying.degree)} in ${studying.field} at ${bare(studying.institution)}, in progress.`,
+      graduated &&
+        `${bare(graduated.degree)} from ${/^University\b/.test(graduated.institution) ? "the " : ""}${bare(graduated.institution)}.`,
+    ]
+      .filter(Boolean)
+      .join(" "),
     projects: `${count(projects.length, "project")}, real users. Government platforms to AI.`,
     research: publication
-      ? `${publication.status} at ${publication.venue}: AI for fairer university guidance.`
+      ? `${publication.status} at ${publication.venue}: AI for university and career guidance.`
       : `${site.firstName}'s research and experiments.`,
-    skills: `${topSkills.join(". ")}. Frontend to AI, end to end.`,
+    skills: `${list(topSkills)}. Frontend to AI, end to end.`,
+    process: "Ten steps, one loop: understand, plan, build, ship, then learn from real use.",
+    achievements: `${count(certificates.length, "certificate")}${
+      hackathons ? `, ${count(hackathons, "hackathon")}` : ""
+    }, and the stories behind them.`,
     recommendations: `${count(recommendations.length, "person", "people")} vouch for her. Read why.`,
     contact: `Hiring? She's ${site.statusPill.toLowerCase()}. Say hi.`,
   };

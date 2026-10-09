@@ -25,7 +25,8 @@ export async function Experience() {
 
         <ExperienceExplorer />
 
-        <div className="flex flex-col gap-6 border-t border-border pt-14">
+        {/* Its own id so the avatar introduces Education separately from the jobs above it. */}
+        <div id="education" className="flex scroll-mt-24 flex-col gap-6 border-t border-border pt-14">
           <Reveal>
             {/* Same quiet label style as the panels above, so Education reads as part of the section. */}
             <div className="flex items-center gap-3">

@@ -19,7 +19,7 @@ import {
   sectionLines,
 } from "@/lib/chat/narration";
 import { useLocale, useT } from "@/components/i18n/locale-provider";
-import { speak, stopSpeaking } from "@/lib/chat/voice";
+import { speak, speechMs, stopSpeaking } from "@/lib/chat/voice";
 import {
   GESTURE_FLICK_MS,
   type AvatarModelUrls,
@@ -205,22 +205,63 @@ function Dock({ reduceMotion }: { reduceMotion: boolean }) {
   const chatOpenRef = useRef(false);
   const talkTimer = useRef<number | undefined>(undefined);
 
-  /** Narrates a line: she points toward the page, "talks" while it types out, then it fades. */
+  /** The line she's on now, so a finished (or cut-off) earlier line can't end the current one. */
+  const currentLine = useRef(0);
+  /** Settles the promise `narrate` returned for the current line. */
+  const finishLine = useRef<(() => void) | null>(null);
+  const endLine = useCallback(() => {
+    finishLine.current?.();
+    finishLine.current = null;
+  }, []);
+
+  /**
+   * Narrates a line: she points toward the page, "talks" while it types out (and, with sound, until
+   * she has finished saying it), then it fades. Nothing else starts until she's done, so lines
+   * never cut each other off mid-sentence. Resolves once she has finished (or been cut off), so
+   * the page can wait for her, e.g. before moving the next certificate under the spotlight.
+   */
   const narrate = useCallback((line: string) => {
+    endLine(); // whoever was waiting on the previous line can carry on
+    const done = new Promise<void>((resolve) => {
+      finishLine.current = resolve;
+    });
     const now = performance.now();
+    currentLine.current = now;
     signals.current.gestureAt = now;
     signals.current.mode = "talking";
-    const typing = narrationMs(line);
     setBubble({ text: line, typed: true, id: now });
-    speakingUntil.current = now + typing + 2000;
-    if (!mutedRef.current) speak(line, localeRef.current);
-    window.clearTimeout(talkTimer.current);
-    talkTimer.current = window.setTimeout(() => {
-      if (!chatOpenRef.current) signals.current.mode = "idle";
-    }, typing);
-    window.clearTimeout(bubbleTimer.current);
-    bubbleTimer.current = window.setTimeout(() => setBubble(null), typing + 3500);
-  }, []);
+
+    const stopTalking = (inMs: number) => {
+      window.clearTimeout(talkTimer.current);
+      talkTimer.current = window.setTimeout(() => {
+        if (!chatOpenRef.current) signals.current.mode = "idle";
+        endLine();
+      }, inMs);
+    };
+    const hideBubble = (inMs: number) => {
+      window.clearTimeout(bubbleTimer.current);
+      bubbleTimer.current = window.setTimeout(() => setBubble(null), inMs);
+    };
+
+    const typing = narrationMs(line);
+    const spoken =
+      !mutedRef.current &&
+      speak(line, localeRef.current, () => {
+        if (currentLine.current !== now) return; // a newer line took over
+        const end = performance.now();
+        speakingUntil.current = end + 1200; // a breath before the next line
+        stopTalking(0);
+        hideBubble(Math.max(2500, now + typing + 3500 - end));
+      });
+    // With her voice on, the line lasts until `onEnd` reports she's finished; the generous
+    // estimate here only matters if the browser never reports it. Otherwise, as long as it takes
+    // to read.
+    const length = spoken ? Math.max(typing, speechMs(line) * 1.5) : typing;
+    speakingUntil.current = now + length + 2000;
+    stopTalking(length);
+    hideBubble(length + 3500);
+    return done;
+  }, [endLine]);
 
   // Load the ~3 MB model only once the page is idle, so it never competes with the hero.
   useEffect(() => {
@@ -288,7 +329,6 @@ function Dock({ reduceMotion }: { reduceMotion: boolean }) {
       .filter((el): el is HTMLElement => !!el);
     if (!sections.length) return;
 
-    const ratios = new Map<string, number>();
     let settle: number | undefined;
 
     const onSettled = () => {
@@ -298,35 +338,38 @@ function Dock({ reduceMotion }: { reduceMotion: boolean }) {
         settle = window.setTimeout(onSettled, busy);
         return;
       }
+      // Measured now, not from the observer's last callback: it only fires at threshold
+      // crossings, so a tall section's share could be stale. Share = how much of the screen
+      // it fills (tall sections never reach a high intersection ratio).
+      // Only sections she hasn't introduced yet: Education sits inside Experience, and the bigger
+      // parent (already introduced) would otherwise always win and keep her quiet.
       let best: string | null = null;
       let bestShare = 0.3; // the section fills at least 30% of the screen
-      for (const [id, share] of ratios) {
+      for (const el of sections) {
+        if (narrated.current.has(el.id)) continue;
+        const r = el.getBoundingClientRect();
+        const share = Math.max(0, Math.min(r.bottom, window.innerHeight) - Math.max(r.top, 0)) / window.innerHeight;
         if (share > bestShare) {
-          best = id;
+          best = el.id;
           bestShare = share;
         }
       }
       if (!best || narrated.current.has(best)) return;
       narrated.current.add(best);
       narrate(lines[best]);
+      // Look again once she's done: another section (e.g. Education inside Experience) may be
+      // waiting its turn without the visitor scrolling again.
+      schedule();
     };
     const schedule = () => {
       window.clearTimeout(settle);
       settle = window.setTimeout(onSettled, 700);
     };
 
-    const io = new IntersectionObserver(
-      (entries) => {
-        // Tall sections never reach a high ratio, so measure how much of the screen each fills.
-        for (const e of entries) ratios.set(e.target.id, e.intersectionRect.height / window.innerHeight);
-        schedule();
-      },
-      { threshold: [0, 0.15, 0.3, 0.45, 0.6, 0.75, 0.9, 1] },
-    );
-    sections.forEach((el) => io.observe(el));
+    // Check once the page has settled after loading or scrolling.
+    schedule();
     window.addEventListener("scroll", schedule, { passive: true });
     return () => {
-      io.disconnect();
       window.removeEventListener("scroll", schedule);
       window.clearTimeout(settle);
     };
@@ -367,7 +410,10 @@ function Dock({ reduceMotion }: { reduceMotion: boolean }) {
   useEffect(() => {
     const onFirst = () => {
       const b = bubbleRef.current;
-      if (b && !mutedRef.current && performance.now() < speakingUntil.current) speak(b.text, localeRef.current);
+      if (b && !mutedRef.current && performance.now() < speakingUntil.current && speak(b.text, localeRef.current)) {
+        // Saying it now takes longer than the rest of the bubble's reading time.
+        speakingUntil.current = Math.max(speakingUntil.current, performance.now() + speechMs(b.text) + 1200);
+      }
     };
     window.addEventListener("pointerdown", onFirst, { once: true, capture: true });
     window.addEventListener("keydown", onFirst, { once: true, capture: true });
@@ -397,11 +443,14 @@ function Dock({ reduceMotion }: { reduceMotion: boolean }) {
   useEffect(() => {
     if (!ready || hidden || muted) return;
     setNarrator((line) => {
-      if (chatOpenRef.current && atCard.current) return;
-      narrate(line);
+      if (chatOpenRef.current && atCard.current) return Promise.resolve();
+      return narrate(line);
     });
-    return () => setNarrator(null);
-  }, [ready, hidden, muted, narrate, setNarrator]);
+    return () => {
+      setNarrator(null);
+      endLine(); // muted, hidden or gone: nobody should keep waiting for her to finish
+    };
+  }, [ready, hidden, muted, narrate, setNarrator, endLine]);
 
   useEffect(
     () => () => {

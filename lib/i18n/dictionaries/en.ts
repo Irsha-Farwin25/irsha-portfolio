@@ -217,6 +217,98 @@ export const en = {
     categories: "Skill areas",
     everything: "Everything in the stack",
   },
+  process: {
+    eyebrow: "How I work",
+    title: "From idea to something people use",
+    description: "The ten steps I take on any project or task, from the first question to what happens after release.",
+    loop: "What I learn from real use shapes the next requirement, and the loop starts again.",
+    /** The pipeline-run framing: a CI/CD job board that runs through the steps. */
+    run: {
+      file: "how-i-work.yml",
+      queued: "Queued",
+      running: "Running",
+      passed: "Passed",
+      allPassed: (n: number) => `All ${n} steps passed`,
+      rerun: "Re-run",
+      proofLabel: "In practice",
+    },
+    phases: [
+      {
+        name: "Understand",
+        job: "understand",
+        steps: [
+          {
+            title: "Pin down the core need",
+            body: "Reduce the ask to its simplest form, ideally a single sentence.",
+            proof: { project: "Mother Lanka", text: "Let citizens shape urban plans online, in Sinhala, Tamil and English." },
+          },
+          {
+            title: "Review what exists",
+            body: "Wireframes, code, earlier decisions: start from what's already planned or built.",
+            proof: { project: "FMIS", text: "Started from the paper-based payment process it had to replace." },
+          },
+        ],
+      },
+      {
+        name: "Plan",
+        job: "plan",
+        steps: [
+          {
+            title: "Draft the outline",
+            body: "Functional and non-functional requirements, the use-case flow and the tech stack.",
+            proof: { project: "Mother Lanka", text: "Seven modules, from plan publishing to property bidding." },
+          },
+          {
+            title: "Check it against the ask",
+            body: "Read the outline back against the original need to catch gaps and wrong assumptions.",
+            proof: { project: "Bidding portal", text: "Held to the rule: bids stay sealed, the highest valid bid wins." },
+          },
+          {
+            title: "Revise until it fits",
+            body: "Amend and extend it until it genuinely covers the requirement.",
+            proof: { project: "PathwayAI", text: "Shaped into four steps: results, interests, recommendations, preferences." },
+          },
+        ],
+      },
+      {
+        name: "Build",
+        job: "build",
+        steps: [
+          {
+            title: "Build to the outline",
+            body: "Execution starts against the plan everyone agreed on.",
+            proof: { project: "Mother Lanka", text: "Next.js and Laravel, with role-based access and SMS alerts." },
+          },
+          {
+            title: "Test code and interface",
+            body: "Tests across the source code, and checks that the UI behaves as intended.",
+            proof: { project: "Mother Lanka", text: "Every module through QA; the seventh is in final QA now." },
+          },
+        ],
+      },
+      {
+        name: "Ship & learn",
+        job: "release",
+        steps: [
+          {
+            title: "User acceptance testing",
+            body: "Users review the product, and I adjust it to their feedback.",
+            proof: { project: "Mother Lanka", text: "Signed off module by module: 6 of 7 are live." },
+          },
+          {
+            title: "Release",
+            body: "Ship it to the world.",
+            proof: { project: "FMIS", text: "UDA's first online payment system, launched February 2026." },
+          },
+          {
+            title: "Learn from real use",
+            body: "See how people actually use it, and whether it has made their work better.",
+            proof: { project: "FMIS", text: "13,500+ residents and 1,400+ merchants off paper; LKR 10M+ in six months." },
+          },
+        ],
+      },
+    ],
+  },
   achievements: {
     eyebrow: "Achievements",
     title: "Certificates & recognition",

@@ -66,18 +66,27 @@ function activated() {
 }
 
 /**
+ * Roughly how long a line takes to say aloud, in ms: speech runs at about 14 characters a second,
+ * several times slower than her bubble types. A fallback for browsers that never fire `onend`.
+ */
+export function speechMs(line: string) {
+  return 400 + line.length * 72;
+}
+
+/**
  * Says a line aloud, cutting off whatever she was saying. Emoji are dropped, not read out. In
  * Arabic she stays silent when the device has no Arabic voice, rather than an English voice
- * mangling it; the bubble still shows the line.
+ * mangling it; the bubble still shows the line. Returns whether she's actually speaking;
+ * `onEnd` runs when she finishes (or is cut off).
  */
-export function speak(line: string, locale: Locale = "en") {
-  if (!supported() || !activated()) return;
+export function speak(line: string, locale: Locale = "en", onEnd?: () => void): boolean {
+  if (!supported() || !activated()) return false;
   const text = line.replace(/\p{Extended_Pictographic}|️/gu, "").trim();
-  if (!text) return;
+  if (!text) return false;
   const synth = window.speechSynthesis;
   synth.cancel();
   const voice = pickVoice(locale);
-  if (!voice && locale === "ar") return;
+  if (!voice && locale === "ar") return false;
   const utterance = new SpeechSynthesisUtterance(text);
   if (voice) {
     utterance.voice = voice;
@@ -85,7 +94,9 @@ export function speak(line: string, locale: Locale = "en") {
   }
   utterance.rate = locale === "ar" ? 0.98 : 1.02;
   utterance.pitch = 1.1;
+  if (onEnd) utterance.onend = utterance.onerror = () => onEnd();
   synth.speak(utterance);
+  return true;
 }
 
 /** Stops her mid-sentence (muting, hiding, or opening the chat). */

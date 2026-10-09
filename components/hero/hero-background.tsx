@@ -4,7 +4,8 @@ import { useEffect, useRef } from "react";
 import { NeuralField } from "@/components/hero/neural-field";
 import { cn } from "@/lib/utils";
 
-const GRID_MASK = "radial-gradient(ellipse 90% 100% at 50% 35%, black 55%, transparent 100%)";
+/** Fades the background out toward the hero's edges; wide enough that the corners keep some life. */
+const GRID_MASK = "radial-gradient(ellipse 100% 110% at 50% 40%, black 60%, transparent 100%)";
 /** Reveals the lit layers only in a circle around the pointer (position set via CSS vars). */
 const SPOT_MASK = "radial-gradient(220px circle at var(--spot-x) var(--spot-y), black, transparent 70%)";
 

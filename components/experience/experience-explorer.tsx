@@ -490,7 +490,7 @@ export function ExperienceExplorer() {
 
   return (
     <div className="flex flex-col gap-10">
-      <div className="project-grid grid gap-5 lg:grid-cols-[minmax(0,4fr)_minmax(0,8fr)] lg:gap-8">
+      <div className="project-grid grid grid-cols-[minmax(0,1fr)] gap-5 lg:grid-cols-[minmax(0,4fr)_minmax(0,8fr)] lg:gap-8">
         {/* The roles: a scrolling row on phones, a timeline rail on large screens. */}
         {/* Sticks beside the panel while a long role scrolls past. */}
         <div ref={railRef} className="relative lg:sticky lg:top-28 lg:self-start">

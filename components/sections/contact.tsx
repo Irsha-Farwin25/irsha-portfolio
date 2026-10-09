@@ -21,7 +21,7 @@ export async function Contact() {
         <div className="contact-aurora absolute right-[5%] bottom-0 size-[360px] rounded-full bg-chart-2/15 blur-3xl [animation-delay:-6s]" />
       </div>
 
-      <Container className="grid items-start gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:gap-14">
+      <Container className="grid grid-cols-[minmax(0,1fr)] items-start gap-10 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:gap-14">
         <Reveal>
           <div className="flex flex-col gap-5">
             {/* The words sit on a soft shadow (no visible shape) that dims the map behind them. */}

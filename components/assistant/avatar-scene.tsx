@@ -1,7 +1,7 @@
 "use client";
 
 import { Suspense, use, useEffect, useMemo, useRef, type RefObject } from "react";
-import { Canvas, useFrame } from "@react-three/fiber";
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader.js";
 import * as THREE from "three";
 
@@ -394,6 +394,59 @@ function AvatarModel({
   );
 }
 
+/** Frame rate while she's only idling (breathing, platform ticks turning). */
+const CALM_FPS = 30;
+/** How long after a wave, a swipe, a cursor move or a scroll she keeps rendering at full rate. */
+const ACTIVE_FOR_MS = 3500;
+
+/**
+ * Decides when the canvas draws (it runs with `frameloop="demand"`): every display frame while
+ * she's doing something (waving, swiping, chatting, riding, following the cursor or leaning into a
+ * scroll), CALM_FPS while she's only idling, and not at all while she's off screen or the tab is
+ * hidden. Rendering every frame forever kept the GPU busy and made the rest of the page stutter.
+ */
+function FrameDriver({ signals }: { signals: RefObject<AvatarSignals> }) {
+  const invalidate = useThree((state) => state.invalidate);
+  const canvas = useThree((state) => state.gl.domElement);
+
+  useEffect(() => {
+    let onScreen = true;
+    const io = new IntersectionObserver(([entry]) => {
+      onScreen = entry.isIntersecting;
+    });
+    io.observe(canvas);
+
+    let raf = 0;
+    let lastDraw = 0;
+    let activeUntil = 0;
+    let lastPointer = { x: NaN, y: NaN };
+    const loop = (now: number) => {
+      raf = requestAnimationFrame(loop);
+      if (!onScreen || document.hidden) return;
+
+      const sig = signals.current;
+      const moved = sig.pointer.x !== lastPointer.x || sig.pointer.y !== lastPointer.y;
+      lastPointer = { ...sig.pointer };
+      if (moved || sig.scrollVelocity !== 0 || sig.mode !== "idle" || sig.traveling) {
+        activeUntil = now + ACTIVE_FOR_MS;
+      }
+      const recentRequest = Math.max(sig.waveAt, sig.gestureAt) + ACTIVE_FOR_MS > now;
+
+      if (now < activeUntil || recentRequest || now - lastDraw >= 1000 / CALM_FPS - 2) {
+        lastDraw = now;
+        invalidate();
+      }
+    };
+    raf = requestAnimationFrame(loop);
+    return () => {
+      cancelAnimationFrame(raf);
+      io.disconnect();
+    };
+  }, [canvas, invalidate, signals]);
+
+  return null;
+}
+
 export default function AvatarScene({
   urls,
   signals,
@@ -408,7 +461,9 @@ export default function AvatarScene({
   return (
     <Canvas
       aria-hidden
-      dpr={[1, 1.75]}
+      frameloop="demand"
+      // Capped lower than a retina screen's 2×: she's small on screen, and pixels cost every frame.
+      dpr={[1, 1.25]}
       gl={{ alpha: true, antialias: true, powerPreference: "low-power" }}
       camera={{ fov: 30, near: 0.1, far: 20, position: [-0.05, 1.05, 3.6] }}
       onCreated={({ camera }) => camera.lookAt(-0.05, 0.8, 0)}
@@ -419,6 +474,7 @@ export default function AvatarScene({
       <directionalLight position={[-1.5, 1.8, -2]} intensity={1.3} color="#c7d2fe" />
       <directionalLight position={[1.5, 1.2, -2]} intensity={0.7} color="#c7d2fe" />
       <ambientLight intensity={1.1} />
+      <FrameDriver signals={signals} />
       <Suspense fallback={null}>
         <AvatarModel urls={urls} signals={signals} onReady={onReady} handRef={handRef} />
       </Suspense>

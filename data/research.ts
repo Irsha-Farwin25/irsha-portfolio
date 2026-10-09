@@ -30,28 +30,30 @@ export const publications: Publication[] = [
  */
 export const labExperiments: LabExperiment[] = [
   {
-    id: "cv-experiment-1",
-    title: "[Computer Vision Experiment]",
+    id: "snn-mnist",
+    title: "Spiking Neural Network for MNIST",
     status: "Experiment",
     description:
-      "[Describe a computer vision experiment — connects to your undergraduate digital image processing research.]",
-    technologies: ["Python", "Computer Vision"],
-    github: "#",
+      "An unsupervised spiking neural network that learns handwritten digits through STDP, never seeing a label while training. Reached 64% test accuracy on an MNIST sample (chance is 10%). Built in Brian2 after Diehl & Cook (2015), for MSc coursework (IT5092 Neuroscience & Neurocomputing).",
+    technologies: ["Python", "Brian2", "Spiking Neural Networks", "Computational Neuroscience"],
+    github: "https://github.com/Irsha-Farwin25/SNN_MNIST_Solution",
   },
   {
-    id: "llm-experiment-1",
-    title: "[LLM-Powered Application Prototype]",
-    status: "Prototype",
-    description: "[Describe an LLM-based application prototype you've built or are building.]",
-    technologies: ["Python", "LLM-based Applications"],
-    github: "#",
+    id: "pos-pcfg-news",
+    title: "POS Tagger & PCFG Parser for Sri Lankan News",
+    status: "Experiment",
+    description:
+      "A bigram HMM part-of-speech tagger and probabilistic grammar (PCFG) trained on the Penn Treebank, then tested on 150 hand-tagged sentences from Sri Lankan news. 89.8% tagging accuracy against the human tags (κ = 0.89) and full parses for 98.7% of sentences, with clustering to explain where 1989 financial-news training breaks down. MSc NLP coursework.",
+    technologies: ["Python", "NLTK", "Natural Language Processing", "scikit-learn"],
+    github: "https://github.com/Irsha-Farwin25/MS26903156_NLP_CW1",
   },
   {
-    id: "ml-experiment-1",
-    title: "[Machine Learning Coursework / Experiment]",
-    status: "In Development",
-    description: "[Describe an ML experiment from MSc coursework or independent study.]",
-    technologies: ["Python", "Machine Learning"],
-    github: "#",
+    id: "dbvae-face-detection",
+    title: "Debiasing Facial Detection with a DB-VAE",
+    status: "Experiment",
+    description:
+      "A face detector audited for bias across skin tone and gender. A debiasing variational autoencoder learns the latent structure of faces without labels and resamples rare faces during training, raising the worst-served group (darker-skinned men) from 0.47 to 0.68 mean face confidence, and darker-skinned women from 0.61 to 0.86. Based on MIT 6.S191; MSc Deep Learning coursework (IT5062).",
+    technologies: ["Python", "TensorFlow", "Computer Vision", "Deep Learning"],
+    github: "https://github.com/Irsha-Farwin25/DBVAE-Facial-Detection",
   },
 ];

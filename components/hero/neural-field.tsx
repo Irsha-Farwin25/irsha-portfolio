@@ -17,8 +17,19 @@ type Node = { layer: number; angle: number; glow: number; out: number[] };
 type Edge = { a: number; b: number };
 type Pulse = { edge: number; t: number; pass: number };
 
-/** Layer sizes: a wide middle like a real network's hidden layers, fewer on small screens. */
-const shapeFor = (width: number) => (width < 768 ? [4, 6, 7, 6, 3] : [5, 8, 10, 10, 8, 5, 3]);
+/**
+ * Layer sizes: a wide middle like a real network's hidden layers, fewer on small screens. On wide
+ * screens the later layers stay fairly full too, so the right side (beside the hero card) isn't bare.
+ */
+const shapeFor = (width: number) => (width < 768 ? [4, 6, 7, 6, 3] : [6, 9, 11, 11, 9, 7, 5]);
+
+/**
+ * Ring size, as a share of the hero's height: a base plus a bulge for the middle layers. Wide
+ * screens get bigger rings, so the network reaches up under the header and out to the sides instead
+ * of floating as a band through the middle. Phones keep the smaller rings: their hero is tall and
+ * narrow, and the text sits right over it.
+ */
+const ringsFor = (width: number) => (width < 768 ? { base: 0.15, bulge: 0.2 } : { base: 0.24, bulge: 0.2 });
 
 /** A fully connected feed-forward network: every node wired to every node in the next layer. */
 function build(sizes: number[]) {
@@ -122,15 +133,19 @@ export function NeuralField() {
 
     const project = (time: number) => {
       const L = net.layers.length;
-      const spanX = width * 0.47;
+      const wide = width >= 768;
+      const rings = ringsFor(width);
+      // Wide screens: out to the edges, and centred a little higher so the rings reach the top band.
+      const spanX = width * (wide ? 0.5 : 0.47);
       const cx = width / 2;
-      const cy = height * 0.46 + (pointer.on ? (pointer.y - height * 0.46) * 0.04 : 0);
+      const middle = height * (wide ? 0.42 : 0.46);
+      const cy = middle + (pointer.on ? (pointer.y - middle) * 0.04 : 0);
       const cos = Math.cos(yaw);
       const sin = Math.sin(yaw);
       net.nodes.forEach((node, i) => {
         const l = node.layer;
         // Rings bulge in the middle layers, like a network's hidden width.
-        const radius = height * (0.15 + 0.2 * Math.sin((Math.PI * (l + 0.5)) / L));
+        const radius = height * (rings.base + rings.bulge * Math.sin((Math.PI * (l + 0.5)) / L));
         const a = node.angle + time * (0.09 + 0.012 * l);
         const x = -spanX + (2 * spanX * l) / (L - 1);
         const y = Math.sin(a) * radius;

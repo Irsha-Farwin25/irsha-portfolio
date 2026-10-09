@@ -250,7 +250,13 @@ export function ContactMap() {
       className="absolute"
       style={{ left: here.x, top: here.y }}
     >
-      <div className={cn(visitor ? "ml-4 -translate-y-1/2" : "-ml-4 -translate-x-full translate-y-3")}>
+      {/* Left of the point on wider screens; on phones the point sits near the screen's left edge,
+          so the tag goes to its right instead of hanging off screen. */}
+      <div
+        className={cn(
+          visitor ? "ml-4 -translate-y-1/2" : "ml-4 translate-y-3 sm:-ml-4 sm:-translate-x-full",
+        )}
+      >
         <LiveStatus variant="tag" align={visitor ? "start" : "end"} />
       </div>
     </motion.div>

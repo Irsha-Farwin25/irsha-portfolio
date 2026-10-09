@@ -162,8 +162,9 @@ export function ContactComposer({ hasResume }: { hasResume: boolean }) {
         {/* Title bar, as on the skills and research panels: window dots, then the card's two sides
             as file tabs, and how ready the message is. Its bottom edge fills as the message comes
             together. */}
-        <div className="relative flex items-center gap-4 border-b border-border px-4 sm:px-5">
-          <span aria-hidden className="flex gap-1.5">
+        <div className="relative flex items-center gap-2 border-b border-border px-2 sm:gap-4 sm:px-5">
+          {/* The window dots are decoration; phones need the room for both tabs. */}
+          <span aria-hidden className="hidden gap-1.5 sm:flex">
             <span className="size-2.5 rounded-full bg-border" />
             <span className="size-2.5 rounded-full bg-border" />
             <span className="size-2.5 rounded-full bg-primary/60" />
@@ -182,7 +183,7 @@ export function ContactComposer({ hasResume }: { hasResume: boolean }) {
                   aria-controls={`contact-pane-${key}`}
                   onClick={() => setPane(key)}
                   className={cn(
-                    "relative inline-flex items-center gap-2 px-3 py-3.5 text-sm font-medium whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:ring-inset",
+                    "relative inline-flex items-center gap-2 px-2.5 py-3.5 text-sm font-medium whitespace-nowrap sm:px-3 transition-colors focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:ring-inset",
                     active ? "text-foreground" : "text-muted-foreground hover:text-foreground"
                   )}
                 >

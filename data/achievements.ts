@@ -18,7 +18,7 @@ export const certificates: Certificate[] = [
     category: "Course",
     date: "May 2026",
     narration:
-      "Machine learning from Stanford and DeepLearning.AI. The maths behind her AI.",
+      "Stanford machine learning. The maths behind her AI.",
     image: "/achievements/certificates/supervised-ml.jpeg",
     link: "https://coursera.org/verify/ZCRA7SZ4TELE",
   },
@@ -29,7 +29,7 @@ export const certificates: Certificate[] = [
     category: "Course",
     date: "Dec 2025",
     narration:
-      "Front-end, trained by Meta. React, done right.",
+      "Front-end, trained by Meta.",
     image: "/achievements/certificates/meta-frontend.jpeg",
     link: "https://coursera.org/verify/VMKD2KYDKU5V",
   },
@@ -41,7 +41,7 @@ export const certificates: Certificate[] = [
     date: "Dec 2022",
     description: "Passed the TestDome public MySQL skills test, ranking in the top 25%.",
     narration:
-      "Top 25% on TestDome's MySQL test. Fast, clean SQL.",
+      "Top 25% on TestDome's MySQL test.",
     image: "/achievements/certificates/testdome-mysql.jpg",
     link: "https://www.testdome.com/certificates/8c233f37407441ebbb3e1408cb02dedb",
   },
@@ -52,7 +52,7 @@ export const certificates: Certificate[] = [
     category: "Course",
     date: "Jul 2021",
     narration:
-      "Strategic leadership. She sees past the next sprint.",
+      "Strategic leadership, beyond the next sprint.",
     image: "/achievements/certificates/volunteering.jpg",
   },
   {
@@ -63,7 +63,7 @@ export const certificates: Certificate[] = [
     date: "Dec 2020",
     description: "Developer certification representing approximately 300 hours of coursework.",
     narration:
-      "300 hours of responsive design. Sharp on every screen.",
+      "300 hours of responsive design.",
     image: "/achievements/certificates/webdesigncourse.jpg",
     link: "https://freecodecamp.org/certification/fcc5323b5e0-6889-41b6-9b8c-18f984a00c83/responsive-web-design",
   },
@@ -74,7 +74,7 @@ export const certificates: Certificate[] = [
     category: "Course",
     date: "Jul 2020",
     narration:
-      "Flutter in 2020. One codebase, Android and iOS.",
+      "Flutter: one codebase, Android and iOS.",
     image: "/achievements/certificates/FlutterCourse.png",
   },
   {
@@ -84,7 +84,7 @@ export const certificates: Certificate[] = [
     category: "Course",
     date: "May 2020",
     narration:
-      "SQL since 2020. Where her data story began.",
+      "SQL in 2020, where her data story began.",
     image: "/achievements/certificates/SQLcourse.jpg",
   },
 
@@ -96,7 +96,7 @@ export const certificates: Certificate[] = [
     category: "Hackathon",
     date: "Jan 2021",
     description: "Certificate of participation.",
-    narration: "HackMoral 3.0. Idea to working code, against the clock.",
+    narration: "HackMoral 3.0: idea to code, against the clock.",
     image: "/achievements/certificates/hackathon2.jpg",
   },
   {
@@ -107,7 +107,7 @@ export const certificates: Certificate[] = [
     date: "Jun 2020",
     description: "Competed as a member of team CODE_RAIN.",
     narration:
-      "Code Rush 2020 with team CODE_RAIN. Sharp under pressure.",
+      "Code Rush 2020, with team CODE_RAIN.",
     image: "/achievements/certificates/hackathon.jpg",
   },
   {
@@ -118,7 +118,7 @@ export const certificates: Certificate[] = [
     date: "Apr 2020",
     description: "Participated as a member of team Ada.",
     narration:
-      "Lockdown 2020? She was hacking with team Ada.",
+      "Lockdown 2020? Hacking with team Ada.",
     image: "/achievements/certificates/homeAloneHackathon.jpg",
   },
 
@@ -132,7 +132,7 @@ export const certificates: Certificate[] = [
     description:
       "Presented the research paper “AI-Powered University and Career Guidance Platform for Equitable Access in Sri Lanka” at the International Conference on Open and Digital Education.",
     narration:
-      "Her own research, presented at ICODE 2026. AI for fairer futures.",
+      "Her own research, presented at ICODE 2026.",
     image: "/achievements/certificates/conference-certificate.png",
     link: "https://icode.bit.uom.lk/proceedings",
   },
@@ -145,7 +145,7 @@ export const certificates: Certificate[] = [
     description:
       "Certificate of participation for a workshop on machine learning and its practical applications in engineering.",
     narration:
-      "Two days of ML for real engineering. Always sharpening.",
+      "Two days of ML for engineers.",
     image: "/achievements/certificates/workshop.jpg",
   },
   {
@@ -156,7 +156,7 @@ export const certificates: Certificate[] = [
     date: "Feb 2022",
     description: "Participated in the largest online conference for the Python community in Sri Lanka.",
     narration:
-      "PyCon Sri Lanka 2022. Learning with the community.",
+      "PyCon Sri Lanka 2022, with the community.",
     image: "/achievements/certificates/pythonconference.jpg",
   },
 ];

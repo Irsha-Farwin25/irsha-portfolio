@@ -29,13 +29,14 @@ interface ChatContextValue {
    */
   setFlipAnimator: (fn: ((card: HTMLElement) => Promise<void>) | null) => void;
   /**
-   * Has the avatar say a line in her bubble (e.g. the certificate under the spotlight). A no-op
-   * while she can't speak; `canNarrate` says whether she can, so callers can show the text instead.
+   * Has the avatar say a line in her bubble (e.g. the certificate under the spotlight). Resolves
+   * once she has finished saying it. A no-op (resolving at once) while she can't speak;
+   * `canNarrate` says whether she can, so callers can show the text instead.
    */
-  narrate: (line: string) => void;
+  narrate: (line: string) => Promise<void>;
   canNarrate: boolean;
   /** The avatar registers how she speaks while she's on screen and not muted. */
-  setNarrator: (fn: ((line: string) => void) | null) => void;
+  setNarrator: (fn: ((line: string) => Promise<void>) | null) => void;
   /**
    * A message is on its way: the avatar rides over beside `card` and catches a paper plane
    * launched from `from` (screen coordinates). Resolves once it's caught; straight away when
@@ -186,11 +187,11 @@ export function ChatProvider({ children }: { children: ReactNode }) {
   }, []);
 
   // State rather than a ref: whether she can speak changes what the page renders.
-  const [narrator, setNarratorFn] = useState<((line: string) => void) | null>(null);
-  const setNarrator = useCallback((fn: ((line: string) => void) | null) => {
+  const [narrator, setNarratorFn] = useState<((line: string) => Promise<void>) | null>(null);
+  const setNarrator = useCallback((fn: ((line: string) => Promise<void>) | null) => {
     setNarratorFn(() => fn);
   }, []);
-  const narrate = useCallback((line: string) => narrator?.(line), [narrator]);
+  const narrate = useCallback((line: string) => narrator?.(line) ?? Promise.resolve(), [narrator]);
 
   const planeCatcher = useRef<PlaneCatcher | null>(null);
   const setPlaneCatcher = useCallback((fn: PlaneCatcher | null) => {

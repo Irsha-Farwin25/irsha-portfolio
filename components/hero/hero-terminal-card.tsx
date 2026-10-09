@@ -81,14 +81,16 @@ export async function HeroTerminalCard({ action, footer }: { action?: ReactNode;
               compiled
             </span>
           </div>
-          {/* A touch smaller on phones, so the longest lines (role, values) fit without scrolling. */}
-          <pre dir="ltr" className="overflow-x-auto text-left font-mono text-[10.5px] leading-relaxed text-neutral-300 sm:text-[12px]">
+          {/* Phones are too narrow for the longest lines (role, values), so there they wrap, with a
+              hanging indent so a wrapped value still reads as part of its key. */}
+          <pre
+            dir="ltr"
+            className="overflow-x-auto text-left font-mono text-[10.5px] leading-relaxed whitespace-pre-wrap text-neutral-300 sm:text-[12px] sm:whitespace-pre"
+          >
             <code>
               <span className="text-purple-400">const</span> irsha = {"{"}
-              {"\n"}
               {CONFIG.map(({ key, value }) => (
-                <span key={key}>
-                  {"  "}
+                <span key={key} className="block pl-[4ch] -indent-[2ch]">
                   <span className="text-neutral-300">{key}</span>:{" "}
                   {Array.isArray(value) ? (
                     <>
@@ -104,7 +106,7 @@ export async function HeroTerminalCard({ action, footer }: { action?: ReactNode;
                   ) : (
                     <span className="text-green-400">&quot;{value}&quot;</span>
                   )}
-                  ,{"\n"}
+                  ,
                 </span>
               ))}
               {"}"};

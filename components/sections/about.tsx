@@ -48,7 +48,7 @@ export async function About() {
         </Reveal>
 
         {/* The story beside what she cares about, starting level with each other. */}
-        <div className="grid gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:gap-12">
+        <div className="grid grid-cols-[minmax(0,1fr)] gap-10 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:gap-12">
           <Reveal delay={0.05}>
             <div className="flex flex-col gap-5">
               <p className="text-pretty text-lg leading-relaxed text-foreground/90 sm:text-xl">{highlight(lead)}</p>

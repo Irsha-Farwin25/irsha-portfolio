@@ -83,7 +83,7 @@ export function ProjectShowcase({ projects }: { projects: Project[] }) {
       initial={reduce ? false : "hidden"}
       whileInView="show"
       viewport={{ once: true, margin: "0px 0px -10% 0px" }}
-      className="project-grid grid items-start gap-6 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:gap-8"
+      className="project-grid grid grid-cols-[minmax(0,1fr)] items-start gap-6 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:gap-8"
     >
       {/* The preview: large screens only. */}
       <motion.div variants={panel} className="hidden lg:block">
